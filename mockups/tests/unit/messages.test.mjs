@@ -94,8 +94,7 @@ test('dictionaries are frozen', () => {
   assert.ok(Object.isFrozen(en));
 });
 
-test('glossary registers an empty array on window.MockGlossary', () => {
+test('glossary registers an array on window.MockGlossary (entries are added in task 3.1, see glossary.test.mjs)', () => {
   const w = load('data/glossary.js');
   assert.ok(Array.isArray(w.MockGlossary));
-  assert.equal(w.MockGlossary.length, 0);
 });

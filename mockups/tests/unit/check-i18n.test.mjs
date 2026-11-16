@@ -176,9 +176,10 @@ test('a glossary key missing from the dictionaries is reported in data/glossary.
   withFixture(
     ({ read, write }) => {
       const src = read('data/glossary.js');
+      // Prepend an entry to the registered (non-empty since task 3.1) glossary array.
       const next = src.replace(
-        'Object.freeze([])',
-        "Object.freeze([\n    Object.freeze({ key: 'rokuyo.nothing', category: 'rokuyo', policy: 'both' }),\n  ])",
+        'const glossary = Object.freeze([\n',
+        "const glossary = Object.freeze([\n    Object.freeze({ key: 'rokuyo.nothing', category: 'rokuyo', policy: 'both' }),\n",
       );
       assert.notEqual(next, src);
       write('data/glossary.js', next);

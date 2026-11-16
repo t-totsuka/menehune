@@ -143,7 +143,7 @@
   - _Requirements: 11.1, 11.5_
 
 - [ ] 3. 用語とサンプルデータ
-- [ ] 3.1 暦・天文用語の対訳と用語集を作る
+- [x] 3.1 暦・天文用語の対訳と用語集を作る
   - 次の用語を、日英の辞書に言語に依存しない識別名で登録する
     - 六曜、二十四節気、七十二候、雑節、旧暦の月名、月相
     - 天文現象の種類と題名、太陽・月・惑星の名前、星座名、主な恒星の名前
@@ -444,3 +444,4 @@
 - 2.2：check-tokens は、base.css と components.css の中のカスタムプロパティの定義にリテラルがあれば違反にする。`@media` に書けるのは --bp-*（600、960、1280px）と同じ px 値だけ。上限の指定は `(max-width: 959.98px)` ではなく、範囲構文の `(width < 960px)` で書く
 - 2.3：check-contrast は違反を標準出力に、組ごとの結果を標準エラーに出す。半透明の色は拒否する。意味を持つ色を surface-muted の上に置く部品を作るときは、contrast-pairs.json にその組を足す
 - 2.4：check-i18n は、assets/js と data で名前が key、keys、*Key、*Keys のプロパティにある文字列を、文言キーとして扱う。文言キー以外のものは、別の名前にする（例：`storageKey` ではなく `storageName`。キーボード処理は `{ key: 'Escape' }` のようなオブジェクトリテラルで書かない）。assets/js の中で実行時に組み立てるキーは検査されないので、できるだけ文字列リテラルで書く
+- 3.1：用語のキーの系統は rokuyo.*、sekki.*（英語は「意訳 (音写)」）、kou.k01〜k72、zassetsu.*、lunar-month.m01〜m12（閏月は lunar-month.leap）、moon-phase.*（朔・上弦・望・下弦と月齢だけ）、astro.event.*、astro.kind.*、astro.body.*、astro.constellation.*、astro.star.*、astro.riseset.*、holiday.*（英語は内閣府の名称）、location.*、weather.*、post.status.*、moderation.*。天体・星座・恒星の用語集の分類は astro-event。通報件数が 1 件のときは moderation.report-count-one を使う
