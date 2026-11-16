@@ -91,7 +91,7 @@
   - 完了状態：見本ページでツールバーからシナリオを切り替えると条件付きの要素の表示が変わり、警告のバナーが出る
   - _Requirements: 1.3, 2.3, 3.3, 3.4, 3.5_
 
-- [ ] 1.9 15 画面の共通骨格を作る
+- [x] 1.9 15 画面の共通骨格を作る
   - 15 画面のファイルを、共通の骨格で作る
     - ヘッダー、本文、フッターの配置
     - 画面 ID
@@ -440,3 +440,4 @@
 - 1.6：日付書式は date-short（11月16日(月) / Mon, Nov 16）、weekday（月 / Mon）、datetime（2026年11月16日(月) 18:42 / Mon, Nov 16, 2026, 18:42）、month-year（2026年11月 / November 2026）。オフセットのない日時は +09:00 として読む。辞書にないキーの例は `tests/fixtures/i18n-fixture.html` にだけ置き、製品のページには置かない
 - 1.7：ワイヤーフレームでは `[data-decor]` を `visibility: hidden` で隠す（場所は残る）。`[data-figure]` は中身を隠して枠と対角線を出し、枠は outline で描く。そのため `data-figure` は、フォーカスできない外側の要素に付ける（フォーカスできる要素に付けると、ワイヤーフレーム段階でフォーカス表示が消える）。新しい色の役割トークンを tokens.css に足したときは、wireframe.css にもグレーの値を足す
 - 1.8：レビューシェルは review.css と review-shell.js を最後に読み込む前提で動く。`[data-when-*][hidden]` を `display: none !important` にする規則は review.css にある。一覧への戻り先は、スクリプトの位置から mockups/index.html として解決する。ScenarioId や AuthState を増やしたときは、review-shell.js の一覧とラベルも更新する（mock-state.js の一覧の写しを持っている）
+- 1.9：15 画面は同じ骨格で、画面 ID と題名だけが違う。sample-data.js は、型を満たす空のデータを登録している（3.2〜3.4 で中身を入れる）。画面の E2E は、コンソールの警告も失敗として扱う

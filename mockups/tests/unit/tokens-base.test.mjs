@@ -136,7 +136,7 @@ test('base.css has a :focus-visible outline using --color-focus and the wrapping
   assert.match(css, /min-width\s*:\s*0/);
 });
 
-test('components.html links tokens.css then base.css, no scripts or external resources', () => {
+test('components.html links tokens.css then base.css, no external resources or module scripts', () => {
   const html = read('components.html');
   const t = html.indexOf('assets/css/tokens.css');
   const b = html.indexOf('assets/css/base.css');
