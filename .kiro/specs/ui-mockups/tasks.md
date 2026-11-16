@@ -61,7 +61,7 @@
   - 完了状態：見本ページを `?lang=en&theme=dark&stage=foo&scenario=weather-failed` で開くと、ルート要素が英語・ダーク・weather-failed になる。段階は hifi に戻り、警告が 1 件記録される
   - _Requirements: 3.3, 9.3, 9.4, 11.2_
 
-- [ ] 1.6 文言の適用と日付時刻の書式の仕組みを作る
+- [x] 1.6 文言の適用と日付時刻の書式の仕組みを作る
   - 辞書の登録と、キーからの文言の取得（引数の置換を含む）を作る。ページ内の文言指定・属性指定・日付指定も一括で適用する
   - 表示状態の変更の通知を受けて、選ばれた言語で再適用する
   - 辞書にないキーは見える印付きで表示し、コンソールに警告する
@@ -437,3 +437,4 @@
 - 1.3：辞書は `window.MockMessages.{ja,en}` に IIFE で登録し、凍結している。キーの系統は nav.*、toggle.lang.*、toggle.theme.*、button.*、screen.{id}.title、error.*、empty.*、status.*、common.count。英語の `common.count` は複数形を扱わないので、1 件の表示が要るときは別のキーを作る
 - 1.4：全画面の authStates の先頭は guest。admin を選べるのは管理画面だけ。投稿詳細の hidden-own は member のとき、hidden-other は guest か member のときに確認する（guest と hidden-own の組み合わせの表示は 5.3 で決める）
 - 1.5：ルート要素の言語は `lang` 属性（`data-lang` ではない）。保存キーは `mk.prefs`（stage/lang/theme）で、`update()` のたびに現在の値を保存する。画面ページのテストには、実画面ではないフィクスチャー（`tests/fixtures/`）を使う
+- 1.6：日付書式は date-short（11月16日(月) / Mon, Nov 16）、weekday（月 / Mon）、datetime（2026年11月16日(月) 18:42 / Mon, Nov 16, 2026, 18:42）、month-year（2026年11月 / November 2026）。オフセットのない日時は +09:00 として読む。辞書にないキーの例は `tests/fixtures/i18n-fixture.html` にだけ置き、製品のページには置かない

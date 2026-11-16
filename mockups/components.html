@@ -76,8 +76,28 @@
         <button type="button" data-variant="secondary">観察記録をまとめて下書きとして保存し、あとで公開する</button>
       </div>
     </section>
+    <section class="l-surface l-stack" aria-labelledby="sec-i18n">
+      <h2 id="sec-i18n">文言と日付の表記</h2>
+      <p class="text-muted">言語を切り替えると、次の文言・属性・日付が切り替わります（例：<a href="?lang=en">?lang=en</a>、<a href="?lang=ja">?lang=ja</a>）。</p>
+      <p>画面タイトル：<span id="i18n-title" data-i18n="screen.calendar-month.title">月のカレンダー</span></p>
+      <p>引数の置換：<span id="i18n-count" data-i18n="common.count" data-i18n-args='{"count":3}'>3件</span></p>
+      <div class="l-cluster">
+        <button id="i18n-close" type="button" data-i18n-attr="aria-label:button.close;title:button.close" aria-label="閉じる" title="閉じる">×</button>
+      </div>
+      <dl class="l-stack">
+        <div><dt><code>date-long</code></dt><dd><time id="i18n-date-long" datetime="2026-11-16" data-i18n-date="2026-11-16" data-date-style="date-long">2026年11月16日(月)</time></dd></div>
+        <div><dt><code>date-short</code></dt><dd><time id="i18n-date-short" datetime="2026-11-16" data-i18n-date="2026-11-16" data-date-style="date-short">11月16日(月)</time></dd></div>
+        <div><dt><code>weekday</code></dt><dd><time id="i18n-weekday" datetime="2026-11-16" data-i18n-date="2026-11-16" data-date-style="weekday">月</time></dd></div>
+        <div><dt><code>time</code></dt><dd><time id="i18n-time" datetime="2026-11-16T18:42:00+09:00" data-i18n-date="2026-11-16T18:42:00+09:00" data-date-style="time">18:42</time></dd></div>
+        <div><dt><code>datetime</code></dt><dd><time id="i18n-datetime" datetime="2026-11-16T18:42:00+09:00" data-i18n-date="2026-11-16T18:42:00+09:00" data-date-style="datetime">2026年11月16日(月) 18:42</time></dd></div>
+        <div><dt><code>month-year</code></dt><dd><time id="i18n-month-year" datetime="2026-11" data-i18n-date="2026-11-16" data-date-style="month-year">2026年11月</time></dd></div>
+      </dl>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="assets/js/mock-state.js"></script>
+  <script src="assets/i18n/messages.ja.js"></script>
+  <script src="assets/i18n/messages.en.js"></script>
+  <script src="assets/js/i18n.js"></script>
 </body>
 </html>
