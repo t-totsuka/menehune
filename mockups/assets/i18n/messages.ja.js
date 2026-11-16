@@ -54,6 +54,27 @@
     'event-list.result-count': '{count}件の天文現象',
     'event-list.result-count-one': '1件の天文現象',
 
+    // Star chart (task 4.4)
+    'sky.direction.n': '北',
+    'sky.direction.e': '東',
+    'sky.direction.s': '南',
+    'sky.direction.w': '西',
+    'sky.compass.n': '北',
+    'sky.compass.ne': '北東',
+    'sky.compass.e': '東',
+    'sky.compass.se': '南東',
+    'sky.compass.s': '南',
+    'sky.compass.sw': '南西',
+    'sky.compass.w': '西',
+    'sky.compass.nw': '北西',
+    'sky.caption': '{datetime}・{place}（上が北、左が東。空を見上げた向きの全天図）',
+    'sky.describe.intro': '{datetime}、{place}の星空。天頂を中心にした全天図で、上が北、左が東です。',
+    'sky.describe.body': '{direction}の空に{name}',
+    'sky.describe.bodies': '見えている天体：{list}。',
+    'sky.describe.star': '{name}（{direction}）',
+    'sky.describe.stars': '主な星：{list}。',
+    'sky.describe.constellations': '星座：{list}。',
+
     // Language and theme toggles
     'toggle.lang.label': '言語',
     'toggle.lang.ja': '日本語',

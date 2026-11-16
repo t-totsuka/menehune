@@ -54,6 +54,27 @@
     'event-list.result-count': '{count} astronomical events',
     'event-list.result-count-one': '1 astronomical event',
 
+    // Star chart (task 4.4)
+    'sky.direction.n': 'N',
+    'sky.direction.e': 'E',
+    'sky.direction.s': 'S',
+    'sky.direction.w': 'W',
+    'sky.compass.n': 'north',
+    'sky.compass.ne': 'northeast',
+    'sky.compass.e': 'east',
+    'sky.compass.se': 'southeast',
+    'sky.compass.s': 'south',
+    'sky.compass.sw': 'southwest',
+    'sky.compass.w': 'west',
+    'sky.compass.nw': 'northwest',
+    'sky.caption': '{datetime}, {place} (all-sky chart as seen looking up: north at the top, east on the left)',
+    'sky.describe.intro': 'The sky over {place} at {datetime}. All-sky chart centred on the zenith, with north at the top and east on the left.',
+    'sky.describe.body': '{name} in the {direction}',
+    'sky.describe.bodies': 'Visible bodies: {list}.',
+    'sky.describe.star': '{name} ({direction})',
+    'sky.describe.stars': 'Main stars: {list}.',
+    'sky.describe.constellations': 'Constellations: {list}.',
+
     // Language and theme toggles
     'toggle.lang.label': 'Language',
     'toggle.lang.ja': '日本語',

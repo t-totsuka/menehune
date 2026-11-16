@@ -849,3 +849,108 @@ mk-event-list {
   background-color: var(--color-surface);
   color: var(--color-error);
 }
+
+/* ---- mk-star-chart (task 4.4): SVG colors via classes that reference tokens ---- */
+mk-star-chart {
+  display: block;
+}
+
+.mk-star-chart {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+}
+
+/* Non-focusable wrapper that owns the box (data-figure). Square, never wider than its container
+   or the viewport height. */
+.mk-star-chart__figure {
+  inline-size: min(100%, 80vh);
+  max-inline-size: 100%;
+  aspect-ratio: 1;
+}
+
+.mk-star-chart__svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.mk-star-chart__caption {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.mk-star-chart__sky {
+  fill: var(--color-bg);
+  stroke: none;
+}
+
+.mk-star-chart__horizon {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 1.5;
+}
+
+.mk-star-chart__line {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.mk-star-chart__star {
+  fill: var(--color-text);
+}
+
+.mk-star-chart__star-label,
+.mk-star-chart__constellation,
+.mk-star-chart__body-label,
+.mk-star-chart__cardinal {
+  font-family: var(--font-body);
+}
+
+/* SVG label font sizes are viewBox user units set by sky.js (they scale with the chart and feed
+   its label layout), so no font-size is declared for them here. */
+
+/* Labels inside the sky disc get a halo in the sky color so crossing lines stay readable. */
+.mk-star-chart__star-label,
+.mk-star-chart__constellation,
+.mk-star-chart__body-label {
+  paint-order: stroke;
+  stroke: var(--color-bg);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.mk-star-chart__star-label {
+  fill: var(--color-text);
+}
+
+.mk-star-chart__constellation {
+  fill: var(--color-text-muted);
+  font-style: italic;
+}
+
+.mk-star-chart__cardinal {
+  fill: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-star-chart__body-label {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-star-chart__body[data-kind="moon"] .mk-star-chart__body-mark,
+.mk-star-chart__body[data-kind="moon"] .mk-star-chart__body-label {
+  fill: var(--color-event-moon);
+}
+
+.mk-star-chart__body[data-kind="planet"] .mk-star-chart__body-mark,
+.mk-star-chart__body[data-kind="planet"] .mk-star-chart__body-label {
+  fill: var(--color-event-planet);
+}
+
+.mk-star-chart__body[data-kind="sun"] .mk-star-chart__body-mark,
+.mk-star-chart__body[data-kind="sun"] .mk-star-chart__body-label {
+  fill: var(--color-event-sun);
+}

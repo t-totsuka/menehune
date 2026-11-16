@@ -258,6 +258,17 @@
       <h3 id="sec-event-list-kinds"><code>mk-event-list kinds="moon-phase planet-opposition"</code>（属性なしの期間は全期間）</h3>
       <mk-event-list id="events-kinds" kinds="moon-phase planet-opposition"></mk-event-list>
     </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-star-chart">
+      <h2 id="sec-star-chart">全天星図</h2>
+      <p class="text-muted">天頂を中心にした円形の全天図（立体射影）です。空を見上げた向きなので、上が北のとき左が東になります。恒星は明るいほど大きく描き、星座線・星座名・月・惑星を重ねます。地平線の下の天体（この例では太陽）は描きません。日時と地点の入力欄は星図の画面側に置きます。図は幅に合わせて伸縮し、画像を見られない利用者向けに、見えている主な天体と方角を説明する代替テキストを付けます。ワイヤーフレーム段階では占位表示になります（例：<a href="?stage=wireframe">?stage=wireframe</a>）。</p>
+
+      <h3 id="sec-star-chart-default"><code>mk-star-chart</code>（属性なし：2026年11月16日 20:00、東京都三鷹市付近）</h3>
+      <mk-star-chart id="star-chart-default"></mk-star-chart>
+
+      <h3 id="sec-star-chart-missing"><code>mk-star-chart sample="unknown"</code>（サンプルなし）</h3>
+      <mk-star-chart id="star-chart-missing" sample="unknown"></mk-star-chart>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="data/glossary.js"></script>
