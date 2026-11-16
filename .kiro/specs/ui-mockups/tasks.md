@@ -9,7 +9,7 @@
 > - カタログページ（6）は、辞書を読むだけで編集しない。文言は日本語の固定とし、ページ固有のスタイルはページ内に書く。
 
 - [ ] 1. 基盤：モック集の骨格と共通の仕組み
-- [ ] 1.1 モック集のプロジェクトの骨格と型定義を用意する
+- [x] 1.1 モック集のプロジェクトの骨格と型定義を用意する
   - リポジトリ直下にモック集のディレクトリを作る。パッケージ定義には、開発依存（TypeScript、Playwright）と、すべての開発者用スクリプトの入口を最初からそろえる（check:registry、check:tokens、check:contrast、check:i18n、それらをまとめた check、型検査、test:e2e）
   - JS の型検査の設定（checkJs、strict、出力なし）と、設計にある全データ・部品の契約の型定義を置く。対象は、画面レジストリ、辞書、用語集、サンプルデータ、表示状態、部品の属性、検査の設定
   - 依存パッケージとレビュー用スクリーンショットの保存先を Git の管理外にする。開き方・URL パラメータ・検査の実行方法を書いた README を置く
@@ -428,3 +428,8 @@
   - 完了状態：check、型検査、test:e2e のすべてがエラーなく終わる
   - _Depends: 8.3_
   - _Requirements: 1.1, 1.3, 3.1, 10.4, 11.1, 11.5, 11.6, 12.2, 13.1, 13.2_
+
+## Implementation Notes
+- テストの方針（実装開始時に親が補足）：純粋なロジック（表示状態の解決、文言の置換、日付の書式、検査スクリプトの判定）は、Node 標準のテストランナー（`node --test`、`mockups/tests/unit/*.test.mjs`）で検証する。classic script は `node:vm` に `window` 相当のグローバルを与えて読み込む。DOM やブラウザでの振る舞いは、7.1 より前でも Playwright のテスト（`mockups/tests/*.spec.mjs`）を追加してよい。その場合、Chromium のインストールを前倒ししてよい（7.1 は設定ファイルと共通の仕組みを担う）
+- 開発環境：Windows の Node v26、npm 12。Git のブランチは `feat/ui-mockups`
+- 1.1：部品の基底は types.d.ts で `MockElementContract`（interface）と `MockElementConstructor` として宣言されている。render/sample/t は public の契約なので、base.js で JSDoc の `@protected` を付けると `window.MockElement` の代入が型エラーになる。public のまま実装する（types.d.ts の「protected」というコメントは、4.1 で実態に合わせて直す）
