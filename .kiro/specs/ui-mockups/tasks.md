@@ -115,7 +115,7 @@
   - _Boundary: CheckScripts（check-registry）_
   - _Requirements: 1.1, 1.3, 3.1_
 
-- [ ] 2.2 (P) トークン以外の値の使用の検査を作る
+- [x] 2.2 (P) トークン以外の値の使用の検査を作る
   - 製品の基本スタイルと部品のスタイルで、色のリテラルと 0 以外の寸法リテラルを検出する
   - トークンの定義と、ブレークポイントの値と一致するメディアクエリは対象外とする
   - 完了状態：現在のスタイルでは違反 0 件。部品のスタイルに色を直接書くと違反として報告される
@@ -441,3 +441,4 @@
 - 1.7：ワイヤーフレームでは `[data-decor]` を `visibility: hidden` で隠す（場所は残る）。`[data-figure]` は中身を隠して枠と対角線を出し、枠は outline で描く。そのため `data-figure` は、フォーカスできない外側の要素に付ける（フォーカスできる要素に付けると、ワイヤーフレーム段階でフォーカス表示が消える）。新しい色の役割トークンを tokens.css に足したときは、wireframe.css にもグレーの値を足す
 - 1.8：レビューシェルは review.css と review-shell.js を最後に読み込む前提で動く。`[data-when-*][hidden]` を `display: none !important` にする規則は review.css にある。一覧への戻り先は、スクリプトの位置から mockups/index.html として解決する。ScenarioId や AuthState を増やしたときは、review-shell.js の一覧とラベルも更新する（mock-state.js の一覧の写しを持っている）
 - 1.9：15 画面は同じ骨格で、画面 ID と題名だけが違う。sample-data.js は、型を満たす空のデータを登録している（3.2〜3.4 で中身を入れる）。画面の E2E は、コンソールの警告も失敗として扱う
+- 2.2：check-tokens は、base.css と components.css の中のカスタムプロパティの定義にリテラルがあれば違反にする。`@media` に書けるのは --bp-*（600、960、1280px）と同じ px 値だけ。上限の指定は `(max-width: 959.98px)` ではなく、範囲構文の `(width < 960px)` で書く
