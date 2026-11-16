@@ -1,0 +1,255 @@
+/*
+ * Base styles: reset, typography, layout basics, forms, focus, wrapping rule.
+ * Values come from tokens.css only (no color or length literals other than 0).
+ *
+ * Wrapping rule (11.6), followed by every later component:
+ *   - Elements holding text never get a fixed width or height.
+ *   - Text may break anywhere (overflow-wrap: anywhere) and boxes may shrink (min-width: 0).
+ *   - Buttons and badges may wrap onto a second line instead of being truncated.
+ */
+
+/* ---- Reset ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ul,
+ol {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding-inline-start: var(--space-lg);
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---- Typography ---- */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-break: strict;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+h1 { font-size: var(--font-size-2xl); }
+h2 { font-size: var(--font-size-xl); }
+h3 { font-size: var(--font-size-lg); }
+h4,
+h5,
+h6 { font-size: var(--font-size-md); }
+
+small { font-size: var(--font-size-sm); }
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--border-width-thin);
+  text-underline-offset: var(--space-2xs);
+}
+
+a:hover {
+  text-decoration-thickness: var(--border-width-thick);
+}
+
+hr {
+  border: 0;
+  border-block-start: var(--border-default);
+  margin-block: var(--space-lg);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+/* ---- Layout basics ---- */
+.l-container {
+  max-width: var(--bp-lg);
+  margin-inline: auto;
+  padding-inline: var(--space-md);
+}
+
+.l-stack {
+  display: grid;
+  gap: var(--space-md);
+  align-content: start;
+}
+
+.l-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.l-surface {
+  background-color: var(--color-surface);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-md);
+}
+
+@media (min-width: 600px) {
+  .l-container {
+    padding-inline: var(--space-lg);
+  }
+}
+
+@media (min-width: 960px) {
+  h1 { font-size: var(--font-size-3xl); }
+  h2 { font-size: var(--font-size-2xl); }
+}
+
+/* ---- Buttons ---- */
+button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-md);
+  border: var(--border-width-thin) solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  font: inherit;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-control);
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  cursor: pointer;
+}
+
+button[data-variant="secondary"],
+.button[data-variant="secondary"] {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  background-color: var(--color-surface-muted);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+/* ---- Forms ---- */
+input,
+select,
+textarea {
+  font: inherit;
+  line-height: var(--line-height-control);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: var(--border-width-thin) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-sm);
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--color-accent);
+  padding: 0;
+}
+
+label {
+  font-weight: var(--font-weight-medium);
+}
+
+fieldset {
+  margin: 0;
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+legend {
+  padding-inline: var(--space-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Field: label above its control; the grid stretches the control to the available width. */
+.field {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.field-hint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.field-error {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
+[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+/* ---- Keyboard focus (13.5): visible in both themes ---- */
+:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-focus);
+  outline-offset: var(--space-focus-offset);
+}

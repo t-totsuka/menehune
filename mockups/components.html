@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>部品ギャラリー（見本ページ）</title>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+</head>
+<body>
+  <main class="l-container l-stack">
+    <header class="l-stack">
+      <h1>部品ギャラリー</h1>
+      <p class="text-muted">基本スタイルと部品の見本ページです。後続のタスクで部品と仕組みを追加します。</p>
+      <p><a href="index.html">一覧ページへ戻る</a></p>
+    </header>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-typography">
+      <h2 id="sec-typography">文字</h2>
+      <h3>見出し 3（明朝系）</h3>
+      <h4>見出し 4</h4>
+      <p>本文はシステムフォントのゴシック体で表示します。夜空の暦と天文現象を記録し、観察の投稿を共有するための画面群です。<a href="#sec-forms">フォームの見本へ移動</a>します。</p>
+      <p><small>注記：表示している値はすべて架空のサンプルです。</small></p>
+    </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-buttons">
+      <h2 id="sec-buttons">ボタン</h2>
+      <div class="l-cluster">
+        <button type="button">保存する</button>
+        <button type="button" data-variant="secondary">キャンセル</button>
+        <button type="button" disabled>送信できません</button>
+        <a class="button" href="#sec-buttons">リンクのボタン</a>
+      </div>
+    </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-forms">
+      <h2 id="sec-forms">フォーム部品</h2>
+      <form class="l-stack" action="#">
+        <div class="field">
+          <label for="f-title">タイトル</label>
+          <input id="f-title" type="text" value="ペルセウス座流星群の観察">
+          <span class="field-hint">60 文字以内で入力します。</span>
+        </div>
+        <div class="field">
+          <label for="f-date">対象日</label>
+          <input id="f-date" type="date" value="2026-08-12">
+        </div>
+        <div class="field">
+          <label for="f-visibility">公開範囲</label>
+          <select id="f-visibility">
+            <option>公開</option>
+            <option>ログインユーザのみ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-body">本文</label>
+          <textarea id="f-body" rows="3" aria-invalid="true" aria-describedby="f-body-error"></textarea>
+          <span id="f-body-error" class="field-error">本文を入力してください。</span>
+        </div>
+        <fieldset class="l-stack">
+          <legend>通知</legend>
+          <label><input type="checkbox" checked> コメントが付いたら通知する</label>
+          <label><input type="radio" name="f-freq" checked> すぐに</label>
+          <label><input type="radio" name="f-freq"> 1 日 1 回まとめて</label>
+        </fieldset>
+      </form>
+    </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-wrap">
+      <h2 id="sec-wrap">長い文言の折り返し</h2>
+      <p>Supercalifragilisticexpialidocious-observation-log-entry-without-any-spaces-https-example-invalid-path-that-must-wrap-anywhere</p>
+      <p>Observation report of the total lunar eclipse seen from the northern prefecture, including weather notes and comments from other members.</p>
+      <div class="l-cluster">
+        <button type="button">Mark this observation as reviewed and notify every follower</button>
+        <button type="button" data-variant="secondary">観察記録をまとめて下書きとして保存し、あとで公開する</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -16,7 +16,7 @@
   - 完了状態：依存をインストールした状態で型検査がエラーなく終わり、パッケージ定義に上記のスクリプトがすべてある
   - _Requirements: 2.1_
 
-- [ ] 1.2 デザイントークン、基本スタイル、見本ページを作る
+- [x] 1.2 デザイントークン、基本スタイル、見本ページを作る
   - 命名規約に従い、次のトークンを定義する。色（素材の色と役割の色の 2 層）、書体、文字サイズ、太さ、行間、余白、角丸、影、境界線、ブレークポイント
   - 祝日、日曜、土曜、六曜、天文現象の種類、投稿の状態、管理帯、予定の表記など、意味を持つ色を役割の名前で定義する
   - ライトの値と、ダークの値（外観設定用と手動切替用の 2 ブロックに同じ値）を、夜空・天文トーンの初期案で定義する
@@ -433,3 +433,4 @@
 - テストの方針（実装開始時に親が補足）：純粋なロジック（表示状態の解決、文言の置換、日付の書式、検査スクリプトの判定）は、Node 標準のテストランナー（`node --test`、`mockups/tests/unit/*.test.mjs`）で検証する。classic script は `node:vm` に `window` 相当のグローバルを与えて読み込む。DOM やブラウザでの振る舞いは、7.1 より前でも Playwright のテスト（`mockups/tests/*.spec.mjs`）を追加してよい。その場合、Chromium のインストールを前倒ししてよい（7.1 は設定ファイルと共通の仕組みを担う）
 - 開発環境：Windows の Node v26、npm 12。Git のブランチは `feat/ui-mockups`
 - 1.1：部品の基底は types.d.ts で `MockElementContract`（interface）と `MockElementConstructor` として宣言されている。render/sample/t は public の契約なので、base.js で JSDoc の `@protected` を付けると `window.MockElement` の代入が型エラーになる。public のまま実装する（types.d.ts の「protected」というコメントは、4.1 で実態に合わせて直す）
+- 1.2：E2E には Chromium が必要（`npx playwright install chromium` は実行済み）。`mockups/playwright.config.mjs` は testMatch を `tests/*.spec.mjs` に絞った最小構成で、7.1 で最終形にする。check-tokens（2.2）は `%` を検出対象にしない（base.css の `max-width: 100%` を許容する）。全要素に `min-width: 0` のリセットがあるので、縮んでほしくない部品は明示的に最小サイズを指定する
