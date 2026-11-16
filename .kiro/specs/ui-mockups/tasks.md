@@ -40,7 +40,7 @@
   - 完了状態：ブラウザのコンソールで、日英の辞書の両方から 15 画面のタイトルのキーを引け、2 言語のキーの集合が一致する
   - _Requirements: 11.1, 11.5_
 
-- [ ] 1.4 画面レジストリを作る
+- [x] 1.4 画面レジストリを作る
   - 15 画面それぞれについて、画面 ID、タイトルの文言キー（1.3 で登録したもの）、閲覧権限、切り替えられるログイン状態、許可するシナリオ（先頭は default）を登録する
   - シナリオは設計の初期値に従う
     - 月カレンダー：予定の祝日
@@ -435,3 +435,4 @@
 - 1.1：部品の基底は types.d.ts で `MockElementContract`（interface）と `MockElementConstructor` として宣言されている。render/sample/t は public の契約なので、base.js で JSDoc の `@protected` を付けると `window.MockElement` の代入が型エラーになる。public のまま実装する（types.d.ts の「protected」というコメントは、4.1 で実態に合わせて直す）
 - 1.2：E2E には Chromium が必要（`npx playwright install chromium` は実行済み）。`mockups/playwright.config.mjs` は testMatch を `tests/*.spec.mjs` に絞った最小構成で、7.1 で最終形にする。check-tokens（2.2）は `%` を検出対象にしない（base.css の `max-width: 100%` を許容する）。全要素に `min-width: 0` のリセットがあるので、縮んでほしくない部品は明示的に最小サイズを指定する
 - 1.3：辞書は `window.MockMessages.{ja,en}` に IIFE で登録し、凍結している。キーの系統は nav.*、toggle.lang.*、toggle.theme.*、button.*、screen.{id}.title、error.*、empty.*、status.*、common.count。英語の `common.count` は複数形を扱わないので、1 件の表示が要るときは別のキーを作る
+- 1.4：全画面の authStates の先頭は guest。admin を選べるのは管理画面だけ。投稿詳細の hidden-own は member のとき、hidden-other は guest か member のときに確認する（guest と hidden-own の組み合わせの表示は 5.3 で決める）
