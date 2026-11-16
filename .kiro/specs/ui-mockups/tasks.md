@@ -201,7 +201,7 @@
   - 完了状態：見本ページで、ヘッダーの言語切替とテーマ切替が実際に動き、外観設定に関係なく選んだテーマになる。トークンと辞書の検査が通る
   - _Requirements: 2.4, 3.2, 3.6, 6.5, 6.8, 9.4, 11.2, 13.3_
 
-- [ ] 4.2 月カレンダーと日付のセルを作る
+- [x] 4.2 月カレンダーと日付のセルを作る
   - 日付のセルに、日付、曜日、祝日（予定の表記つき）、六曜、旧暦、月齢を表示する。節気・候・雑節・天文現象の印は、記号と文字の併用で表示する
   - PC 幅は 7 列の格子にする。スマートフォン幅は、日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネルにする
   - 見本ページに追加する
@@ -449,3 +449,4 @@
 - 3.3：投稿詳細のシナリオと投稿の対応は postDetailScenarios にある（default p-101、private-blocked p-104（guest で見る）、hidden-own p-108、hidden-other p-109、deleted-comment p-120、no-location p-106、weather-failed p-107）。ログイン時の自分は viewerIds（member は u-hoshizora）。削除済みのコメントは本文が空で、moderation.comment-deleted を表示する。作者が削除した投稿 p-111 は本文を残しているが、画面で表示するかは 5.x で決める。地域名と表示名は日本語の自由記述で、英語表示でも日本語のまま
 - 3.4：星図のサンプルは 2026-11-16 20:00 JST の東京都三鷹市付近（方位は北から時計回り、度）。太陽は高度 -41.7 で bodies に含まれるので、mk-star-chart は高度 0 未満の天体を空の円の中に描かない。辞書にキーのない恒星は nameKey を持たない（名前を出さない）
 - 4.1：部品は MockElement を継承し、this.el()、this.t()、this.sample()、this.missingSample(id)、this.refresh() を使う。static observedAttributes に挙げた属性が変わると再描画される。ヘッダーのリンクは、スクリプトの位置から mockups/screens/*.html として解決する。移動先の authStates が許す場合は ?auth を引き継ぐ。mk-guest-notice は常に表示されるので、出し分けはページ側の data-when-auth で行う。投稿の状態の文言は post.status.*（公開中／ログインユーザのみ／一時非表示／削除済み）を使う。site.name（星と暦）は仮の名前
+- 4.2：mk-month-calendar は 600px 未満で、小さな格子、凡例、要約パネル（h3 に完全な日付、aria-live の要素は保持）に切り替わる。要約パネルの見出しは h3 固定なので、画面（5.x）で見出しの階層を確認する。日付のセルは day-detail.html?date=YYYY-MM-DD にリンクするが、day-detail 画面はまだ ?date を読まない（5.1 で対応する）

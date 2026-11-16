@@ -30,6 +30,17 @@
     'admin-band.label': 'Administrators only',
     'admin-band.description': 'Only administrators can view this screen.',
 
+    // Almanac components (task 4.2)
+    'calendar.grid-label': 'Calendar for {month}',
+    'calendar.summary-label': 'Almanac for the selected day',
+    'calendar.open-day-detail': 'View details for this day',
+    'calendar.holiday-short': 'Hol.',
+    'calendar.today': 'Today',
+    'calendar.legend.label': 'Legend',
+    'calendar.legend.holiday': 'Holiday',
+    'calendar.legend.provisional': 'Provisional holiday (not yet confirmed)',
+    'calendar.legend.event': 'Astronomical event',
+
     // Language and theme toggles
     'toggle.lang.label': 'Language',
     'toggle.lang.ja': '日本語',

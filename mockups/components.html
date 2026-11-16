@@ -151,6 +151,45 @@
       <h3 id="sec-shell-admin"><code>mk-admin-band</code></h3>
       <mk-admin-band id="admin-band-sample"></mk-admin-band>
     </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-almanac">
+      <h2 id="sec-almanac">月カレンダーと日付のセル</h2>
+      <p class="text-muted">PC 幅（600px 以上）は 7 列の格子、スマートフォン幅（600px 未満）は日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネルになります。小さな格子では、日をタップするか矢印キー（前後の日・前後の週）と Home・End（週の始めと終わり）で選びます。翌年以降の祝日には「予定」の表記が付きます。</p>
+
+      <h3 id="sec-almanac-2026-11"><code>mk-month-calendar month="2026-11"</code></h3>
+      <mk-month-calendar id="cal-2026-11" month="2026-11"></mk-month-calendar>
+
+      <h3 id="sec-almanac-2027-03"><code>mk-month-calendar month="2027-03"</code>（予定の祝日を含む）</h3>
+      <mk-month-calendar id="cal-2027-03" month="2027-03"></mk-month-calendar>
+
+      <h3 id="sec-almanac-cells"><code>mk-day-cell</code></h3>
+      <div class="mk-cell-samples">
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-07"</code>（立冬・候の始まり）</p>
+          <mk-day-cell id="cell-2026-11-07" date="2026-11-07"></mk-day-cell>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2027-03-21"</code>（予定の祝日）</p>
+          <mk-day-cell id="cell-2027-03-21" date="2027-03-21"></mk-day-cell>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-20"</code>（天文現象）</p>
+          <mk-day-cell id="cell-2026-11-20" date="2026-11-20"></mk-day-cell>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2025-07-25"</code>（閏月）</p>
+          <mk-day-cell id="cell-leap" date="2025-07-25"></mk-day-cell>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2027-03-22" compact</code></p>
+          <mk-day-cell id="cell-compact-2027-03-22" date="2027-03-22" compact></mk-day-cell>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-12-31"</code>（サンプルなし）</p>
+          <mk-day-cell id="cell-missing" date="2026-12-31"></mk-day-cell>
+        </div>
+      </div>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="data/glossary.js"></script>

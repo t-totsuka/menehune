@@ -30,6 +30,17 @@
     'admin-band.label': '管理者専用',
     'admin-band.description': 'この画面は管理者だけが表示できます。',
 
+    // Almanac components (task 4.2)
+    'calendar.grid-label': '{month}のカレンダー',
+    'calendar.summary-label': '選んだ日の暦',
+    'calendar.open-day-detail': 'この日の詳細を見る',
+    'calendar.holiday-short': '祝',
+    'calendar.today': '今日',
+    'calendar.legend.label': '記号の見かた',
+    'calendar.legend.holiday': '祝日',
+    'calendar.legend.provisional': '予定の祝日（まだ確定していない）',
+    'calendar.legend.event': '天文現象',
+
     // Language and theme toggles
     'toggle.lang.label': '言語',
     'toggle.lang.ja': '日本語',
