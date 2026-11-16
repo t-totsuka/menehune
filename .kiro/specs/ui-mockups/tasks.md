@@ -166,7 +166,7 @@
   - 完了状態：型検査と辞書の検査が通り、2 か月分の全日と天文現象の ID が参照できる
   - _Requirements: 2.5, 4.6_
 
-- [ ] 3.3 投稿・ユーザ・通報・位置・天気のサンプルデータを作る
+- [x] 3.3 投稿・ユーザ・通報・位置・天気のサンプルデータを作る
   - 架空のユーザを用意する（一般ユーザ複数、管理者 1 人）
   - 投稿を用意する
     - 公開範囲：未ログイン公開と非公開
@@ -446,3 +446,4 @@
 - 2.4：check-i18n は、assets/js と data で名前が key、keys、*Key、*Keys のプロパティにある文字列を、文言キーとして扱う。文言キー以外のものは、別の名前にする（例：`storageKey` ではなく `storageName`。キーボード処理は `{ key: 'Escape' }` のようなオブジェクトリテラルで書かない）。assets/js の中で実行時に組み立てるキーは検査されないので、できるだけ文字列リテラルで書く
 - 3.1：用語のキーの系統は rokuyo.*、sekki.*（英語は「意訳 (音写)」）、kou.k01〜k72、zassetsu.*、lunar-month.m01〜m12（閏月は lunar-month.leap）、moon-phase.*（朔・上弦・望・下弦と月齢だけ）、astro.event.*、astro.kind.*、astro.body.*、astro.constellation.*、astro.star.*、astro.riseset.*、holiday.*（英語は内閣府の名称）、location.*、weather.*、post.status.*、moderation.*。天体・星座・恒星の用語集の分類は astro-event。通報件数が 1 件のときは moderation.report-count-one を使う
 - 3.2：AlmanacDay には riseSet（その日の日月の出没）がある（design.md も更新済み）。almanac の先頭は閏月の例の 2025-07-25 の 1 行なので、カレンダーは月で絞り込んで使う。天文現象（events）は 2026-11 と 2026-12 だけで、各日の eventIds から引く。bodies は天体の ID（astro.body.{id} に対応する）
+- 3.3：投稿詳細のシナリオと投稿の対応は postDetailScenarios にある（default p-101、private-blocked p-104（guest で見る）、hidden-own p-108、hidden-other p-109、deleted-comment p-120、no-location p-106、weather-failed p-107）。ログイン時の自分は viewerIds（member は u-hoshizora）。削除済みのコメントは本文が空で、moderation.comment-deleted を表示する。作者が削除した投稿 p-111 は本文を残しているが、画面で表示するかは 5.x で決める。地域名と表示名は日本語の自由記述で、英語表示でも日本語のまま

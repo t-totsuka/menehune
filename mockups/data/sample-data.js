@@ -1,6 +1,7 @@
 // Fictional sample data (users, posts, comment trees, almanac values, astronomical events, star
 // chart, weather). Classic script that registers into window.MockSample.
-// Task 3.2 filled in the almanac and astronomical events; tasks 3.3-3.4 fill in the rest.
+// Task 3.2 filled in the almanac and astronomical events; task 3.3 the users, posts, comments,
+// likes, reports, locations and weather; task 3.4 fills in the star chart.
 //
 // All almanac / astronomy values are illustrative approximations for the mockups and have NOT
 // been verified (design.md: SampleData "値の正確さは保証しない"). They are kept internally
@@ -139,6 +140,260 @@
     { date: '2027-03-31', rokuyoKey: 'rokuyo.sensho', lunar: { month: 2, day: 24, leap: false }, moonAge: 23.1, kouKey: 'kou.k12', zassetsuKeys: [], eventIds: EV('2027-03-31'), riseSet: { sunrise: '2027-03-31T05:30+09:00', sunset: '2027-03-31T18:02+09:00', moonrise: '2027-03-31T00:30+09:00', moonset: '2027-03-31T12:40+09:00' } },
   ];
 
+  // ---------------------------------------------------------------------------------------------
+  // Users, posts, comments, likes, reports, locations and weather (task 3.3).
+  // - Every user is a fictional handle; bodies avoid anything that identifies a real person or
+  //   place. regionLabel is "都道府県 市区町村" at most (for exact / fuzzed-1km too; the map frame
+  //   shows the precision), "都道府県" for prefecture and "日本" for country.
+  // - status vs guestVisible: 'public' always has guestVisible true and 'members-only' always has
+  //   guestVisible false (the badge for a post hidden from guests). 'hidden' and 'deleted' keep
+  //   the visibility the author chose.
+  // - location undefined -> no map, rise/set or weather (no-location). location present and
+  //   weather undefined -> the weather could not be fetched (weather-failed). weather never
+  //   exists without a location.
+  // - mapFrame by precision: exact -> street + pin; fuzzed-1km -> district + 1 km radius, no pin;
+  //   municipality -> city; prefecture -> prefecture; country -> country.
+  // - location.riseSet is for the target date at the post's point (the almanac's sample point
+  //   shifted by a minute or two).
+  // - Deleted comments keep their place and replies in the tree but have an empty body.
+  // - "me" is viewerIds.member when logged in as member and viewerIds.admin as admin
+  //   (LikeState.likedByMe, hidden-own, my-posts).
+  // - postDetailScenarios lists the post id that post-detail shows for each of its scenarios.
+  // ---------------------------------------------------------------------------------------------
+
+  /** @type {SampleUser[]} */
+  const users = [
+    { id: 'u-hoshizora', displayName: 'ほしぞら散歩', isAdmin: false },
+    { id: 'u-tsukimi', displayName: 'つきみ団子', isAdmin: false },
+    { id: 'u-koyomi', displayName: 'こよみ帖', isAdmin: false },
+    { id: 'u-orion', displayName: 'orion_walker', isAdmin: false },
+    { id: 'u-kumo', displayName: 'くもまにあ', isAdmin: false },
+    { id: 'u-admin', displayName: '運営チーム', isAdmin: true },
+  ];
+
+  /** @type {Record<LocationPrecision, MapFrame>} */
+  const MAP = {
+    exact: { zoom: 'street', showPin: true },
+    'fuzzed-1km': { zoom: 'district', showPin: false, showRadiusKm: 1 },
+    municipality: { zoom: 'city', showPin: false },
+    prefecture: { zoom: 'prefecture', showPin: false },
+    country: { zoom: 'country', showPin: false },
+  };
+
+  /**
+   * A post location; the map frame follows the precision.
+   * @param {LocationPrecision} precision
+   * @param {string} regionLabel
+   * @param {RiseSet} riseSet
+   * @returns {PostLocation}
+   */
+  const loc = (precision, regionLabel, riseSet) => ({ precision, regionLabel, mapFrame: { ...MAP[precision] }, riseSet });
+
+  /**
+   * A comment.
+   * @param {string} id
+   * @param {string} authorId
+   * @param {IsoDateTime} at
+   * @param {string} body
+   * @param {CommentNode[]} [children]
+   * @returns {CommentNode}
+   */
+  const cm = (id, authorId, at, body, children = []) => ({ id, authorId, body, at, deleted: false, children });
+
+  /**
+   * A deleted comment: it keeps its place and its replies, but not its body.
+   * @param {string} id
+   * @param {string} authorId
+   * @param {IsoDateTime} at
+   * @param {CommentNode[]} [children]
+   * @returns {CommentNode}
+   */
+  const gone = (id, authorId, at, children = []) => ({ id, authorId, body: '', at, deleted: true, children });
+
+  /** @type {SamplePost[]} */
+  const posts = [
+    {
+      // default: public, municipality, weather, short comment tree, liked by me
+      id: 'p-101', authorId: 'u-tsukimi', targetDate: '2026-11-17', postedAt: '2026-11-16T18:42+09:00',
+      body: '明日は上弦の月。夕方、南の空の高いところに半月が見えるはずです。仕事帰りに少し空を見上げてみませんか。',
+      status: 'public', guestVisible: true,
+      location: loc('municipality', '東京都 武蔵野市', { sunrise: '2026-11-17T06:16+09:00', sunset: '2026-11-17T16:37+09:00', moonrise: '2026-11-17T12:51+09:00', moonset: '2026-11-17T00:20+09:00' }),
+      weather: { conditionKey: 'weather.condition.clear', temperatureC: 11.8, humidityPct: 58, windMps: 2.1, observedAt: '2026-11-16T18:30+09:00' },
+      likes: { count: 12, likedByMe: true },
+      comments: [
+        cm('c-101-1', 'u-hoshizora', '2026-11-16T19:05+09:00', '半月の欠け際のクレーター、双眼鏡でも見えますね。', [
+          cm('c-101-2', 'u-tsukimi', '2026-11-16T19:20+09:00', 'ぜひ！月の出は昼過ぎなので、日の入り直後から見られます。'),
+        ]),
+        cm('c-101-3', 'u-kumo', '2026-11-16T20:02+09:00', '明日の夕方は雲が少なそうです。'),
+      ],
+    },
+    {
+      // exact precision; the public post for today
+      id: 'p-102', authorId: 'u-hoshizora', targetDate: '2026-11-16', postedAt: '2026-11-16T07:05+09:00',
+      body: '今朝は冷えて空気が澄んでいました。今夜は月が沈んだあと、秋の星座がよく見えそうです。',
+      status: 'public', guestVisible: true,
+      location: loc('exact', '東京都 三鷹市', { sunrise: '2026-11-16T06:15+09:00', sunset: '2026-11-16T16:38+09:00', moonrise: '2026-11-16T12:00+09:00' }),
+      weather: { conditionKey: 'weather.condition.partly-cloudy', temperatureC: 8.4, humidityPct: 72, windMps: 1.2, observedAt: '2026-11-16T07:00+09:00' },
+      likes: { count: 3, likedByMe: false },
+      comments: [
+        cm('c-102-1', 'u-orion', '2026-11-16T08:12+09:00', 'こちらも朝から快晴です。'),
+      ],
+    },
+    {
+      // fuzzed-1km precision; the English post (long text for wrapping)
+      id: 'p-103', authorId: 'u-orion', targetDate: '2026-11-20', postedAt: '2026-11-15T21:10+09:00',
+      body: 'On the evening of November 20 the Moon passes close to Saturn in the southern sky. Both should be easy to spot with the naked eye shortly after sunset, and a small telescope will show the rings as well. I am planning to watch from a riverside park if the sky stays clear, and I would love to hear what you see from your area.',
+      status: 'public', guestVisible: true,
+      location: loc('fuzzed-1km', '神奈川県 川崎市', { sunrise: '2026-11-20T06:18+09:00', sunset: '2026-11-20T16:35+09:00', moonrise: '2026-11-20T15:22+09:00', moonset: '2026-11-20T02:42+09:00' }),
+      weather: { conditionKey: 'weather.condition.cloudy', temperatureC: 12.3, humidityPct: 66, windMps: 3.4, observedAt: '2026-11-15T21:00+09:00' },
+      likes: { count: 7, likedByMe: false },
+      comments: [
+        cm('c-103-1', 'u-tsukimi', '2026-11-16T07:40+09:00', '土星の環、見えるといいですね。'),
+      ],
+    },
+    {
+      // private-blocked: members only, prefecture precision; one of my posts
+      id: 'p-104', authorId: 'u-hoshizora', targetDate: '2026-11-24', postedAt: '2026-11-14T22:15+09:00',
+      body: '24日は満月。近所の公園で、月の出から少しずつ高くなる月を眺める予定です。',
+      status: 'members-only', guestVisible: false,
+      location: loc('prefecture', '埼玉県', { sunrise: '2026-11-24T06:23+09:00', sunset: '2026-11-24T16:32+09:00', moonrise: '2026-11-24T18:44+09:00', moonset: '2026-11-24T06:28+09:00' }),
+      weather: { conditionKey: 'weather.condition.clear', temperatureC: 6.9, humidityPct: 64, windMps: 1.8, observedAt: '2026-11-14T22:00+09:00' },
+      likes: { count: 5, likedByMe: false },
+      comments: [
+        cm('c-104-1', 'u-kumo', '2026-11-15T06:50+09:00', '満月の日は、東の空が開けた場所がいいですね。'),
+      ],
+    },
+    {
+      // country precision
+      id: 'p-105', authorId: 'u-kumo', targetDate: '2026-11-26', postedAt: '2026-11-16T12:30+09:00',
+      body: '26日は天王星が衝。肉眼で見えるかどうかの明るさなので、双眼鏡を用意しておきます。',
+      status: 'public', guestVisible: true,
+      location: loc('country', '日本', { sunrise: '2026-11-26T06:24+09:00', sunset: '2026-11-26T16:30+09:00', moonrise: '2026-11-26T20:23+09:00', moonset: '2026-11-26T08:13+09:00' }),
+      weather: { conditionKey: 'weather.condition.partly-cloudy', temperatureC: 15.2, humidityPct: 55, windMps: 4.0, observedAt: '2026-11-16T12:00+09:00' },
+      likes: { count: 0, likedByMe: false },
+      comments: [],
+    },
+    {
+      // no-location: no map, rise/set or weather
+      id: 'p-106', authorId: 'u-koyomi', targetDate: '2026-11-22', postedAt: '2026-11-16T09:20+09:00',
+      body: '22日は二十四節気の小雪。暦の上では、そろそろ冬の気配が感じられるころです。',
+      status: 'public', guestVisible: true,
+      likes: { count: 9, likedByMe: true },
+      comments: [
+        cm('c-106-1', 'u-hoshizora', '2026-11-16T10:02+09:00', '朝晩の冷え込みが増してきましたね。'),
+      ],
+    },
+    {
+      // weather-failed: location present, weather could not be fetched
+      id: 'p-107', authorId: 'u-tsukimi', targetDate: '2026-11-18', postedAt: '2026-11-16T20:05+09:00',
+      body: '18日の夕方、月と夕焼けを一緒に撮りたいと思っています。おすすめの時間帯はありますか。',
+      status: 'public', guestVisible: true,
+      location: loc('municipality', '千葉県 船橋市', { sunrise: '2026-11-18T06:14+09:00', sunset: '2026-11-18T16:33+09:00', moonrise: '2026-11-18T13:38+09:00', moonset: '2026-11-18T01:01+09:00' }),
+      likes: { count: 2, likedByMe: false },
+      comments: [],
+    },
+    {
+      // hidden-own: my post, temporarily hidden after reports; I have appealed
+      id: 'p-108', authorId: 'u-hoshizora', targetDate: '2026-11-19', postedAt: '2026-11-13T23:40+09:00',
+      body: '19日の夜に観望会を開きます。参加したい方はコメントで声をかけてください。',
+      status: 'hidden', guestVisible: true,
+      location: loc('municipality', '東京都 小金井市', { sunrise: '2026-11-19T06:18+09:00', sunset: '2026-11-19T16:36+09:00', moonrise: '2026-11-19T14:32+09:00', moonset: '2026-11-19T01:52+09:00' }),
+      weather: { conditionKey: 'weather.condition.clear', temperatureC: 7.5, humidityPct: 70, windMps: 0.9, observedAt: '2026-11-13T23:30+09:00' },
+      likes: { count: 1, likedByMe: false },
+      comments: [],
+    },
+    {
+      // hidden-other: another user's post, automatically hidden after many reports
+      id: 'p-109', authorId: 'u-orion', targetDate: '2026-11-21', postedAt: '2026-11-15T08:00+09:00',
+      body: '望遠鏡のセールのお知らせです。詳しくはプロフィールをご覧ください。',
+      status: 'hidden', guestVisible: true,
+      likes: { count: 0, likedByMe: false },
+      comments: [],
+    },
+    {
+      // hidden by an administrator
+      id: 'p-110', authorId: 'u-kumo', targetDate: '2026-11-25', postedAt: '2026-11-12T19:00+09:00',
+      body: '25日の近地点の月について、知人から聞いた話をまとめました。',
+      status: 'hidden', guestVisible: false,
+      likes: { count: 0, likedByMe: false },
+      comments: [],
+    },
+    {
+      // deleted by its author (one of my posts; listed in my-posts)
+      id: 'p-111', authorId: 'u-hoshizora', targetDate: '2026-11-28', postedAt: '2026-11-10T21:30+09:00',
+      body: '28日の予定を書いていましたが、都合が悪くなったので取り下げます。',
+      status: 'deleted', guestVisible: true,
+      likes: { count: 0, likedByMe: false },
+      comments: [],
+    },
+    {
+      // deleted-comment: a comment tree of depth 7 with deleted comments that keep their replies
+      id: 'p-120', authorId: 'u-koyomi', targetDate: '2026-11-24', postedAt: '2026-11-15T19:30+09:00',
+      body: '24日の満月は、近地点に近い大きめの満月です。皆さんはどこで見る予定ですか。',
+      status: 'public', guestVisible: true,
+      location: loc('municipality', '東京都 府中市', { sunrise: '2026-11-24T06:23+09:00', sunset: '2026-11-24T16:33+09:00', moonrise: '2026-11-24T18:44+09:00', moonset: '2026-11-24T06:28+09:00' }),
+      weather: { conditionKey: 'weather.condition.partly-cloudy', temperatureC: 10.6, humidityPct: 61, windMps: 2.6, observedAt: '2026-11-15T19:00+09:00' },
+      likes: { count: 24, likedByMe: false },
+      comments: [
+        cm('c-120-01', 'u-tsukimi', '2026-11-15T19:48+09:00', '河川敷の土手で見るつもりです。東の空が低いところまで開けています。', [
+          cm('c-120-02', 'u-hoshizora', '2026-11-15T20:10+09:00', 'いいですね。月の出の直後は大きく見えますよね。', [
+            gone('c-120-03', 'u-orion', '2026-11-15T20:31+09:00', [
+              cm('c-120-04', 'u-kumo', '2026-11-15T21:02+09:00', '話がそれてきたので、満月の話に戻しましょう。', [
+                cm('c-120-05', 'u-tsukimi', '2026-11-15T21:15+09:00', '当日は晴れるといいですね。', [
+                  cm('c-120-06', 'u-hoshizora', '2026-11-15T21:40+09:00', '雲が出たら、切れ間を待ちます。', [
+                    cm('c-120-07', 'u-koyomi', '2026-11-15T22:05+09:00', '月の出は 18 時 44 分ごろです。日の入りから 2 時間ほどあとなので、空が暗くなってから昇ってきます。'),
+                  ]),
+                ]),
+              ]),
+            ]),
+          ]),
+        ]),
+        gone('c-120-08', 'u-kumo', '2026-11-16T06:30+09:00', [
+          cm('c-120-09', 'u-orion', '2026-11-16T07:15+09:00', 'Thanks, I will try the riverside too.'),
+        ]),
+        cm('c-120-10', 'u-hoshizora', '2026-11-16T08:00+09:00', '写真を撮ったら、また投稿します。'),
+      ],
+    },
+  ];
+
+  /**
+   * Report queue: one item per state (open has a post and a comment).
+   * @type {ReportQueueItem[]}
+   */
+  const reports = [
+    { targetId: 'p-101', targetType: 'post', reportCount: 2, reasons: ['inappropriate', 'other'], state: 'open' },
+    { targetId: 'c-120-04', targetType: 'comment', reportCount: 1, reasons: ['harassment'], state: 'open' },
+    { targetId: 'p-109', targetType: 'post', reportCount: 5, reasons: ['spam', 'inappropriate'], state: 'auto-hidden' },
+    { targetId: 'p-110', targetType: 'post', reportCount: 1, reasons: ['personal-info'], state: 'hidden-by-admin' },
+    { targetId: 'p-108', targetType: 'post', reportCount: 3, reasons: ['spam', 'other'], state: 'appealed' },
+    { targetId: 'p-103', targetType: 'post', reportCount: 2, reasons: ['spam'], state: 'restored' },
+    { targetId: 'c-120-03', targetType: 'comment', reportCount: 4, reasons: ['harassment', 'personal-info'], state: 'removed' },
+  ];
+
+  /** @type {Record<Exclude<AuthState, 'guest'>, string>} */
+  const viewerIds = { member: 'u-hoshizora', admin: 'u-admin' };
+
+  /**
+   * Post shown by post-detail for each scenario.
+   * - default: p-101 (public; municipality; weather; short tree; liked by me)
+   * - private-blocked: p-104 (members-only, guestVisible false; open it as guest)
+   * - hidden-own: p-108 (my post, hidden, report appealed; open it as member)
+   * - hidden-other: p-109 (another user's post, auto-hidden; open it as guest or member)
+   * - deleted-comment: p-120 (tree of depth 7 with deleted comments that keep their replies)
+   * - no-location: p-106 (no location, so no map, rise/set or weather)
+   * - weather-failed: p-107 (location present, weather undefined = fetch failed)
+   * @type {Record<PostDetailScenarioId, string>}
+   */
+  const postDetailScenarios = {
+    default: 'p-101',
+    'private-blocked': 'p-104',
+    'hidden-own': 'p-108',
+    'hidden-other': 'p-109',
+    'deleted-comment': 'p-120',
+    'no-location': 'p-106',
+    'weather-failed': 'p-107',
+  };
+
   /** @type {StarChartSample} */
   const starChart = Object.freeze({
     observedAt: '2026-11-16T20:00:00+09:00',
@@ -152,11 +407,13 @@
   /** @type {SampleDataSet} */
   const sample = deepFreeze({
     today: '2026-11-16',
-    users: [],
+    users,
+    viewerIds,
+    postDetailScenarios,
     almanac,
     events,
-    posts: [],
-    reports: [],
+    posts,
+    reports,
     starChart,
   });
 

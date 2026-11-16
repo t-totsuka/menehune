@@ -471,6 +471,10 @@ interface StarChartSample {
   readonly bodies: readonly { readonly kind: 'sun' | 'moon' | 'planet'; readonly nameKey: MessageKey; readonly az: number; readonly alt: number }[];
 }
 
+type PostDetailScenarioId = Extract<ScenarioId,
+  'default' | 'private-blocked' | 'hidden-own' | 'hidden-other' | 'deleted-comment' | 'no-location' | 'weather-failed'>;
+// 位置なし（location が undefined）は地図・出没・天気を出さない。位置ありで weather が undefined は「天気の取得失敗」を表す
+
 interface SampleDataSet {
   readonly today: IsoDate;                       // 2026-11-16 に固定
   readonly users: readonly SampleUser[];
@@ -478,6 +482,8 @@ interface SampleDataSet {
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];
+  readonly viewerIds: Readonly<Record<Exclude<AuthState, 'guest'>, string>>;   // ログイン時の「自分」（likedByMe、hidden-own、自分の投稿一覧の判定に使う）
+  readonly postDetailScenarios: Readonly<Record<PostDetailScenarioId, string>>; // 投稿詳細のシナリオごとに表示する投稿 ID
   readonly starChart: StarChartSample;
 }
 ```

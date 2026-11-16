@@ -166,7 +166,12 @@ interface SamplePost {
   readonly body: string;
   readonly status: PostStatus;
   readonly guestVisible: boolean;
+  /** undefined: the post has no location (no map, rise/set or weather; the no-location case) */
   readonly location?: PostLocation;
+  /**
+   * Only present together with `location`. `location` present and `weather` undefined means the
+   * weather could not be fetched (the weather-failed case).
+   */
   readonly weather?: WeatherSnapshot;
   readonly likes: LikeState;
   readonly comments: readonly CommentNode[];
@@ -194,10 +199,22 @@ interface StarChartSample {
   readonly bodies: readonly StarChartBody[];
 }
 
+/** Scenarios of the post-detail screen that are tied to one sample post. */
+type PostDetailScenarioId = Extract<ScenarioId,
+  | 'default' | 'private-blocked' | 'hidden-own' | 'hidden-other'
+  | 'deleted-comment' | 'no-location' | 'weather-failed'>;
+
 interface SampleDataSet {
   /** Fixed to 2026-11-16 */
   readonly today: IsoDate;
   readonly users: readonly SampleUser[];
+  /**
+   * User id of "me" for each logged-in AuthState (the member viewer owns hidden-own posts and
+   * is the subject of LikeState.likedByMe; the admin viewer is the single admin user).
+   */
+  readonly viewerIds: Readonly<Record<Exclude<AuthState, 'guest'>, string>>;
+  /** Post id shown by post-detail for each scenario */
+  readonly postDetailScenarios: Readonly<Record<PostDetailScenarioId, string>>;
   /** Every day of 2026-11 and 2027-03 (provisional holidays), plus one leap-month example day */
   readonly almanac: readonly AlmanacDay[];
   readonly events: readonly AstroEvent[];
