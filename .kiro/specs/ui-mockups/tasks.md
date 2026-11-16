@@ -30,7 +30,7 @@
   - 完了状態：見本ページを OS の外観設定ダークで開くとダークの配色になり、Tab で移動した要素にフォーカス枠が出る
   - _Requirements: 9.2, 9.3, 10.1, 10.2, 10.3, 11.6, 13.5_
 
-- [ ] 1.3 基本の辞書を作る
+- [x] 1.3 基本の辞書を作る
   - 日英の辞書ファイルを作る。言語に依存しない識別名で、次の文言を登録する
     - 共通ナビゲーション、ボタン
     - 15 画面のタイトル
@@ -434,3 +434,4 @@
 - 開発環境：Windows の Node v26、npm 12。Git のブランチは `feat/ui-mockups`
 - 1.1：部品の基底は types.d.ts で `MockElementContract`（interface）と `MockElementConstructor` として宣言されている。render/sample/t は public の契約なので、base.js で JSDoc の `@protected` を付けると `window.MockElement` の代入が型エラーになる。public のまま実装する（types.d.ts の「protected」というコメントは、4.1 で実態に合わせて直す）
 - 1.2：E2E には Chromium が必要（`npx playwright install chromium` は実行済み）。`mockups/playwright.config.mjs` は testMatch を `tests/*.spec.mjs` に絞った最小構成で、7.1 で最終形にする。check-tokens（2.2）は `%` を検出対象にしない（base.css の `max-width: 100%` を許容する）。全要素に `min-width: 0` のリセットがあるので、縮んでほしくない部品は明示的に最小サイズを指定する
+- 1.3：辞書は `window.MockMessages.{ja,en}` に IIFE で登録し、凍結している。キーの系統は nav.*、toggle.lang.*、toggle.theme.*、button.*、screen.{id}.title、error.*、empty.*、status.*、common.count。英語の `common.count` は複数形を扱わないので、1 件の表示が要るときは別のキーを作る
