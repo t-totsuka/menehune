@@ -52,7 +52,7 @@
   - 完了状態：ブラウザのコンソールでレジストリから 15 件を取得でき、型検査が通る
   - _Requirements: 1.1, 1.5, 3.1, 3.3, 3.4, 3.5, 3.6_
 
-- [ ] 1.5 初期テーマの決定と表示状態の管理を作る
+- [x] 1.5 初期テーマの決定と表示状態の管理を作る
   - ページの読み込み直後に、URL か保存値からテーマを決めて設定し、ちらつきを防ぐ。system のときは外観設定に任せる
   - 段階・言語・テーマ・ログイン状態・シナリオを、URL、保存値（段階・言語・テーマのみ）、既定値の順で解決する。結果をページのルート要素の属性に反映し、変更を通知する
   - 許可されていない値は既定値にし、警告として取り出せるようにする。保存に失敗しても無視し、URL だけで動作する
@@ -436,3 +436,4 @@
 - 1.2：E2E には Chromium が必要（`npx playwright install chromium` は実行済み）。`mockups/playwright.config.mjs` は testMatch を `tests/*.spec.mjs` に絞った最小構成で、7.1 で最終形にする。check-tokens（2.2）は `%` を検出対象にしない（base.css の `max-width: 100%` を許容する）。全要素に `min-width: 0` のリセットがあるので、縮んでほしくない部品は明示的に最小サイズを指定する
 - 1.3：辞書は `window.MockMessages.{ja,en}` に IIFE で登録し、凍結している。キーの系統は nav.*、toggle.lang.*、toggle.theme.*、button.*、screen.{id}.title、error.*、empty.*、status.*、common.count。英語の `common.count` は複数形を扱わないので、1 件の表示が要るときは別のキーを作る
 - 1.4：全画面の authStates の先頭は guest。admin を選べるのは管理画面だけ。投稿詳細の hidden-own は member のとき、hidden-other は guest か member のときに確認する（guest と hidden-own の組み合わせの表示は 5.3 で決める）
+- 1.5：ルート要素の言語は `lang` 属性（`data-lang` ではない）。保存キーは `mk.prefs`（stage/lang/theme）で、`update()` のたびに現在の値を保存する。画面ページのテストには、実画面ではないフィクスチャー（`tests/fixtures/`）を使う
