@@ -180,7 +180,7 @@
   - 完了状態：型検査と辞書の検査が通る。投稿詳細の各シナリオに対応する投稿の ID が一覧で確認できる
   - _Requirements: 2.5, 12.4_
 
-- [ ] 3.4 星図のサンプルデータを作る
+- [x] 3.4 星図のサンプルデータを作る
   - 2026-11-16 の夜、東京近郊の架空の地点での見え方を用意する
     - 主な明るい恒星の方位・高度・等級
     - 冬と秋の主な星座の星座線と星座名の位置
@@ -447,3 +447,4 @@
 - 3.1：用語のキーの系統は rokuyo.*、sekki.*（英語は「意訳 (音写)」）、kou.k01〜k72、zassetsu.*、lunar-month.m01〜m12（閏月は lunar-month.leap）、moon-phase.*（朔・上弦・望・下弦と月齢だけ）、astro.event.*、astro.kind.*、astro.body.*、astro.constellation.*、astro.star.*、astro.riseset.*、holiday.*（英語は内閣府の名称）、location.*、weather.*、post.status.*、moderation.*。天体・星座・恒星の用語集の分類は astro-event。通報件数が 1 件のときは moderation.report-count-one を使う
 - 3.2：AlmanacDay には riseSet（その日の日月の出没）がある（design.md も更新済み）。almanac の先頭は閏月の例の 2025-07-25 の 1 行なので、カレンダーは月で絞り込んで使う。天文現象（events）は 2026-11 と 2026-12 だけで、各日の eventIds から引く。bodies は天体の ID（astro.body.{id} に対応する）
 - 3.3：投稿詳細のシナリオと投稿の対応は postDetailScenarios にある（default p-101、private-blocked p-104（guest で見る）、hidden-own p-108、hidden-other p-109、deleted-comment p-120、no-location p-106、weather-failed p-107）。ログイン時の自分は viewerIds（member は u-hoshizora）。削除済みのコメントは本文が空で、moderation.comment-deleted を表示する。作者が削除した投稿 p-111 は本文を残しているが、画面で表示するかは 5.x で決める。地域名と表示名は日本語の自由記述で、英語表示でも日本語のまま
+- 3.4：星図のサンプルは 2026-11-16 20:00 JST の東京都三鷹市付近（方位は北から時計回り、度）。太陽は高度 -41.7 で bodies に含まれるので、mk-star-chart は高度 0 未満の天体を空の円の中に描かない。辞書にキーのない恒星は nameKey を持たない（名前を出さない）

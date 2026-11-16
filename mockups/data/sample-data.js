@@ -394,15 +394,131 @@
     'weather-failed': 'p-107',
   };
 
-  /** @type {StarChartSample} */
-  const starChart = Object.freeze({
+  /**
+   * Star chart: the sky at a fictional point in 東京都 三鷹市 (about 35.7°N, 139.6°E) on
+   * 2026-11-16 at 20:00 JST (local sidereal time about 0h).
+   * - az: degrees from north, clockwise (east = 90); alt: degrees above the horizon
+   * - stars: bright stars of the autumn / winter sky, converted from J2000 RA/Dec (with a simple
+   *   precession correction) to alt/az, rounded to 0.1°. Only stars above the horizon are listed.
+   *   Stars without nameKey are drawn without a label (the comment names them for review).
+   *   The Pleiades are one point with the cluster's integrated magnitude.
+   * - constellationLines: pairs of indexes into stars; constellationLabels sit beside their stars
+   * - bodies: the moon (age 7.2, a day before first quarter) is low in the south-west; Saturn is
+   *   high in the south; Jupiter and Mars have not risen yet. The sun is kept with its real,
+   *   negative altitude so that the chart component can show it is below the horizon (it must
+   *   not draw objects with alt < 0 inside the sky circle).
+   * Values are illustrative approximations, not verified ephemerides.
+   * @type {StarChartSample}
+   */
+  const starChart = {
     observedAt: '2026-11-16T20:00:00+09:00',
-    placeLabel: '',
-    stars: Object.freeze([]),
-    constellationLines: Object.freeze([]),
-    constellationLabels: Object.freeze([]),
-    bodies: Object.freeze([]),
-  });
+    placeLabel: '東京都 三鷹市',
+    stars: [
+      { az: 0.5, alt: 36.1, mag: 1.98, nameKey: 'astro.star.polaris' }, // 0 Polaris (α UMi)
+      { az: 355.9, alt: 35.1, mag: 4.35 }, // 1 δ UMi
+      { az: 351.0, alt: 32.7, mag: 4.20 }, // 2 ε UMi
+      { az: 348.5, alt: 28.2, mag: 4.30 }, // 3 ζ UMi
+      { az: 348.3, alt: 23.4, mag: 2.08 }, // 4 Kochab (β UMi)
+      { az: 344.9, alt: 23.0, mag: 3.05 }, // 5 Pherkad (γ UMi)
+      { az: 345.3, alt: 28.5, mag: 4.95 }, // 6 η UMi
+      { az: 3.2, alt: 66.3, mag: 2.27 }, // 7 Caph (β Cas)
+      { az: 15.2, alt: 67.9, mag: 2.24 }, // 8 Schedar (α Cas)
+      { az: 15.6, alt: 63.2, mag: 2.15 }, // 9 γ Cas
+      { az: 22.7, alt: 61.7, mag: 2.68 }, // 10 Ruchbah (δ Cas)
+      { az: 23.0, alt: 56.9, mag: 3.37 }, // 11 Segin (ε Cas)
+      { az: 214.3, alt: 66.3, mag: 2.49 }, // 12 Markab (α Peg)
+      { az: 241.4, alt: 76.1, mag: 2.42 }, // 13 Scheat (β Peg)
+      { az: 170.3, alt: 69.4, mag: 2.83 }, // 14 Algenib (γ Peg)
+      { az: 162.6, alt: 83.2, mag: 2.06, nameKey: 'astro.star.alpheratz' }, // 15 Alpheratz (α And)
+      { az: 238.4, alt: 50.0, mag: 2.39 }, // 16 Enif (ε Peg)
+      { az: 220.2, alt: 59.6, mag: 3.40 }, // 17 Homam (ζ Peg)
+      { az: 116.3, alt: 80.4, mag: 3.27 }, // 18 δ And
+      { az: 84.6, alt: 75.7, mag: 2.05 }, // 19 Mirach (β And)
+      { az: 64.8, alt: 65.0, mag: 2.10 }, // 20 Almach (γ And)
+      { az: 300.3, alt: 51.8, mag: 1.25, nameKey: 'astro.star.deneb' }, // 21 Deneb (α Cyg)
+      { az: 293.3, alt: 47.6, mag: 2.23 }, // 22 Sadr (γ Cyg)
+      { az: 282.6, alt: 33.5, mag: 3.05 }, // 23 Albireo (β Cyg)
+      { az: 282.2, alt: 50.7, mag: 2.48 }, // 24 Gienah (ε Cyg)
+      { az: 301.9, alt: 41.9, mag: 2.87 }, // 25 δ Cyg
+      { az: 299.5, alt: 27.9, mag: 0.03, nameKey: 'astro.star.vega' }, // 26 Vega (α Lyr)
+      { az: 297.6, alt: 28.8, mag: 4.30 }, // 27 ζ Lyr
+      { az: 295.9, alt: 30.3, mag: 4.30 }, // 28 δ Lyr
+      { az: 291.1, alt: 29.4, mag: 3.25 }, // 29 Sulafat (γ Lyr)
+      { az: 292.7, alt: 28.0, mag: 3.50 }, // 30 Sheliak (β Lyr)
+      { az: 260.7, alt: 27.8, mag: 0.77, nameKey: 'astro.star.altair' }, // 31 Altair (α Aql)
+      { az: 263.0, alt: 27.9, mag: 2.72 }, // 32 Tarazed (γ Aql)
+      { az: 257.7, alt: 27.2, mag: 3.71 }, // 33 Alshain (β Aql)
+      { az: 52.4, alt: 50.6, mag: 1.79, nameKey: 'astro.star.mirfak' }, // 34 Mirfak (α Per)
+      { az: 67.0, alt: 52.9, mag: 2.10, nameKey: 'astro.star.algol' }, // 35 Algol (β Per)
+      { az: 46.0, alt: 53.2, mag: 2.90 }, // 36 γ Per
+      { az: 55.4, alt: 47.5, mag: 3.00 }, // 37 δ Per
+      { az: 65.7, alt: 43.5, mag: 2.90 }, // 38 ε Per
+      { az: 76.6, alt: 41.7, mag: 2.85 }, // 39 ζ Per
+      { az: 87.9, alt: 26.3, mag: 0.85, nameKey: 'astro.star.aldebaran' }, // 40 Aldebaran (α Tau)
+      { az: 86.7, alt: 39.9, mag: 1.60, nameKey: 'astro.star.pleiades' }, // 41 Pleiades (M45)
+      { az: 70.0, alt: 22.4, mag: 1.65 }, // 42 Elnath (β Tau)
+      { az: 75.4, alt: 16.3, mag: 3.00 }, // 43 ζ Tau
+      { az: 86.3, alt: 29.1, mag: 3.50 }, // 44 Ain (ε Tau)
+      { az: 91.0, alt: 29.1, mag: 3.65 }, // 45 γ Tau
+      { az: 53.2, alt: 31.5, mag: 0.08, nameKey: 'astro.star.capella' }, // 46 Capella (α Aur)
+      { az: 50.9, alt: 24.2, mag: 1.90 }, // 47 Menkalinan (β Aur)
+      { az: 58.2, alt: 20.5, mag: 2.65 }, // 48 θ Aur
+      { az: 68.7, alt: 30.0, mag: 2.70 }, // 49 Hassaleh (ι Aur)
+      { az: 194.5, alt: 23.2, mag: 1.16, nameKey: 'astro.star.fomalhaut' }, // 50 Fomalhaut (α PsA)
+      { az: 167.0, alt: 35.4, mag: 2.04, nameKey: 'astro.star.diphda' }, // 51 Diphda (β Cet)
+      { az: 104.8, alt: 59.8, mag: 2.00, nameKey: 'astro.star.hamal' }, // 52 Hamal (α Ari)
+      { az: 112.5, alt: 60.8, mag: 2.64 }, // 53 Sheratan (β Ari)
+      { az: 84.5, alt: 5.1, mag: 0.50, nameKey: 'astro.star.betelgeuse' }, // 54 Betelgeuse (α Ori)
+      { az: 103.2, alt: 4.2, mag: 0.13, nameKey: 'astro.star.rigel' }, // 55 Rigel (β Ori)
+      { az: 89.7, alt: 10.6, mag: 1.64, nameKey: 'astro.star.bellatrix' }, // 56 Bellatrix (γ Ori)
+    ],
+    constellationLines: [
+      // Ursa Minor (Little Dipper)
+      [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3],
+      // Cassiopeia (W)
+      [7, 8], [8, 9], [9, 10], [10, 11],
+      // Pegasus (Great Square with Alpheratz, and the neck to Enif)
+      [12, 13], [13, 15], [15, 14], [14, 12], [12, 17], [17, 16],
+      // Andromeda
+      [15, 18], [18, 19], [19, 20],
+      // Cygnus (Northern Cross)
+      [21, 22], [22, 23], [25, 22], [22, 24],
+      // Lyra
+      [26, 27], [27, 30], [30, 29], [29, 28], [28, 27],
+      // Aquila
+      [32, 31], [31, 33],
+      // Perseus
+      [36, 34], [34, 37], [37, 38], [38, 39], [34, 35],
+      // Taurus (Hyades V and the horns)
+      [45, 44], [44, 42], [45, 40], [40, 43],
+      // Auriga (pentagon shared with Elnath)
+      [46, 47], [47, 48], [48, 42], [42, 49], [49, 46],
+      // Aries
+      [52, 53],
+      // Orion (rising: shoulders only)
+      [54, 56],
+    ],
+    constellationLabels: [
+      { az: 346.0, alt: 31.0, nameKey: 'astro.constellation.ursa-minor' },
+      { az: 14.0, alt: 61.0, nameKey: 'astro.constellation.cassiopeia' },
+      { az: 222.0, alt: 64.0, nameKey: 'astro.constellation.pegasus' },
+      { az: 95.0, alt: 73.0, nameKey: 'astro.constellation.andromeda' },
+      { az: 288.0, alt: 44.0, nameKey: 'astro.constellation.cygnus' },
+      { az: 293.0, alt: 25.0, nameKey: 'astro.constellation.lyra' },
+      { az: 262.0, alt: 24.0, nameKey: 'astro.constellation.aquila' },
+      { az: 60.0, alt: 46.0, nameKey: 'astro.constellation.perseus' },
+      { az: 82.0, alt: 22.0, nameKey: 'astro.constellation.taurus' },
+      { az: 60.0, alt: 26.0, nameKey: 'astro.constellation.auriga' },
+      { az: 110.0, alt: 57.0, nameKey: 'astro.constellation.aries' },
+      { az: 194.0, alt: 19.0, nameKey: 'astro.constellation.piscis-austrinus' },
+      { az: 96.0, alt: 2.0, nameKey: 'astro.constellation.orion' },
+    ],
+    bodies: [
+      { kind: 'moon', nameKey: 'astro.body.moon', az: 226.3, alt: 21.8 },
+      { kind: 'planet', nameKey: 'astro.body.saturn', az: 161.7, alt: 55.0 },
+      { kind: 'sun', nameKey: 'astro.body.sun', az: 276.3, alt: -41.7 },
+    ],
+  };
 
   /** @type {SampleDataSet} */
   const sample = deepFreeze({

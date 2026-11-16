@@ -237,8 +237,8 @@ test('sample data keys (nameKey etc.) missing from the dictionaries are reported
     ({ read, write }) => {
       const src = read('data/sample-data.js');
       const next = src.replace(
-        'bodies: Object.freeze([]),',
-        "bodies: Object.freeze([{ kind: 'moon', nameKey: 'body.no-such-moon', az: 1, alt: 2 }]),",
+        /    bodies: \[\r?\n/,
+        "    bodies: [\n      { kind: 'moon', nameKey: 'body.no-such-moon', az: 1, alt: 2 },\n",
       );
       assert.notEqual(next, src);
       write('data/sample-data.js', next);
