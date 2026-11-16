@@ -41,6 +41,19 @@
     'calendar.legend.provisional': 'Provisional holiday (not yet confirmed)',
     'calendar.legend.event': 'Astronomical event',
 
+    // Almanac summary, rise/set and event list (task 4.3)
+    'almanac.moon': 'Moon age',
+    'almanac.holiday': 'Holiday',
+    'almanac.events': 'Astronomical events',
+    'almanac.none': 'None',
+    'almanac.riseset-none': 'None (does not occur on this day)',
+    'event-list.period': 'Period',
+    'event-list.from': 'From',
+    'event-list.to': 'To',
+    'event-list.kinds': 'Event types',
+    'event-list.result-count': '{count} astronomical events',
+    'event-list.result-count-one': '1 astronomical event',
+
     // Language and theme toggles
     'toggle.lang.label': 'Language',
     'toggle.lang.ja': '日本語',

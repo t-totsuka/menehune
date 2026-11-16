@@ -190,6 +190,74 @@
         </div>
       </div>
     </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-almanac-summary">
+      <h2 id="sec-almanac-summary">暦の要約と日月の出没</h2>
+      <p class="text-muted">暦の要約は 2 種類あります。日詳細用（<code>variant="full"</code>、既定）は全項目（閏月の表記を含む）、トップ用（<code>variant="brief"</code>）は日付・六曜・旧暦・月齢と、その日にある節気・祝日だけを表示します。日月の出没は、日付の指定（サンプル地点）と投稿の指定（投稿地点）の両方に対応します。出没がない日は「なし」と表示し、位置情報のない投稿では何も表示しません。</p>
+
+      <h3 id="sec-summary-full"><code>mk-almanac-summary variant="full"</code></h3>
+      <div class="mk-cell-samples">
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-07"</code>（立冬・候の始まり）</p>
+          <mk-almanac-summary id="summary-full-2026-11-07" date="2026-11-07" variant="full"></mk-almanac-summary>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2027-03-21"</code>（予定の祝日）</p>
+          <mk-almanac-summary id="summary-full-2027-03-21" date="2027-03-21" variant="full"></mk-almanac-summary>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2025-07-25"</code>（閏月）</p>
+          <mk-almanac-summary id="summary-full-leap" date="2025-07-25"></mk-almanac-summary>
+        </div>
+      </div>
+
+      <h3 id="sec-summary-brief"><code>mk-almanac-summary variant="brief"</code></h3>
+      <div class="mk-cell-samples">
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-07"</code></p>
+          <mk-almanac-summary id="summary-brief-2026-11-07" date="2026-11-07" variant="brief"></mk-almanac-summary>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2027-03-21"</code></p>
+          <mk-almanac-summary id="summary-brief-2027-03-21" date="2027-03-21" variant="brief"></mk-almanac-summary>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-12-31"</code>（サンプルなし）</p>
+          <mk-almanac-summary id="summary-missing" date="2026-12-31" variant="brief"></mk-almanac-summary>
+        </div>
+      </div>
+
+      <h3 id="sec-rise-set"><code>mk-rise-set</code></h3>
+      <div class="mk-cell-samples">
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-07"</code></p>
+          <mk-rise-set id="riseset-2026-11-07" date="2026-11-07"></mk-rise-set>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-16"</code>（月の入りなし）</p>
+          <mk-rise-set id="riseset-2026-11-16" date="2026-11-16"></mk-rise-set>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>post-id="p-101"</code>（投稿地点）</p>
+          <mk-rise-set id="riseset-post-p-101" post-id="p-101"></mk-rise-set>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>post-id="p-106"</code>（位置情報なし：何も表示しない）</p>
+          <mk-rise-set id="riseset-post-p-106" post-id="p-106"></mk-rise-set>
+        </div>
+      </div>
+    </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-event-list">
+      <h2 id="sec-event-list">天文現象の一覧</h2>
+      <p class="text-muted">日時と種類で一覧表示し、期間と種類で絞り込めます（サンプルは 2026 年 11 月と 12 月だけ）。絞り込みの結果がないときと、シナリオが空状態のときは空状態を、取得失敗のときはエラーを表示します（例：<a href="?scenario=empty">?scenario=empty</a>、<a href="?scenario=fetch-error">?scenario=fetch-error</a>、<a href="?scenario=default">?scenario=default</a>）。</p>
+
+      <h3 id="sec-event-list-month"><code>mk-event-list from="2026-11-01" to="2026-11-30"</code></h3>
+      <mk-event-list id="events-2026-11" from="2026-11-01" to="2026-11-30"></mk-event-list>
+
+      <h3 id="sec-event-list-kinds"><code>mk-event-list kinds="moon-phase planet-opposition"</code>（属性なしの期間は全期間）</h3>
+      <mk-event-list id="events-kinds" kinds="moon-phase planet-opposition"></mk-event-list>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="data/glossary.js"></script>

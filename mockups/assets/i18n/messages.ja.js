@@ -41,6 +41,19 @@
     'calendar.legend.provisional': '予定の祝日（まだ確定していない）',
     'calendar.legend.event': '天文現象',
 
+    // Almanac summary, rise/set and event list (task 4.3)
+    'almanac.moon': '月齢',
+    'almanac.holiday': '祝日',
+    'almanac.events': '天文現象',
+    'almanac.none': 'なし',
+    'almanac.riseset-none': 'なし（この日は起こりません）',
+    'event-list.period': '期間',
+    'event-list.from': '開始日',
+    'event-list.to': '終了日',
+    'event-list.kinds': '現象の種類',
+    'event-list.result-count': '{count}件の天文現象',
+    'event-list.result-count-one': '1件の天文現象',
+
     // Language and theme toggles
     'toggle.lang.label': '言語',
     'toggle.lang.ja': '日本語',
