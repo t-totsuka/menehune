@@ -106,6 +106,8 @@ interface AlmanacDay {
   readonly zassetsuKeys: readonly MessageKey[];
   readonly holiday?: Holiday;
   readonly eventIds: readonly string[];
+  /** Rise/set times of that day at the fictional sample point near Tokyo (mk-rise-set with `date`) */
+  readonly riseSet: RiseSet;
 }
 type AstroEventKind =
   | 'moon-phase' | 'moon-apsis' | 'moon-declination' | 'planet-conjunction'
@@ -196,7 +198,7 @@ interface SampleDataSet {
   /** Fixed to 2026-11-16 */
   readonly today: IsoDate;
   readonly users: readonly SampleUser[];
-  /** Every day of 2026-11 plus example 2027 holidays */
+  /** Every day of 2026-11 and 2027-03 (provisional holidays), plus one leap-month example day */
   readonly almanac: readonly AlmanacDay[];
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];

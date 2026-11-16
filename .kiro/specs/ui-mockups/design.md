@@ -436,6 +436,7 @@ interface AlmanacDay {
   readonly zassetsuKeys: readonly MessageKey[];
   readonly holiday?: Holiday;
   readonly eventIds: readonly string[];
+  readonly riseSet: RiseSet;                  // サンプル地点のその日の日月の出没（mk-rise-set の date 指定で使う）
 }
 type AstroEventKind =
   | 'moon-phase' | 'moon-apsis' | 'moon-declination' | 'planet-conjunction'
@@ -473,7 +474,7 @@ interface StarChartSample {
 interface SampleDataSet {
   readonly today: IsoDate;                       // 2026-11-16 に固定
   readonly users: readonly SampleUser[];
-  readonly almanac: readonly AlmanacDay[];        // 2026-11 の全日と 2027 年の祝日の例
+  readonly almanac: readonly AlmanacDay[];        // 2026-11 と 2027-03 の全日、閏月の例 1 日
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];

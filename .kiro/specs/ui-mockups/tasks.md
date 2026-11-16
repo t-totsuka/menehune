@@ -154,7 +154,7 @@
   - 完了状態：用語集の全キーが日英の辞書にあり、辞書の検査が通る
   - _Requirements: 11.3, 11.4, 11.5_
 
-- [ ] 3.2 暦・天文のサンプルデータを作る
+- [x] 3.2 暦・天文のサンプルデータを作る
   - 今日を 2026-11-16 に固定する
   - 次の期間の全日の暦の値を用意する。値は六曜、旧暦（閏月の例を 1 か所含む）、月齢、月相、節気、候、雑節、祝日
     - 2026 年 11 月
@@ -445,3 +445,4 @@
 - 2.3：check-contrast は違反を標準出力に、組ごとの結果を標準エラーに出す。半透明の色は拒否する。意味を持つ色を surface-muted の上に置く部品を作るときは、contrast-pairs.json にその組を足す
 - 2.4：check-i18n は、assets/js と data で名前が key、keys、*Key、*Keys のプロパティにある文字列を、文言キーとして扱う。文言キー以外のものは、別の名前にする（例：`storageKey` ではなく `storageName`。キーボード処理は `{ key: 'Escape' }` のようなオブジェクトリテラルで書かない）。assets/js の中で実行時に組み立てるキーは検査されないので、できるだけ文字列リテラルで書く
 - 3.1：用語のキーの系統は rokuyo.*、sekki.*（英語は「意訳 (音写)」）、kou.k01〜k72、zassetsu.*、lunar-month.m01〜m12（閏月は lunar-month.leap）、moon-phase.*（朔・上弦・望・下弦と月齢だけ）、astro.event.*、astro.kind.*、astro.body.*、astro.constellation.*、astro.star.*、astro.riseset.*、holiday.*（英語は内閣府の名称）、location.*、weather.*、post.status.*、moderation.*。天体・星座・恒星の用語集の分類は astro-event。通報件数が 1 件のときは moderation.report-count-one を使う
+- 3.2：AlmanacDay には riseSet（その日の日月の出没）がある（design.md も更新済み）。almanac の先頭は閏月の例の 2025-07-25 の 1 行なので、カレンダーは月で絞り込んで使う。天文現象（events）は 2026-11 と 2026-12 だけで、各日の eventIds から引く。bodies は天体の ID（astro.body.{id} に対応する）
