@@ -7,6 +7,8 @@
   <script src="assets/js/theme-boot.js"></script>
   <link rel="stylesheet" href="assets/css/tokens.css">
   <link rel="stylesheet" href="assets/css/base.css">
+  <!-- components.css goes here, between base.css and wireframe.css (wireframe.css is always last). -->
+  <link rel="stylesheet" href="assets/css/wireframe.css">
 </head>
 <body>
   <main class="l-container l-stack">
@@ -76,6 +78,19 @@
         <button type="button" data-variant="secondary">観察記録をまとめて下書きとして保存し、あとで公開する</button>
       </div>
     </section>
+    <section class="l-surface l-stack" aria-labelledby="sec-stage">
+      <h2 id="sec-stage"><span data-decor aria-hidden="true">✦ </span>装飾と図の印</h2>
+      <p class="text-muted"><code>data-decor</code> を付けた装飾はワイヤーフレーム段階で消え、<code>data-figure</code> を付けた図は枠と対角線だけの占位表示になります（例：<a href="?stage=wireframe">?stage=wireframe</a>、<a href="?stage=hifi">?stage=hifi</a>）。</p>
+      <svg id="figure-sample" data-figure role="img" aria-label="星図の見本" width="320" height="160" viewBox="0 0 320 160">
+        <rect width="320" height="160" fill="#0b1026"/>
+        <circle cx="60" cy="40" r="3" fill="#f4d58a"/>
+        <circle cx="140" cy="90" r="2" fill="#ffffff"/>
+        <circle cx="210" cy="50" r="4" fill="#f4d58a"/>
+        <circle cx="270" cy="120" r="2.5" fill="#9fb0f0"/>
+        <polyline points="60,40 140,90 210,50 270,120" fill="none" stroke="#9fb0f0" stroke-width="1"/>
+      </svg>
+    </section>
+
     <section class="l-surface l-stack" aria-labelledby="sec-i18n">
       <h2 id="sec-i18n">文言と日付の表記</h2>
       <p class="text-muted">言語を切り替えると、次の文言・属性・日付が切り替わります（例：<a href="?lang=en">?lang=en</a>、<a href="?lang=ja">?lang=ja</a>）。</p>
