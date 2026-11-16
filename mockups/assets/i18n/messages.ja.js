@@ -18,6 +18,18 @@
     'nav.main': 'メインメニュー',
     'nav.skip-to-content': '本文へ移動',
 
+    // Shell components (task 4.1). site.name is a working title until the service is named.
+    'site.name': '星と暦',
+    'header.menu': 'メニュー',
+    'header.signed-in-as': '{name} さん',
+    'footer.links': 'このサイトについて',
+    'footer.note': '表示しているデータはすべて架空のサンプルです。',
+    'guest-notice.read-only': 'ログインしていないため、閲覧のみできます。投稿・コメント・いいね・通報をするにはログインしてください。',
+    'guest-notice.private-post': 'この投稿は、ログインしたユーザだけが見られる設定になっています。',
+    'guest-notice.login': 'ログインする',
+    'admin-band.label': '管理者専用',
+    'admin-band.description': 'この画面は管理者だけが表示できます。',
+
     // Language and theme toggles
     'toggle.lang.label': '言語',
     'toggle.lang.ja': '日本語',
@@ -383,9 +395,9 @@
     'weather.unavailable': '天気を取得できませんでした。',
 
     // Post visibility (PostStatus)
-    'post.status.public': '公開',
-    'post.status.members-only': '会員限定',
-    'post.status.hidden': '非表示',
+    'post.status.public': '公開中',
+    'post.status.members-only': 'ログインユーザのみ',
+    'post.status.hidden': '一時非表示',
     'post.status.deleted': '削除済み',
 
     // Moderation (ReportReason, ReportQueueState)

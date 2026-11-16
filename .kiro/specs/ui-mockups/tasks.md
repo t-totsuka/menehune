@@ -189,7 +189,7 @@
   - _Requirements: 2.5, 5.2_
 
 - [ ] 4. 部品
-- [ ] 4.1 部品の基底と共通の部品を作る
+- [x] 4.1 部品の基底と共通の部品を作る
   - 部品の基底を作る。Light DOM に描画し、表示状態の変更で再描画する。サンプルデータを ID で引き、ID がない場合は「サンプルなし」と表示する
   - 次の共通部品を作る
     - ヘッダー：ロゴ、ナビ、言語切替、テーマ切替、ログイン状態の表示。スマートフォン幅ではメニューを折りたたむ
@@ -448,3 +448,4 @@
 - 3.2：AlmanacDay には riseSet（その日の日月の出没）がある（design.md も更新済み）。almanac の先頭は閏月の例の 2025-07-25 の 1 行なので、カレンダーは月で絞り込んで使う。天文現象（events）は 2026-11 と 2026-12 だけで、各日の eventIds から引く。bodies は天体の ID（astro.body.{id} に対応する）
 - 3.3：投稿詳細のシナリオと投稿の対応は postDetailScenarios にある（default p-101、private-blocked p-104（guest で見る）、hidden-own p-108、hidden-other p-109、deleted-comment p-120、no-location p-106、weather-failed p-107）。ログイン時の自分は viewerIds（member は u-hoshizora）。削除済みのコメントは本文が空で、moderation.comment-deleted を表示する。作者が削除した投稿 p-111 は本文を残しているが、画面で表示するかは 5.x で決める。地域名と表示名は日本語の自由記述で、英語表示でも日本語のまま
 - 3.4：星図のサンプルは 2026-11-16 20:00 JST の東京都三鷹市付近（方位は北から時計回り、度）。太陽は高度 -41.7 で bodies に含まれるので、mk-star-chart は高度 0 未満の天体を空の円の中に描かない。辞書にキーのない恒星は nameKey を持たない（名前を出さない）
+- 4.1：部品は MockElement を継承し、this.el()、this.t()、this.sample()、this.missingSample(id)、this.refresh() を使う。static observedAttributes に挙げた属性が変わると再描画される。ヘッダーのリンクは、スクリプトの位置から mockups/screens/*.html として解決する。移動先の authStates が許す場合は ?auth を引き継ぐ。mk-guest-notice は常に表示されるので、出し分けはページ側の data-when-auth で行う。投稿の状態の文言は post.status.*（公開中／ログインユーザのみ／一時非表示／削除済み）を使う。site.name（星と暦）は仮の名前

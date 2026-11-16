@@ -291,14 +291,36 @@ interface ReviewShellService {
  * Shape of the MockElement base class implemented in assets/js/components/base.js.
  * Declared as an interface (not a class) so that base.js can define the real
  * `class MockElement extends HTMLElement` in the same global scope without a
- * duplicate-identifier conflict. In the implementation, render/sample/t are protected.
+ * duplicate-identifier conflict. Every member is public (JSDoc @protected would make the class
+ * unassignable to MockElementConstructor); render/sample/t/el/missingSample are meant to be called
+ * only by the element itself and its subclasses.
  */
 interface MockElementContract extends HTMLElement {
-  /** Renders into Light DOM via this.replaceChildren(...) */
+  /**
+   * Abstract: every subclass overrides it and renders into Light DOM via this.replaceChildren(...).
+   * The base implementation throws.
+   */
   render(state: MockStateSnapshot): void;
   /** Returns window.MockSample */
   sample(): SampleDataSet;
+  /** window.MockI18n.t in the current language */
   t(key: MessageKey, args?: MessageArgs): string;
+  /**
+   * Builds an element: attributes from `attrs` (null for none), children appended in order
+   * (strings become text nodes).
+   */
+  el<K extends keyof HTMLElementTagNameMap>(
+    tag: K,
+    attrs?: Readonly<Record<string, string>> | null,
+    ...children: readonly (Node | string)[]
+  ): HTMLElementTagNameMap[K];
+  /** Visible error for a sample id that does not exist (error.missing-sample, [data-missing-sample="{id}"]) */
+  missingSample(id: string): HTMLElement;
+  /**
+   * Re-renders with `state`, keeping keyboard focus on the element with the same
+   * [data-mk-focus] value inside this element when it was focused before.
+   */
+  refresh(state: MockStateSnapshot): void;
   /** First render and subscription to mock:change */
   connectedCallback(): void;
   /** Unsubscribes from mock:change */

@@ -120,6 +120,37 @@
       <p id="cond-member" data-when-auth="member admin">ログインしているとき（会員・管理者）だけ表示します。</p>
       <p id="cond-both" data-when-auth="member" data-when-scenario="empty">会員で、かつシナリオが「空状態」のときだけ表示します。</p>
     </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-shell">
+      <h2 id="sec-shell">共通の部品</h2>
+      <p class="text-muted">ヘッダー・フッター・閲覧のみの案内・状態バッジ・管理帯です。ログイン状態はツールバーで切り替えます（例：<a href="?auth=guest">?auth=guest</a>、<a href="?auth=member">?auth=member</a>、<a href="?auth=admin">?auth=admin</a>）。ヘッダーの言語切替とテーマ切替は、このページ全体に効きます。幅 600px 未満ではメニューが折りたたまれます。</p>
+
+      <h3 id="sec-shell-header"><code>mk-site-header</code></h3>
+      <p class="text-muted">属性なし（画面 ID から現在の項目を決める。見本ページでは未選択）</p>
+      <mk-site-header id="header-default"></mk-site-header>
+      <p class="text-muted"><code>current="star-chart"</code></p>
+      <mk-site-header id="header-current" current="star-chart"></mk-site-header>
+
+      <h3 id="sec-shell-footer"><code>mk-site-footer</code></h3>
+      <mk-site-footer id="footer-sample"></mk-site-footer>
+
+      <h3 id="sec-shell-notice"><code>mk-guest-notice</code></h3>
+      <p class="text-muted"><code>variant="read-only"</code>（既定）</p>
+      <mk-guest-notice id="notice-read-only"></mk-guest-notice>
+      <p class="text-muted"><code>variant="private-post"</code></p>
+      <mk-guest-notice id="notice-private-post" variant="private-post"></mk-guest-notice>
+
+      <h3 id="sec-shell-badge"><code>mk-status-badge</code></h3>
+      <div class="l-cluster">
+        <mk-status-badge id="badge-public" status="public"></mk-status-badge>
+        <mk-status-badge id="badge-members-only" status="members-only"></mk-status-badge>
+        <mk-status-badge id="badge-hidden" status="hidden"></mk-status-badge>
+        <mk-status-badge id="badge-deleted" status="deleted"></mk-status-badge>
+      </div>
+
+      <h3 id="sec-shell-admin"><code>mk-admin-band</code></h3>
+      <mk-admin-band id="admin-band-sample"></mk-admin-band>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="data/glossary.js"></script>

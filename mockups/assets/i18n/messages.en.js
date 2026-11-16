@@ -18,6 +18,18 @@
     'nav.main': 'Main menu',
     'nav.skip-to-content': 'Skip to main content',
 
+    // Shell components (task 4.1). site.name is a working title until the service is named.
+    'site.name': 'Stars & Almanac',
+    'header.menu': 'Menu',
+    'header.signed-in-as': 'Signed in as {name}',
+    'footer.links': 'About this site',
+    'footer.note': 'All data shown here is fictional sample data.',
+    'guest-notice.read-only': "You're browsing as a guest, so you can only read. Log in to post, comment, like or report.",
+    'guest-notice.private-post': 'This post is visible only to logged-in users.',
+    'guest-notice.login': 'Log in',
+    'admin-band.label': 'Administrators only',
+    'admin-band.description': 'Only administrators can view this screen.',
+
     // Language and theme toggles
     'toggle.lang.label': 'Language',
     'toggle.lang.ja': '日本語',
@@ -384,8 +396,8 @@
 
     // Post visibility (PostStatus)
     'post.status.public': 'Public',
-    'post.status.members-only': 'Members only',
-    'post.status.hidden': 'Hidden',
+    'post.status.members-only': 'Logged-in users only',
+    'post.status.hidden': 'Temporarily hidden',
     'post.status.deleted': 'Deleted',
 
     // Moderation (ReportReason, ReportQueueState)

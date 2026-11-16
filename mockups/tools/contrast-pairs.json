@@ -7,6 +7,7 @@
   { "fg": "--color-text-muted", "bg": "--color-surface-muted", "min": 4.5, "themes": ["light", "dark"] },
   { "fg": "--color-link", "bg": "--color-bg", "min": 4.5, "themes": ["light", "dark"] },
   { "fg": "--color-link", "bg": "--color-surface", "min": 4.5, "themes": ["light", "dark"] },
+  { "fg": "--color-link", "bg": "--color-surface-muted", "min": 4.5, "themes": ["light", "dark"] },
   { "fg": "--color-on-accent", "bg": "--color-accent", "min": 4.5, "themes": ["light", "dark"] },
   { "fg": "--color-error", "bg": "--color-bg", "min": 4.5, "themes": ["light", "dark"] },
   { "fg": "--color-error", "bg": "--color-surface", "min": 4.5, "themes": ["light", "dark"] },
