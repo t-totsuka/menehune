@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="assets/css/base.css">
   <!-- components.css goes here, between base.css and wireframe.css (wireframe.css is always last). -->
   <link rel="stylesheet" href="assets/css/wireframe.css">
+  <!-- Review chrome only; always the last stylesheet and never referenced by product CSS. -->
+  <link rel="stylesheet" href="assets/css/review.css">
 </head>
 <body>
   <main class="l-container l-stack">
@@ -108,11 +110,22 @@
         <div><dt><code>month-year</code></dt><dd><time id="i18n-month-year" datetime="2026-11" data-i18n-date="2026-11-16" data-date-style="month-year">2026年11月</time></dd></div>
       </dl>
     </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-conditions">
+      <h2 id="sec-conditions">条件付きの表示</h2>
+      <p class="text-muted">画面下部のツールバーでログイン状態とシナリオを切り替えると、<code>data-when-auth</code> と <code>data-when-scenario</code>（空白区切りで複数指定可）に合わない要素が非表示になります（例：<a href="?auth=member&amp;scenario=empty">?auth=member&amp;scenario=empty</a>）。</p>
+      <p id="cond-default" data-when-scenario="default">シナリオが「既定」のときだけ表示します。</p>
+      <p id="cond-empty" data-when-scenario="empty fetch-error">シナリオが「空状態」か「取得失敗」のときだけ表示します。</p>
+      <p id="cond-guest" data-when-auth="guest">未ログインのときだけ表示します。</p>
+      <p id="cond-member" data-when-auth="member admin">ログインしているとき（会員・管理者）だけ表示します。</p>
+      <p id="cond-both" data-when-auth="member" data-when-scenario="empty">会員で、かつシナリオが「空状態」のときだけ表示します。</p>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="assets/js/mock-state.js"></script>
   <script src="assets/i18n/messages.ja.js"></script>
   <script src="assets/i18n/messages.en.js"></script>
   <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/review-shell.js"></script>
 </body>
 </html>

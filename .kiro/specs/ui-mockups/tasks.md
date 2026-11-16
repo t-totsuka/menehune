@@ -78,7 +78,7 @@
   - 完了状態：見本ページを stage=wireframe で開くと、色・装飾・図の中身が消え、要素の位置と大きさはハイフィ段階と同じになる
   - _Requirements: 1.1, 1.2, 1.4_
 
-- [ ] 1.8 レビューシェルを作る
+- [x] 1.8 レビューシェルを作る
   - 画面下部に、製品とは別のスタイルで固定のツールバーを出す
     - 一覧への戻りリンク
     - 段階、ログイン状態、シナリオの切替
@@ -439,3 +439,4 @@
 - 1.5：ルート要素の言語は `lang` 属性（`data-lang` ではない）。保存キーは `mk.prefs`（stage/lang/theme）で、`update()` のたびに現在の値を保存する。画面ページのテストには、実画面ではないフィクスチャー（`tests/fixtures/`）を使う
 - 1.6：日付書式は date-short（11月16日(月) / Mon, Nov 16）、weekday（月 / Mon）、datetime（2026年11月16日(月) 18:42 / Mon, Nov 16, 2026, 18:42）、month-year（2026年11月 / November 2026）。オフセットのない日時は +09:00 として読む。辞書にないキーの例は `tests/fixtures/i18n-fixture.html` にだけ置き、製品のページには置かない
 - 1.7：ワイヤーフレームでは `[data-decor]` を `visibility: hidden` で隠す（場所は残る）。`[data-figure]` は中身を隠して枠と対角線を出し、枠は outline で描く。そのため `data-figure` は、フォーカスできない外側の要素に付ける（フォーカスできる要素に付けると、ワイヤーフレーム段階でフォーカス表示が消える）。新しい色の役割トークンを tokens.css に足したときは、wireframe.css にもグレーの値を足す
+- 1.8：レビューシェルは review.css と review-shell.js を最後に読み込む前提で動く。`[data-when-*][hidden]` を `display: none !important` にする規則は review.css にある。一覧への戻り先は、スクリプトの位置から mockups/index.html として解決する。ScenarioId や AuthState を増やしたときは、review-shell.js の一覧とラベルも更新する（mock-state.js の一覧の写しを持っている）

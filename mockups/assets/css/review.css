@@ -1,0 +1,153 @@
+/*
+ * Review shell styles (ReviewShell). Review chrome only: the toolbar fixed to the bottom of the
+ * viewport and its banners. Loaded last on every page; product CSS never references this file.
+ *
+ * Rules for this file:
+ *   - Never use product tokens (var(--color-*), var(--space-*), ...). Values here are literals,
+ *     so the review UI stays separate from the product look and does not follow the theme.
+ *   - The toolbar itself is grayscale, so it looks the same on the hifi and wireframe stages.
+ *   - Everything is scoped to .mk-review / .mk-review-spacer, except the [hidden] rule for the
+ *     conditional-display convention below.
+ */
+
+/* Conditional display (data-when-auth / data-when-scenario): `hidden` must win over any
+   product display rule such as .l-cluster { display: flex }. */
+[data-when-auth][hidden],
+[data-when-scenario][hidden] {
+  display: none !important;
+}
+
+/* In-flow spacer whose height the shell keeps equal to the fixed toolbar. */
+.mk-review-spacer {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.mk-review {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2147483000;
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  background-image: none;
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  color: #ffffff;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.mk-review *,
+.mk-review *::before,
+.mk-review *::after {
+  box-sizing: border-box;
+  min-width: 0;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.mk-review[hidden],
+.mk-review [hidden] {
+  display: none !important;
+}
+
+/* ---- Banners ---- */
+.mk-review .mk-review__banner {
+  margin: 0;
+  padding: 6px 12px;
+  border-top: 2px solid #000000;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mk-review .mk-review__banner--provisional {
+  background-color: #fff1b8;
+  color: #3d2f00;
+  border-top-color: #8a6a00;
+}
+
+.mk-review .mk-review__banner--warning {
+  background-color: #ffe0e0;
+  color: #5c0000;
+  border-top-color: #b00020;
+}
+
+/* ---- Toolbar ---- */
+.mk-review .mk-review__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 8px 12px;
+  background-color: #1f1f1f;
+  color: #ffffff;
+  border-top: 2px solid #000000;
+}
+
+.mk-review .mk-review__back,
+.mk-review .mk-review__back:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  text-decoration-color: #ffffff;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mk-review .mk-review__field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.mk-review label {
+  margin: 0;
+  color: #e6e6e6;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.mk-review select {
+  max-width: 100%;
+  margin: 0;
+  padding: 2px 4px;
+  border: 1px solid #8c8c8c;
+  border-radius: 3px;
+  background-color: #ffffff;
+  color: #111111;
+  font: inherit;
+  line-height: 1.3;
+  accent-color: auto;
+}
+
+.mk-review .mk-review__status {
+  margin: 0;
+  color: #e6e6e6;
+  font-size: 12px;
+}
+
+/* Keyboard focus: literal colors visible on the dark bar (the product focus token is not used). */
+.mk-review :focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.mk-review select:focus-visible {
+  outline-color: #ffffff;
+}
+
+@media print {
+  .mk-review,
+  .mk-review-spacer {
+    display: none !important;
+  }
+}
