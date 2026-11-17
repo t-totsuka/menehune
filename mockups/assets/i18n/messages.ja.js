@@ -75,6 +75,16 @@
     'sky.describe.stars': '主な星：{list}。',
     'sky.describe.constellations': '星座：{list}。',
 
+    // Post components (task 4.5). like.count-one is the one-like form (same wording in Japanese).
+    'post-card.target-date': '対象日',
+    'like.count': 'いいね {count}件',
+    'like.count-one': 'いいね {count}件',
+    'comment.tree-label': 'コメント',
+    'comment.reply-to': '{name} さんへの返信',
+    'comment.reply-to-deleted': '削除されたコメントへの返信',
+    'report-link.post': 'この投稿を通報する',
+    'report-link.comment': '{name} さんのコメントを通報する',
+
     // Language and theme toggles
     'toggle.lang.label': '言語',
     'toggle.lang.ja': '日本語',

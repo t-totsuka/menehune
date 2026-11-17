@@ -269,6 +269,50 @@
       <h3 id="sec-star-chart-missing"><code>mk-star-chart sample="unknown"</code>（サンプルなし）</h3>
       <mk-star-chart id="star-chart-missing" sample="unknown"></mk-star-chart>
     </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-posts">
+      <h2 id="sec-posts">投稿の部品</h2>
+      <p class="text-muted">投稿カード・コメントツリー・いいね・通報への導線です。未ログインでは、いいねは件数だけになり、通報への導線は表示しません（例：<a href="?auth=guest">?auth=guest</a>、<a href="?auth=member">?auth=member</a>）。ログイン時の「自分」は「ほしぞら散歩」さんです。</p>
+
+      <h3 id="sec-post-card"><code>mk-post-card</code></h3>
+      <p class="text-muted">一覧用のカードで、対象日・状態バッジ・本文の抜粋・いいね数を表示します。<code>variant="compact"</code> は抜粋を短くします。</p>
+      <div class="mk-post-card-samples">
+        <mk-post-card id="post-card-p-101" post-id="p-101"></mk-post-card>
+        <mk-post-card id="post-card-p-103" post-id="p-103"></mk-post-card>
+        <mk-post-card id="post-card-p-104" post-id="p-104"></mk-post-card>
+        <mk-post-card id="post-card-p-108" post-id="p-108"></mk-post-card>
+        <mk-post-card id="post-card-p-111" post-id="p-111"></mk-post-card>
+        <mk-post-card id="post-card-compact" post-id="p-102" variant="compact"></mk-post-card>
+        <mk-post-card id="post-card-missing" post-id="p-999"></mk-post-card>
+      </div>
+
+      <h3 id="sec-like-button"><code>mk-like-button</code></h3>
+      <p class="text-muted">ログイン時は押せるボタン（押すとこの見本の中だけで件数と状態が変わる）、未ログインでは件数だけです。</p>
+      <div class="l-cluster">
+        <mk-like-button id="like-p-101" post-id="p-101"></mk-like-button>
+        <mk-like-button id="like-p-102" post-id="p-102"></mk-like-button>
+        <mk-like-button id="like-p-108" post-id="p-108"></mk-like-button>
+        <mk-like-button id="like-missing" post-id="p-999"></mk-like-button>
+      </div>
+
+      <h3 id="sec-report-link"><code>mk-report-link</code></h3>
+      <div class="l-cluster">
+        <mk-report-link id="report-p-101" target-id="p-101"></mk-report-link>
+        <mk-report-link id="report-c-101-1" target-id="c-101-1"></mk-report-link>
+        <mk-report-link id="report-missing" target-id="x-999"></mk-report-link>
+      </div>
+
+      <h3 id="sec-comment-tree"><code>mk-comment-tree</code></h3>
+      <p class="text-muted">入れ子のコメントです。字下げは PC 幅で 6 段、スマートフォン幅（600px 未満）で 3 段までで、それより深いコメントは字下げせずに返信先を表示します。削除済みのコメントは本文の代わりに削除済みと表示し、返信は残します。</p>
+      <p class="text-muted"><code>post-id="p-120"</code>（深さ 7、削除済みを含む）</p>
+      <mk-comment-tree id="comments-p-120" post-id="p-120"></mk-comment-tree>
+      <p class="text-muted"><code>post-id="p-101"</code></p>
+      <mk-comment-tree id="comments-p-101" post-id="p-101"></mk-comment-tree>
+      <p class="text-muted"><code>post-id="p-105"</code>（コメントなし）</p>
+      <mk-comment-tree id="comments-empty" post-id="p-105"></mk-comment-tree>
+      <p class="text-muted"><code>post-id="p-999"</code>（サンプルなし）</p>
+      <mk-comment-tree id="comments-missing" post-id="p-999"></mk-comment-tree>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="data/glossary.js"></script>

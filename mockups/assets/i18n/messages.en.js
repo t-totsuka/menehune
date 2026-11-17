@@ -75,6 +75,16 @@
     'sky.describe.stars': 'Main stars: {list}.',
     'sky.describe.constellations': 'Constellations: {list}.',
 
+    // Post components (task 4.5). like.count-one is the one-like form (same wording in Japanese).
+    'post-card.target-date': 'Date',
+    'like.count': '{count} likes',
+    'like.count-one': '{count} like',
+    'comment.tree-label': 'Comments',
+    'comment.reply-to': 'Reply to {name}',
+    'comment.reply-to-deleted': 'Reply to a deleted comment',
+    'report-link.post': 'Report this post',
+    'report-link.comment': 'Report the comment by {name}',
+
     // Language and theme toggles
     'toggle.lang.label': 'Language',
     'toggle.lang.ja': '日本語',

@@ -954,3 +954,226 @@ mk-star-chart {
 .mk-star-chart__body[data-kind="sun"] .mk-star-chart__body-label {
   fill: var(--color-event-sun);
 }
+
+/* ---- mk-post-card / mk-comment-tree / mk-like-button / mk-report-link (6.1, 6.4, 6.6, 6.7, 6.8, 8.3, 12.4) ---- */
+mk-post-card,
+mk-comment-tree {
+  display: block;
+  min-width: 0;
+}
+
+mk-like-button,
+mk-report-link {
+  display: inline-block;
+  min-width: 0;
+}
+
+/* Sample layout of the cards on the catalog page. */
+.mk-post-card-samples {
+  display: grid;
+  gap: var(--space-md);
+}
+
+@media (min-width: 960px) {
+  .mk-post-card-samples {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mk-post-card {
+  display: grid;
+  gap: var(--space-xs);
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  overflow-wrap: anywhere;
+}
+
+.mk-post-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.mk-post-card__date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-sm);
+  margin: 0;
+  min-width: 0;
+}
+
+.mk-post-card__date-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-post-card__link {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-post-card__excerpt {
+  margin: 0;
+}
+
+.mk-post-card[data-variant="compact"] {
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-sm);
+}
+
+.mk-post-card[data-variant="compact"] .mk-post-card__excerpt {
+  font-size: var(--font-size-sm);
+}
+
+.mk-post-card__likes {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-post-card__like-symbol {
+  margin-inline-end: var(--space-xs);
+}
+
+/* Like: a toggle for logged-in viewers (pressed = filled, plus the filled heart symbol, so the
+   state does not depend on color alone); a plain count for guests. */
+.mk-like {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.mk-like[data-readonly] {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+button.mk-like[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.mk-report-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-size: var(--font-size-sm);
+}
+
+/* Comment tree: each reply list is indented by one step with a guide line, up to 6 levels on PC
+   and 3 levels below 600px. Deeper lists (data-flat) are not indented further, and their
+   comments show whom they reply to instead, so the body keeps a readable width. */
+.mk-comment-tree {
+  overflow-wrap: anywhere;
+}
+
+.mk-comment-tree__list,
+.mk-comment__replies {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-comment__replies {
+  margin-block-start: var(--space-sm);
+  padding-inline-start: var(--space-lg);
+  border-inline-start: var(--border-width-thick) solid var(--color-border);
+}
+
+.mk-comment__replies[data-flat="all"] {
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+.mk-comment {
+  min-width: 0;
+}
+
+.mk-comment__box {
+  display: grid;
+  gap: var(--space-2xs);
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.mk-comment[data-deleted] > .mk-comment__box {
+  border-style: dashed;
+}
+
+.mk-comment__reply-to,
+.mk-comment__meta,
+.mk-comment__body,
+.mk-comment__deleted {
+  margin: 0;
+}
+
+.mk-comment__reply-to {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-comment__reply-to[data-scope="phone"] {
+  display: none;
+}
+
+.mk-comment__reply-mark {
+  margin-inline-end: var(--space-xs);
+}
+
+.mk-comment__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+.mk-comment__author {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-comment__at {
+  color: var(--color-text-muted);
+}
+
+.mk-comment__deleted {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.mk-comment__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+.mk-comment-tree__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+@media (width < 600px) {
+  .mk-comment__replies {
+    padding-inline-start: var(--space-md);
+  }
+
+  .mk-comment__replies[data-flat] {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+
+  .mk-comment__reply-to[data-scope="phone"] {
+    display: block;
+  }
+}
