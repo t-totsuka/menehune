@@ -281,7 +281,7 @@ test.describe('layout', () => {
     test(`no horizontal overflow at ${width}px`, async ({ page }) => {
       await open(page, width);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-      const fits = await page.locator('mk-almanac-summary, mk-rise-set, mk-event-list').evaluateAll((els) => els.map((el) => {
+      const fits = await page.locator('mk-almanac-summary, mk-rise-set:not(mk-location-panel mk-rise-set), mk-event-list').evaluateAll((els) => els.map((el) => {
         const r = el.getBoundingClientRect();
         return r.right <= document.documentElement.clientWidth + 0.5;
       }));

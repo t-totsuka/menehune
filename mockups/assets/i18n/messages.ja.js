@@ -422,6 +422,8 @@
     // Location precision (LocationPrecision) and how other people see it
     'location.label': '位置の公開精度',
     'location.none': '位置情報なし',
+    'location.panel.title': '投稿地点',
+    'location.panel.rise-set': '投稿地点の日月の出没',
     'location.precision.exact': '正確な位置',
     'location.precision.exact.description': 'ほかの人には、投稿した地点がそのまま地図に表示されます。',
     'location.precision.fuzzed-1km': '約 1 km の範囲',
@@ -451,7 +453,7 @@
     'weather.condition.snow': '雪',
     'weather.condition.fog': '霧',
     'weather.condition.thunderstorm': '雷雨',
-    'weather.temperature': '気温 {value}℃',
+    'weather.temperature': '気温 {value}°C',
     'weather.humidity': '湿度 {value}%',
     'weather.wind': '風速 {value} m/s',
     'weather.observed-at': '{time} 観測',

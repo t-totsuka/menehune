@@ -357,6 +357,60 @@
         </div>
       </div>
     </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-weather-location">
+      <h2 id="sec-weather-location">天気と位置パネル</h2>
+      <p class="text-muted">表示はサンプル投稿のデータで決まります。位置ありで天気がない投稿は「天気を取得できませんでした」、位置がない投稿は何も表示しません。単位（°C、%、m/s）は日英で同じ記号です。</p>
+
+      <h3 id="sec-weather"><code>mk-weather</code></h3>
+      <div class="mk-cell-samples">
+        <div class="l-stack">
+          <p class="text-muted"><code>post-id="p-101"</code>（晴れ）</p>
+          <mk-weather id="weather-p-101" post-id="p-101"></mk-weather>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>post-id="p-105"</code>（風速 4.0 m/s）</p>
+          <mk-weather id="weather-p-105" post-id="p-105"></mk-weather>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>post-id="p-107"</code>（天気の取得失敗）</p>
+          <mk-weather id="weather-p-107" post-id="p-107"></mk-weather>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>post-id="p-106"</code>（位置情報なし：何も表示しない）</p>
+          <mk-weather id="weather-p-106" post-id="p-106"></mk-weather>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>post-id="p-999"</code>（サンプルなし）</p>
+          <mk-weather id="weather-missing" post-id="p-999"></mk-weather>
+        </div>
+      </div>
+
+      <h3 id="sec-location-panel"><code>mk-location-panel</code></h3>
+      <p class="text-muted"><code>post-id="p-101"</code>（市区町村、天気あり）</p>
+      <mk-location-panel id="location-panel-p-101" post-id="p-101"></mk-location-panel>
+      <p class="text-muted"><code>post-id="p-107"</code>（天気の取得失敗）</p>
+      <mk-location-panel id="location-panel-p-107" post-id="p-107"></mk-location-panel>
+      <p class="text-muted"><code>post-id="p-106"</code>（位置情報なし：パネルを表示しない）</p>
+      <mk-location-panel id="location-panel-p-106" post-id="p-106"></mk-location-panel>
+      <p class="text-muted"><code>post-id="p-999"</code>（サンプルなし）</p>
+      <mk-location-panel id="location-panel-missing" post-id="p-999"></mk-location-panel>
+
+      <h3 id="sec-location-scenario">シナリオに追従する例</h3>
+      <p class="text-muted">投稿詳細のシナリオと投稿の対応（<code>postDetailScenarios</code>）に従い、シナリオごとの投稿を表示します（例：<a href="?scenario=weather-failed">?scenario=weather-failed</a>、<a href="?scenario=no-location">?scenario=no-location</a>、<a href="?scenario=default">?scenario=default</a>）。</p>
+      <div id="scenario-location-default" class="l-stack" data-when-scenario="default empty fetch-error validation-error private-blocked hidden-own hidden-other deleted-comment provisional-holiday">
+        <p class="text-muted">既定など：<code>post-id="p-101"</code></p>
+        <mk-location-panel post-id="p-101"></mk-location-panel>
+      </div>
+      <div id="scenario-location-weather-failed" class="l-stack" data-when-scenario="weather-failed">
+        <p class="text-muted">天気の取得失敗：<code>post-id="p-107"</code></p>
+        <mk-location-panel post-id="p-107"></mk-location-panel>
+      </div>
+      <div id="scenario-location-no-location" class="l-stack" data-when-scenario="no-location">
+        <p class="text-muted">位置なし：<code>post-id="p-106"</code>（位置パネルは表示されません）</p>
+        <mk-location-panel post-id="p-106"></mk-location-panel>
+      </div>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="data/glossary.js"></script>

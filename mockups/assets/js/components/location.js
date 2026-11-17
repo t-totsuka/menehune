@@ -1,6 +1,7 @@
 // Location components: mk-precision-picker and mk-map-sample (task 4.6; 6.2, 7.1, 7.2, 8.2, 13.4).
-// mk-location-panel and mk-weather follow in task 4.7. Design: Parts > プレゼンテーション部品;
-// PrecisionPickerAttrs / MapSampleAttrs in types.d.ts.
+// mk-location-panel and mk-weather: task 4.7 (7.2, 7.3, 7.4, 7.5, 7.6). Design: Parts >
+// プレゼンテーション部品; PrecisionPickerAttrs / MapSampleAttrs / LocationPanelAttrs / WeatherAttrs
+// in types.d.ts.
 //
 // mk-precision-picker (`value`):
 // - A real radio group: <fieldset> + <legend> (location.label) with the five LocationPrecision
@@ -25,7 +26,25 @@
 //   role="img" and aria-label = describe(state) naming the region (Japanese free text, also in the
 //   English UI). The caption repeats the region and the precision as visible text.
 //
-// Preconditions: base.js (window.MockElement) and i18n.js are loaded first.
+// mk-weather (`post-id`):
+// - Display follows the data (SamplePost): location present with weather -> condition, temperature
+//   (°C), humidity (%), wind speed (m/s) and the observation time (datetime format in <time>);
+//   location present without weather -> the weather could not be fetched: weather.unavailable as
+//   role="alert" (same as mk-event-list's fetch error); no location -> nothing (7.6). The screens
+//   pick the post per scenario from SampleDataSet.postDetailScenarios (weather-failed -> p-107).
+// - Units are the same symbols in both languages (in the dictionary templates). Temperature and
+//   wind keep one decimal place, humidity is a whole number.
+//
+// mk-location-panel (`post-id`):
+// - A <section> labelled by its h3 (location.panel.title) that groups the region name and map
+//   (mk-map-sample with the post's precision and regionLabel as `region`; its caption shows the
+//   region and precision), the rise / set times (h4 + mk-rise-set post-id) and the weather
+//   (h4 weather.label + mk-weather post-id). A post without location renders nothing (7.6), so the
+//   no-location scenario (p-106) shows no panel. The h3 / h4 levels are fixed; the screens check
+//   the heading hierarchy (5.3).
+//
+// Preconditions: base.js (window.MockElement) and i18n.js are loaded first; almanac.js (mk-rise-set)
+// is loaded for the panel.
 (function () {
   if (typeof window.MockElement !== 'function') {
     console.error('[location.js] window.MockElement is missing; load components/base.js first');
@@ -275,4 +294,105 @@
   }
 
   customElements.define('mk-map-sample', MapSample);
+
+  // ---------------------------------------------------------------------------------------------
+  // mk-weather / mk-location-panel
+  // ---------------------------------------------------------------------------------------------
+
+  /** @typedef {'temperature' | 'humidity' | 'wind'} WeatherItem */
+
+  class Weather extends MockElement {
+    static observedAttributes = ['post-id'];
+
+    render() {
+      const postId = this.getAttribute('post-id') ?? '';
+      const post = this.sample().posts.find((p) => p.id === postId);
+      if (!post) {
+        this.replaceChildren(this.missingSample(postId));
+        return;
+      }
+      // No location: no weather either (7.6).
+      if (!post.location) {
+        this.replaceChildren();
+        return;
+      }
+      const weather = post.weather;
+      if (!weather) {
+        // Location present, weather undefined: the weather could not be fetched (7.5).
+        this.replaceChildren(this.el('div', { class: 'mk-weather', 'data-state': 'unavailable' },
+          this.el('p', { class: 'mk-weather__error', role: 'alert' }, this.t('weather.unavailable'))));
+        return;
+      }
+      /** @type {readonly [WeatherItem, string][]} */
+      const items = [
+        ['temperature', this.t('weather.temperature', { value: weather.temperatureC.toFixed(1) })],
+        ['humidity', this.t('weather.humidity', { value: Math.round(weather.humidityPct) })],
+        ['wind', this.t('weather.wind', { value: weather.windMps.toFixed(1) })],
+      ];
+      const values = this.el('ul', { class: 'mk-weather__values' },
+        ...items.map(([item, text]) => this.el('li', { class: 'mk-weather__value', 'data-item': item }, text)));
+      const observed = this.el('p', { class: 'mk-weather__observed' },
+        this.el('time', { datetime: weather.observedAt },
+          this.t('weather.observed-at', { time: window.MockI18n.formatDate(weather.observedAt, 'datetime') })));
+      this.replaceChildren(this.el('div', { class: 'mk-weather', 'data-state': 'available' },
+        this.el('p', { class: 'mk-weather__condition' }, this.t(weather.conditionKey)), values, observed));
+    }
+  }
+
+  customElements.define('mk-weather', Weather);
+
+  /**
+   * A child mk-* element (not in HTMLElementTagNameMap, so not through this.el()).
+   * @param {MockElementName} name
+   * @param {Readonly<Record<string, string>>} attrs
+   * @returns {HTMLElement}
+   */
+  const childElement = (name, attrs) => {
+    const node = document.createElement(name);
+    for (const [attr, value] of Object.entries(attrs)) node.setAttribute(attr, value);
+    return node;
+  };
+
+  let panelCount = 0;
+
+  class LocationPanel extends MockElement {
+    static observedAttributes = ['post-id'];
+
+    constructor() {
+      super();
+      panelCount += 1;
+      /** Prefix for the heading ids of this instance. */
+      this.uid = `mk-location-panel-${panelCount}`;
+    }
+
+    render() {
+      const postId = this.getAttribute('post-id') ?? '';
+      const post = this.sample().posts.find((p) => p.id === postId);
+      if (!post) {
+        this.replaceChildren(this.missingSample(postId));
+        return;
+      }
+      // A post without location shows no panel (7.6).
+      const location = post.location;
+      if (!location) {
+        this.replaceChildren();
+        return;
+      }
+      const titleId = `${this.uid}-title`;
+      const map = childElement('mk-map-sample', { precision: location.precision, region: location.regionLabel });
+      const riseSet = this.el('div', { class: 'mk-location-panel__block', 'data-block': 'rise-set' },
+        this.el('h4', null, this.t('location.panel.rise-set')),
+        childElement('mk-rise-set', { 'post-id': post.id }));
+      const weather = this.el('div', { class: 'mk-location-panel__block', 'data-block': 'weather' },
+        this.el('h4', null, this.t('weather.label')),
+        childElement('mk-weather', { 'post-id': post.id }));
+      this.replaceChildren(this.el('section', { class: 'mk-location-panel', 'aria-labelledby': titleId },
+        this.el('h3', { class: 'mk-location-panel__title', id: titleId }, this.t('location.panel.title')),
+        this.el('div', { class: 'mk-location-panel__body' },
+          this.el('div', { class: 'mk-location-panel__map' }, map),
+          this.el('div', { class: 'mk-location-panel__details' }, riseSet, weather))));
+    }
+  }
+
+  customElements.define('mk-location-panel', LocationPanel);
 })();

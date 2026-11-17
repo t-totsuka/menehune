@@ -422,6 +422,8 @@
     // Location precision (LocationPrecision) and how other people see it
     'location.label': 'Location Precision',
     'location.none': 'No location',
+    'location.panel.title': 'Posted Location',
+    'location.panel.rise-set': 'Sun and Moon Rise/Set Times',
     'location.precision.exact': 'Exact location',
     'location.precision.exact.description': 'Others see the exact spot on the map.',
     'location.precision.fuzzed-1km': 'Within about 1 km',

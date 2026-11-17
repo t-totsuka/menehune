@@ -245,7 +245,7 @@
   - 完了状態：精度の 5 段階それぞれで地図の表示が変わり、ワイヤーフレーム段階では占位表示になる。トークンと辞書の検査が通る
   - _Requirements: 6.2, 7.1, 7.2, 8.2, 13.4_
 
-- [ ] 4.7 天気と位置パネルを作る
+- [x] 4.7 天気と位置パネルを作る
   - 天気（天候、気温、湿度、風速、観測時刻）と、取得失敗の表示を作る
   - 地域名・地図・出没・天気をまとめる位置パネルを作る。位置がない投稿では表示しない
   - 見本ページに追加する
@@ -454,3 +454,4 @@
 - 4.4：mk-star-chart は、ラベルを決まった手順で配置する（明るい星の点・天体・方位を先に場所取りし、天体名、星名（明るい順）、星座名の順に置く。置き場所がないものは省く）。日本語ではオリオン座・ペルセウス座・アンドロメダ座の名前が省かれる（代替テキストには残る）。これはワイヤーフレームのレビューの論点として、星図画面（5.2）か README に書き残す。ラベルの文字の大きさは SVG の属性（viewBox の単位）で指定している。投影は x = cx − r·sin(az)、y = cy − r·cos(az)、r = R·tan((90 − alt)/2)（北が上、東が左）
 - 4.5：投稿の部品（mk-post-card、mk-comment-tree、mk-like-button、mk-report-link）は posts.js にある。字下げの上限は PC で 6 段、600px 未満で 3 段。それより深い返信は data-flat で字下げをやめ、「↳ {name} さんへの返信」を出す（PC で 6 段を超える経路は、サンプルの深さが 7 までなので未検証）。返信先が削除済みのときは comment.reply-to-deleted を使う。いいねの状態は部品の中だけに持つ。投稿カードは post-detail.html へ、対応するシナリオがあれば ?scenario を付けてリンクする。通報の導線は report.html?target=ID へリンクする（どちらの画面もまだ受け取らない。5.3 と 5.6 で対応する）。返信ボタンは 5.x で作る。Playwright は Git Bash の /c/... から実行すると、ドライブ文字の大小が合わず既存のテストが落ちることがあるので、C:\ から実行する
 - 4.6：mk-precision-picker（value。省略時は何も選ばない）と mk-map-sample（precision、任意の region）は location.js にある。region は types.d.ts だけに足した任意の属性で、4.7 の位置パネルは投稿の regionLabel を region に渡す。省略すると、その精度を持つ最初のサンプル投稿から地域名と MapFrame を取る。キーの系統は map.caption と map.describe.{精度}。縮尺の表記（200 m、1 km など）は言語に依存しないリテラル。value に同じ値を設定し直しても、利用者が変えた選択は戻らない
+- 4.7：mk-weather と mk-location-panel（どちらも post-id）は location.js にあり、シナリオを読まずに投稿のデータで表示を決める（位置なしは何も出さない。位置ありで weather がないときは role="alert" で weather.unavailable を出す）。シナリオに応じた投稿の選択はページ側で行う（5.3 は postDetailScenarios を使う）。パネルの見出しは h3、中の見出しは h4 で固定。単位は日英とも °C、%、m/s。components.html のシナリオ追従の例は、既定の囲みの data-when-scenario に残りの ScenarioId を列挙しているので、ScenarioId を増やしたときはここも更新する
