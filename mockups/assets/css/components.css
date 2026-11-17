@@ -1626,3 +1626,47 @@ mk-weather {
 .screen-target__body {
   white-space: pre-line;
 }
+
+/* Admin screen (task 5.7; 3.6): the admin UI sits in a frame in the admin role color, so it is
+   told apart from the general screens together with mk-admin-band. */
+.screen-admin {
+  padding-block-start: var(--space-md);
+  border-block-start: var(--border-width-focus) solid var(--color-admin-band);
+}
+
+.screen-admin-list {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-admin-item {
+  min-width: 0;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-admin-band);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.screen-admin-item h3,
+.screen-admin-item p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.screen-admin-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-admin-reasons li {
+  overflow-wrap: anywhere;
+}

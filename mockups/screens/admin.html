@@ -15,7 +15,34 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.admin.title">管理</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- Admin only (3.6): guests and members get the no-permission notice; the admin gets the band,
+         the report queue and the appeal review inside a frame in the admin role color. The page
+         script at the end fills both lists from MockSample.reports; the `empty` scenario shows the
+         empty states instead. The actions are mocks that only change the displayed state. -->
+    <div data-when-auth="guest member" data-no-permission>
+      <div class="screen-notice l-stack" role="note">
+        <p data-i18n="error.no-permission">このページを表示する権限がありません。</p>
+        <p data-i18n="screen.admin.no-permission-hint">管理画面は、管理者のアカウントでログインしたときだけ表示できます。</p>
+        <p><a href="top.html" data-i18n="screen.admin.to-top">トップへ戻る</a></p>
+      </div>
+    </div>
+
+    <div class="screen-admin l-stack" data-when-auth="admin" data-admin-content>
+      <mk-admin-band></mk-admin-band>
+      <section class="l-stack" aria-labelledby="admin-queue" data-report-queue>
+        <h2 id="admin-queue" data-i18n="screen.admin.queue">通報キュー</h2>
+        <p data-i18n="screen.admin.queue-intro">通報された投稿とコメントです。</p>
+        <ul class="screen-admin-list" data-queue-list data-when-scenario="default"></ul>
+        <p class="text-muted" data-queue-empty data-when-scenario="empty" data-i18n="screen.admin.queue-empty">対応が必要な通報はありません。</p>
+      </section>
+      <section class="l-stack" aria-labelledby="admin-appeals" data-appeal-review>
+        <h2 id="admin-appeals" data-i18n="screen.admin.appeals">異議申し立ての審査</h2>
+        <p data-i18n="screen.admin.appeals-intro">異議が申し立てられています。</p>
+        <ul class="screen-admin-list" data-appeal-list data-when-scenario="default"></ul>
+        <p class="text-muted" data-appeals-empty data-when-scenario="empty" data-i18n="screen.admin.appeals-empty">審査を待っている異議申し立てはありません。</p>
+      </section>
+      <p class="field-hint" data-i18n="screen.admin.mock-note">このモックアップでは、操作しても保存されません。</p>
+    </div>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +59,83 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Admin page script (task 5.7). Builds the report queue (every report) and the appeal review
+    // (reports in the `appealed` state) from MockSample.reports. Texts are set as data-i18n
+    // (+ data-i18n-args) and translated by the i18n runtime. The mock actions keep the changed
+    // state per target in `states`, update every state label of that target and drop its actions.
+    (function () {
+      const sample = window.MockSample;
+      /** @type {Record<string, string>} Appeal texts of the sample (free text by the author). */
+      const appealTexts = { 'p-108': '参加費のない有志の観望会の案内で、宣伝の意図はありません。外部へのリンクも載せていないので、表示を再開してください。' };
+      /** @type {Map<string, string>} */
+      const states = new Map(sample.reports.map((r) => [r.targetId, r.state]));
+      /** @param {string} tag @param {Record<string, string>} attrs @param {(Node | string)[]} children */
+      const el = (tag, attrs, ...children) => {
+        const node = document.createElement(tag);
+        for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, value);
+        node.append(...children);
+        return node;
+      };
+      /** @param {readonly CommentNode[]} nodes @param {string} id @returns {CommentNode | undefined} */
+      const findComment = (nodes, id) => {
+        for (const c of nodes) { const hit = c.id === id ? c : findComment(c.children, id); if (hit) return hit; }
+        return undefined;
+      };
+      /** @param {ReportQueueItem} r */
+      const targetOf = (r) => r.targetType === 'post'
+        ? sample.posts.find((p) => p.id === r.targetId)
+        : sample.posts.map((p) => findComment(p.comments, r.targetId)).find((c) => c !== undefined);
+      /** @param {string} key @param {(Node | string)[]} content */
+      const meta = (key, ...content) => el('div', {}, el('dt', { 'data-i18n': key }), el('dd', {}, ...content));
+      /** @param {ReportQueueItem} r @param {boolean} appeal */
+      const item = (r, appeal) => {
+        const target = targetOf(r);
+        if (target === undefined) console.warn(`[admin] report target ${r.targetId} is not in the sample`);
+        const author = sample.users.find((u) => u.id === target?.authorId)?.displayName ?? '';
+        const body = target === undefined || ('deleted' in target && target.deleted)
+          ? el('p', { class: 'screen-target__body text-muted', 'data-target-body': '', 'data-i18n': 'moderation.comment-deleted' })
+          : el('p', { class: 'screen-target__body', 'data-target-body': '' }, target.body);
+        const count = el('span', { 'data-report-count': '', 'data-i18n': r.reportCount === 1 ? 'moderation.report-count-one' : 'moderation.report-count', 'data-i18n-args': JSON.stringify({ count: r.reportCount }) });
+        const reasons = el('ul', { class: 'screen-admin-reasons', 'data-reasons': '' }, ...r.reasons.map((reason) => el('li', { 'data-i18n': `moderation.reason.${reason}` })));
+        const state = el('span', { 'data-report-state': '', 'data-state-for': r.targetId, tabindex: '-1' });
+        const actions = appeal
+          ? [el('button', { type: 'button', 'data-decision': 'restore', 'data-i18n': 'screen.admin.restore' }), el('button', { type: 'button', 'data-decision': 'remove', 'data-i18n': 'screen.admin.remove' })]
+          : (r.state === 'open' ? [el('button', { type: 'button', 'data-hide-now': '', 'data-i18n': 'screen.admin.hide-now' })] : []);
+        const appealBox = el('div', { class: 'screen-target l-stack' },
+          el('p', { class: 'text-muted', 'data-i18n': 'screen.admin.appeal-text' }), el('p', { class: 'screen-target__body', 'data-appeal-text': '' }, appealTexts[r.targetId] ?? ''));
+        return el('li', { class: 'screen-admin-item l-stack', [appeal ? 'data-appeal-item' : 'data-queue-item']: '', 'data-target-id': r.targetId },
+          el('h3', {}, el('span', { 'data-target-kind': '', 'data-i18n': `screen.report.kind.${r.targetType}` }), ' ', el('code', {}, r.targetId)),
+          body,
+          ...(appeal ? [appealBox] : []),
+          el('dl', { class: 'screen-post-meta' }, meta('screen.report.author', author), meta('screen.admin.count', count),
+            meta('screen.admin.reasons', reasons), meta('screen.admin.state', state)),
+          ...(actions.length > 0 ? [el('p', { class: 'l-cluster' }, ...actions)] : []));
+      };
+      /** @param {string} id */
+      const show = (id) => {
+        const key = `moderation.state.${states.get(id)}`;
+        for (const node of document.querySelectorAll(`[data-state-for="${id}"]`)) {
+          node.setAttribute('data-i18n', key);
+          node.textContent = window.MockI18n.t(key);
+        }
+      };
+      document.querySelector('[data-queue-list]')?.append(...sample.reports.map((r) => item(r, false)));
+      document.querySelector('[data-appeal-list]')?.append(...sample.reports.filter((r) => r.state === 'appealed').map((r) => item(r, true)));
+      for (const r of sample.reports) show(r.targetId);
+      document.querySelector('[data-admin-content]')?.addEventListener('click', (e) => {
+        const button = e.target instanceof Element ? e.target.closest('button') : null;
+        const li = button?.closest('li[data-target-id]');
+        const id = li?.getAttribute('data-target-id');
+        if (!button || !li || !id) return;
+        const decision = button.getAttribute('data-decision');
+        states.set(id, button.hasAttribute('data-hide-now') ? 'hidden-by-admin' : decision === 'restore' ? 'restored' : 'removed');
+        for (const b of document.querySelectorAll(`li[data-target-id="${id}"] button`)) b.closest('p')?.remove();
+        show(id);
+        const label = li.querySelector('[data-report-state]');
+        if (label instanceof HTMLElement) label.focus();
+      });
+    })();
+  </script>
 </body>
 </html>

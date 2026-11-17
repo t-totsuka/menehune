@@ -15,7 +15,49 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.privacy.title">プライバシーポリシー</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- Chapters and example copy only (design: Pages > Screens). The collected items match the
+         login screen (Google account identifier and display name) plus the optional location,
+         content, settings and access logs; the final text is decided by auth-users and
+         platform-foundation. -->
+    <p class="screen-notice" role="note" data-example-note data-i18n="screen.legal.example-note">このページの文面は、章立てを確かめるための例文です。</p>
+    <p data-i18n="screen.privacy.intro">星と暦は、利用者の個人情報を次のとおり取り扱います（例文）。</p>
+    <section class="l-stack" aria-labelledby="privacy-collected">
+      <h2 id="privacy-collected" data-i18n="screen.privacy.collected">取得する情報</h2>
+      <p data-i18n="screen.privacy.collected-intro">本サービスは、次の情報を取得します（例）。</p>
+      <ul class="screen-info-list" data-collected-items>
+        <li data-i18n="screen.privacy.item.google-id">Google アカウントの識別子</li>
+        <li data-i18n="screen.privacy.item.display-name">表示名</li>
+        <li data-i18n="screen.privacy.item.settings">設定の内容</li>
+        <li data-i18n="screen.privacy.item.posts">投稿、コメント、いいね、通報、異議申し立ての内容</li>
+        <li data-i18n="screen.privacy.item.location">位置情報（投稿に付けたときだけ）</li>
+        <li data-i18n="screen.privacy.item.access-log">アクセスログ</li>
+      </ul>
+    </section>
+    <section class="l-stack" aria-labelledby="privacy-purpose">
+      <h2 id="privacy-purpose" data-i18n="screen.privacy.purpose">利用の目的</h2>
+      <p data-i18n="screen.privacy.purpose.body">ログインの確認、投稿とコメントの表示などに使います。</p>
+    </section>
+    <section class="l-stack" aria-labelledby="privacy-location">
+      <h2 id="privacy-location" data-i18n="screen.privacy.location">位置情報の扱い</h2>
+      <p data-i18n="screen.privacy.location.body">投稿者が選んだ精度に丸めてから表示します。</p>
+    </section>
+    <section class="l-stack" aria-labelledby="privacy-sharing">
+      <h2 id="privacy-sharing" data-i18n="screen.privacy.sharing">第三者への提供</h2>
+      <p data-i18n="screen.privacy.sharing.body">本人の同意なく第三者に提供しません。</p>
+    </section>
+    <section class="l-stack" aria-labelledby="privacy-retention">
+      <h2 id="privacy-retention" data-i18n="screen.privacy.retention">保存の期間と削除</h2>
+      <p data-i18n="screen.privacy.retention.body">一定の期間のあとに消去します。</p>
+    </section>
+    <section class="l-stack" aria-labelledby="privacy-cookies">
+      <h2 id="privacy-cookies" data-i18n="screen.privacy.cookies">Cookie</h2>
+      <p data-i18n="screen.privacy.cookies.body">ログインの状態を保つために Cookie を使います。</p>
+    </section>
+    <section class="l-stack" aria-labelledby="privacy-contact">
+      <h2 id="privacy-contact" data-i18n="screen.privacy.contact">お問い合わせ</h2>
+      <p data-i18n="screen.privacy.contact.body">お問い合わせのフォームから受け付けます。</p>
+    </section>
+    <p class="text-muted" data-i18n="screen.legal.updated" data-i18n-args='{"date":"2026-11-16"}'>最終更新日：2026-11-16（例）</p>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
