@@ -38,7 +38,12 @@ test('OS dark appearance gives dark tokens; data-theme overrides it', async ({ p
 for (const scheme of /** @type {const} */ (['light', 'dark'])) {
   test(`Tab focus shows an outline (${scheme})`, async ({ page }) => {
     await open(page, scheme);
+    // Task 6.1: the catalog nav (review chrome with its own literal focus ring, see
+    // catalog-nav.spec.mjs) comes first; tab past it to the first product control.
     await page.keyboard.press('Tab');
+    for (let i = 0; i < 20 && await page.evaluate(() => !!document.activeElement?.closest('.mk-catalog-nav')); i++) {
+      await page.keyboard.press('Tab');
+    }
     const outline = await page.evaluate(() => {
       const el = document.activeElement;
       if (!el || el === document.body) return null;

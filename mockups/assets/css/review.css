@@ -1,12 +1,13 @@
 /*
  * Review shell styles (ReviewShell). Review chrome only: the toolbar fixed to the bottom of the
- * viewport and its banners. Loaded last on every page; product CSS never references this file.
+ * viewport and its banners, and the shared navigation of the catalog pages (.mk-catalog-nav).
+ * Loaded last on every page; product CSS never references this file.
  *
  * Rules for this file:
  *   - Never use product tokens (var(--color-*), var(--space-*), ...). Values here are literals,
  *     so the review UI stays separate from the product look and does not follow the theme.
  *   - The toolbar itself is grayscale, so it looks the same on the hifi and wireframe stages.
- *   - Everything is scoped to .mk-review / .mk-review-spacer, except the [hidden] rule for the
+ *   - Everything is scoped to .mk-review / .mk-review-spacer / .mk-catalog-nav, except the [hidden] rule for the
  *     conditional-display convention below.
  */
 
@@ -145,9 +146,84 @@
   outline-color: #ffffff;
 }
 
+/* ---- Catalog pages (task 6.1) ----
+ * Shared look of the catalog pages (index, viewer, components, tokens, glossary, a11y):
+ *   <nav class="mk-catalog-nav" aria-label="カタログ"><ul class="mk-catalog-nav__list">
+ *     <li><a href="index.html">一覧</a></li> ... (aria-current="page" on the page itself)
+ *   </ul></nav>
+ * placed as the first child of <body>, before <main>. Like the toolbar it is review chrome:
+ * grayscale literals, the same in both themes and both stages, wraps at narrow widths.
+ * Page-specific styles stay in each page's own <style>; only shared catalog rules belong here. */
+.mk-catalog-nav {
+  display: block;
+  margin: 0;
+  padding: 8px 12px;
+  background-color: #1f1f1f;
+  background-image: none;
+  border-bottom: 2px solid #000000;
+  box-shadow: none;
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  color: #ffffff;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.mk-catalog-nav *,
+.mk-catalog-nav *::before,
+.mk-catalog-nav *::after {
+  box-sizing: border-box;
+  min-width: 0;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.mk-catalog-nav .mk-catalog-nav__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-catalog-nav .mk-catalog-nav__list > li {
+  margin: 0;
+  padding: 0;
+}
+
+.mk-catalog-nav a,
+.mk-catalog-nav a:visited,
+.mk-catalog-nav a:hover {
+  display: inline-block;
+  padding: 2px 0;
+  color: #ffffff;
+  text-decoration: underline;
+  text-decoration-color: #ffffff;
+  text-underline-offset: 3px;
+}
+
+/* Current page: bold, a thick bar instead of the underline (not color alone). */
+.mk-catalog-nav a[aria-current="page"] {
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 3px solid #ffffff;
+}
+
+/* Keyboard focus: literal colors visible on the dark bar (the product focus token is not used). */
+.mk-catalog-nav a:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
 @media print {
   .mk-review,
-  .mk-review-spacer {
+  .mk-review-spacer,
+  .mk-catalog-nav {
     display: none !important;
   }
 }

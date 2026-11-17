@@ -108,6 +108,39 @@ test('components.html loads the same assets in the same order', () => {
   assertOrderedAssets('components.html', '');
 });
 
+// Task 6.1: the catalog pages share the asset set (so the review shell, the theme and the read-only
+// dictionaries work on every one), a static catalog nav and fixed Japanese copy.
+const CATALOG_PAGES = ['index.html', 'viewer.html', 'components.html', 'tokens.html', 'glossary.html', 'a11y.html'];
+
+test('review.css styles the catalog nav without product tokens', () => {
+  const css = readFileSync(join(root, 'assets/css/review.css'), 'utf8');
+  assert.match(css, /\.mk-catalog-nav\b/);
+  assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ''), /var\(--/, 'review.css must not reference product tokens');
+});
+
+for (const file of CATALOG_PAGES) {
+  test(`${file}: catalog page skeleton, assets and catalog nav`, () => {
+    assert.ok(existsSync(join(root, file)), `missing ${file}`);
+    const html = readFileSync(join(root, file), 'utf8');
+    assert.match(html, /^<!doctype html>/i);
+    assert.match(html, /<html lang="ja">/);
+    assert.doesNotMatch(html, /<body[^>]*data-screen-id/, `${file}: a catalog page is not a screen`);
+    assertOrderedAssets(file, '');
+    const nav = /<nav class="mk-catalog-nav" aria-label="カタログ">([\s\S]*?)<\/nav>/.exec(html);
+    assert.ok(nav, `${file}: has the catalog nav`);
+    assert.ok(nav.index < html.indexOf('<main'), `${file}: catalog nav comes before <main>`);
+    const hrefs = [...nav[1].matchAll(/<a href="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(hrefs, CATALOG_PAGES, `${file}: nav links in order`);
+    const current = [...nav[1].matchAll(/<a href="([^"]+)" aria-current="page">/g)].map((m) => m[1]);
+    assert.deepEqual(current, [file], `${file}: only the page itself is aria-current`);
+    assert.doesNotMatch(nav[1], /data-i18n/, `${file}: catalog nav copy is fixed Japanese`);
+    for (const m of html.matchAll(/\b(?:src|href)="([^"#?]+)"/g)) {
+      assert.doesNotMatch(m[1], /^[a-z]+:/i, `${file}: no external reference ${m[1]}`);
+      assert.ok(existsSync(resolve(root, m[1])), `${file} references missing ${m[1]}`);
+    }
+  });
+}
+
 test('no screen file references a missing local file', () => {
   for (const id of SCREEN_IDS) {
     const file = join(root, 'screens', `${id}.html`);
