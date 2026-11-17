@@ -15,7 +15,76 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.appeal.title">異議申し立て</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- Guests get a login prompt instead of the form. For members the page script at the end fills
+         the target post (?target= a post id; post-detail links here for the viewer's hidden post) and
+         its report reasons. Only the author of a hidden post gets the post, the reasons and the form;
+         someone else's post (content not shown) or an own post that is not hidden gets a notice.
+         Wrappers toggled by the page script carry no layout class, so `hidden` is not overridden. -->
+    <div data-when-auth="guest" data-guest-prompt>
+      <div class="screen-notice l-stack" role="note">
+        <p data-i18n="screen.appeal.login-required">異議を申し立てるには、ログインしてください。</p>
+        <p><a href="login.html" data-i18n="guest-notice.login">ログインする</a></p>
+      </div>
+    </div>
+
+    <div class="l-stack" data-when-auth="member" data-member-content>
+      <div data-appeal-unavailable>
+        <div class="screen-notice l-stack" role="note">
+          <p data-appeal-unavailable-text data-i18n="screen.appeal.not-own">異議を申し立てられるのは、自分の投稿だけです。</p>
+        </div>
+      </div>
+
+      <div data-appeal-target>
+        <section class="screen-target l-stack" aria-labelledby="appeal-target">
+          <h2 id="appeal-target" data-i18n="screen.appeal.target">対象の投稿</h2>
+          <div class="screen-post-head">
+            <dl class="screen-post-meta">
+              <div>
+                <dt data-i18n="screen.post-detail.author">投稿者</dt>
+                <dd data-target-author></dd>
+              </div>
+              <div>
+                <dt data-i18n="screen.post-detail.target-date">対象日</dt>
+                <dd><time data-target-date data-date-style="date-long"></time></dd>
+              </div>
+              <div>
+                <dt data-i18n="screen.post-detail.posted-at">投稿日時</dt>
+                <dd><time data-target-posted-at data-date-style="datetime"></time></dd>
+              </div>
+            </dl>
+            <mk-status-badge data-target-status status="hidden"></mk-status-badge>
+          </div>
+          <p class="screen-target__body" data-target-body></p>
+          <p><a href="post-detail.html?auth=member&amp;scenario=hidden-own" data-target-back data-i18n="screen.appeal.back">投稿に戻る</a></p>
+        </section>
+      </div>
+
+      <div data-hidden-reason>
+        <section class="l-stack" aria-labelledby="appeal-reason">
+          <h2 id="appeal-reason" data-i18n="screen.appeal.reason">非表示の理由</h2>
+          <p data-i18n="screen.appeal.reason-intro">この投稿は、次の理由で通報され、一時的に非表示になっています。</p>
+          <ul class="screen-info-list" data-reason-list></ul>
+          <p data-report-count></p>
+        </section>
+      </div>
+
+      <div data-appeal-form>
+        <form class="screen-form l-stack" aria-labelledby="appeal-form" novalidate>
+          <h2 id="appeal-form" data-i18n="screen.appeal.form">申し立て</h2>
+          <div class="field">
+            <label for="appeal-content" data-i18n="screen.appeal.content">申し立ての内容</label>
+            <textarea id="appeal-content" name="content" rows="6" aria-describedby="appeal-content-hint"></textarea>
+            <p class="field-hint" id="appeal-content-hint" data-i18n="screen.appeal.content-hint">投稿に問題がないと考える理由を書いてください。管理者が確認して、表示を再開するかを決めます。</p>
+          </div>
+          <div class="l-stack">
+            <p class="l-cluster">
+              <button type="button" data-i18n="button.submit">送信</button>
+            </p>
+            <p class="field-hint" data-i18n="screen.appeal.mock-note">このモックアップでは、送信しても保存されません。</p>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +101,61 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Appeal page script (task 5.6). Runs before DOMContentLoaded, so it receives the initial
+    // mock:change and every later switch from the review shell.
+    // - ?target=ID: a sample post (post-detail links here for the viewer's hidden post). Without it
+    //   the hidden-own post is shown; an unknown id falls back to it with a warning.
+    // - The reasons come from the post's ReportQueueItem. Language-dependent texts are set as
+    //   data-i18n / data-i18n-date here and translated by the i18n runtime.
+    (function () {
+      const sample = window.MockSample;
+      const fallback = sample.postDetailScenarios['hidden-own'];
+      const requested = new URLSearchParams(window.location.search).get('target');
+      let post = requested === null ? undefined : sample.posts.find((p) => p.id === requested);
+      if (requested !== null && post === undefined) console.warn(`[appeal] target=${requested} is not a sample post; showing ${fallback}`);
+      post ??= sample.posts.find((p) => p.id === fallback);
+      const main = document.querySelector('main');
+      if (post === undefined || main === null) return;
+      const found = post;
+      /** @param {string} selector @returns {HTMLElement[]} */
+      const all = (selector) => [...main.querySelectorAll(selector)].filter((el) => el instanceof HTMLElement);
+      for (const el of all('[data-target-date]')) { el.setAttribute('datetime', found.targetDate); el.setAttribute('data-i18n-date', found.targetDate); }
+      for (const el of all('[data-target-posted-at]')) { el.setAttribute('datetime', found.postedAt); el.setAttribute('data-i18n-date', found.postedAt); }
+      for (const el of all('[data-target-status]')) el.setAttribute('status', found.status);
+      const report = sample.reports.find((r) => r.targetType === 'post' && r.targetId === found.id);
+      if (found.status === 'hidden' && report === undefined) console.warn(`[appeal] no report for the hidden post ${found.id}`);
+      for (const list of all('[data-reason-list]')) {
+        list.replaceChildren(...(report?.reasons ?? []).map((reason) => {
+          const li = document.createElement('li');
+          li.setAttribute('data-i18n', `moderation.reason.${reason}`);
+          return li;
+        }));
+      }
+      for (const el of all('[data-report-count]')) {
+        el.hidden = report === undefined;
+        el.setAttribute('data-i18n', report?.reportCount === 1 ? 'moderation.report-count-one' : 'moderation.report-count');
+        el.setAttribute('data-i18n-args', JSON.stringify({ count: report?.reportCount ?? 0 }));
+      }
+      const scenario = Object.entries(sample.postDetailScenarios).find(([s, id]) => id === found.id && s !== 'default')?.[0];
+      for (const a of all('a[data-target-back]')) a.setAttribute('href', `post-detail.html?auth=member${scenario === undefined ? '' : `&scenario=${scenario}`}`);
+      document.querySelector('main form')?.addEventListener('submit', (e) => e.preventDefault());
+      document.addEventListener('mock:change', (e) => {
+        const state = /** @type {CustomEvent<MockStateSnapshot>} */ (e).detail;
+        const own = state.auth !== 'guest' && sample.viewerIds[state.auth] === found.authorId;
+        const canAppeal = own && found.status === 'hidden';
+        // Someone else's post is not shown at all (it may be hidden from the viewer).
+        for (const el of all('[data-target-author]')) el.textContent = own ? (sample.users.find((u) => u.id === found.authorId)?.displayName ?? found.authorId) : '';
+        for (const el of all('[data-target-body]')) el.textContent = own ? found.body : '';
+        for (const el of all('[data-appeal-target]')) el.hidden = !own;
+        for (const el of all('[data-hidden-reason], [data-appeal-form]')) el.hidden = !canAppeal;
+        for (const el of all('[data-appeal-unavailable]')) el.hidden = canAppeal;
+        for (const el of all('[data-appeal-unavailable-text]')) {
+          const key = own ? 'screen.appeal.not-hidden' : 'screen.appeal.not-own';
+          if (el.getAttribute('data-i18n') !== key) { el.setAttribute('data-i18n', key); el.textContent = window.MockI18n.t(key); }
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

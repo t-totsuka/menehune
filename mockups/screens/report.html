@@ -15,7 +15,80 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.report.title">通報</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- Guests get a login prompt instead of the form. For members the page script at the end fills
+         the target (?target= a post or comment id; mk-report-link links here) and hides the form
+         when the target is the viewer's own post or comment. A hidden post's content is not shown.
+         Wrappers toggled by the page script carry no layout class, so `hidden` is not overridden. -->
+    <div data-when-auth="guest" data-guest-prompt>
+      <div class="screen-notice l-stack" role="note">
+        <p data-i18n="screen.report.login-required">通報するには、ログインしてください。</p>
+        <p><a href="login.html" data-i18n="guest-notice.login">ログインする</a></p>
+      </div>
+    </div>
+
+    <div class="l-stack" data-when-auth="member" data-member-content>
+      <section class="screen-target l-stack" aria-labelledby="report-target" data-report-target>
+        <h2 id="report-target" data-i18n="screen.report.target">通報する対象</h2>
+        <dl class="screen-post-meta">
+          <div>
+            <dt data-i18n="screen.report.kind">種類</dt>
+            <dd data-target-kind data-i18n="screen.report.kind.post">投稿</dd>
+          </div>
+          <div>
+            <dt data-i18n="screen.report.author">書いた人</dt>
+            <dd data-target-author></dd>
+          </div>
+        </dl>
+        <p class="screen-target__body" data-target-body></p>
+        <p><a href="post-detail.html?auth=member" data-target-back data-i18n="screen.report.back">投稿に戻る</a></p>
+      </section>
+
+      <div data-own-target>
+        <div class="screen-notice l-stack" role="note">
+          <p data-i18n="screen.report.own">自分の投稿やコメントは通報できません。</p>
+        </div>
+      </div>
+
+      <div data-report-form>
+        <form class="screen-form l-stack" aria-labelledby="report-form" novalidate>
+          <h2 id="report-form" data-i18n="screen.report.form">通報の内容</h2>
+          <fieldset class="screen-choices">
+            <legend data-i18n="moderation.reason.label">通報の理由</legend>
+            <div class="screen-check">
+              <input type="radio" id="report-reason-spam" name="reason" value="spam">
+              <label for="report-reason-spam" data-i18n="moderation.reason.spam">スパム・宣伝</label>
+            </div>
+            <div class="screen-check">
+              <input type="radio" id="report-reason-harassment" name="reason" value="harassment">
+              <label for="report-reason-harassment" data-i18n="moderation.reason.harassment">嫌がらせ・攻撃</label>
+            </div>
+            <div class="screen-check">
+              <input type="radio" id="report-reason-inappropriate" name="reason" value="inappropriate">
+              <label for="report-reason-inappropriate" data-i18n="moderation.reason.inappropriate">不適切な内容</label>
+            </div>
+            <div class="screen-check">
+              <input type="radio" id="report-reason-personal-info" name="reason" value="personal-info">
+              <label for="report-reason-personal-info" data-i18n="moderation.reason.personal-info">個人情報の掲載</label>
+            </div>
+            <div class="screen-check">
+              <input type="radio" id="report-reason-other" name="reason" value="other">
+              <label for="report-reason-other" data-i18n="moderation.reason.other">その他</label>
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="report-details" data-i18n="screen.report.details">詳しい内容（任意）</label>
+            <textarea id="report-details" name="details" rows="4" aria-describedby="report-details-hint"></textarea>
+            <p class="field-hint" id="report-details-hint" data-i18n="screen.report.details-hint">理由を補足したいときに書いてください。管理者だけが読みます。</p>
+          </div>
+          <div class="l-stack">
+            <p class="l-cluster">
+              <button type="button" data-i18n="button.report">通報</button>
+            </p>
+            <p class="field-hint" data-i18n="screen.report.mock-note">このモックアップでは、送信しても通報されません。</p>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +105,59 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Report page script (task 5.6). Runs before DOMContentLoaded, so it receives the initial
+    // mock:change and every later switch from the review shell.
+    // - ?target=ID: a sample post or comment (mk-report-link links here). Without it the default
+    //   post-detail post is shown; an unknown id falls back to it with a warning.
+    // - Language-dependent texts are set as data-i18n here and translated by the i18n runtime.
+    // - The viewer (SampleDataSet.viewerIds[auth]) cannot report their own post or comment.
+    (function () {
+      const sample = window.MockSample;
+      const fallback = sample.postDetailScenarios['default'];
+      /** @param {readonly CommentNode[]} nodes @param {string} id @returns {CommentNode | undefined} */
+      const findComment = (nodes, id) => {
+        for (const n of nodes) {
+          const found = n.id === id ? n : findComment(n.children, id);
+          if (found !== undefined) return found;
+        }
+        return undefined;
+      };
+      /** @param {string} id */
+      const resolve = (id) => {
+        for (const post of sample.posts) {
+          const comment = post.id === id ? undefined : findComment(post.comments, id);
+          if (post.id === id || comment !== undefined) return { post, comment };
+        }
+        return undefined;
+      };
+      const requested = new URLSearchParams(window.location.search).get('target');
+      let target = requested === null ? undefined : resolve(requested);
+      if (requested !== null && target === undefined) console.warn(`[report] target=${requested} is not a sample post or comment; showing ${fallback}`);
+      target ??= resolve(fallback);
+      const kind = document.querySelector('[data-target-kind]');
+      const author = document.querySelector('[data-target-author]');
+      const body = document.querySelector('[data-target-body]');
+      const back = document.querySelector('a[data-target-back]');
+      if (target === undefined || kind === null || author === null || body === null || back === null) return;
+      const { post, comment } = target;
+      const authorId = comment?.authorId ?? post.authorId;
+      kind.setAttribute('data-i18n', comment === undefined ? 'screen.report.kind.post' : 'screen.report.kind.comment');
+      author.textContent = sample.users.find((u) => u.id === authorId)?.displayName ?? authorId;
+      // A hidden post (and its comments) or a deleted comment is shown without its content.
+      if (post.status === 'hidden') body.setAttribute('data-i18n', 'moderation.hidden-notice');
+      else if (comment?.deleted) body.setAttribute('data-i18n', 'moderation.comment-deleted');
+      else body.textContent = comment?.body ?? post.body;
+      const scenario = Object.entries(sample.postDetailScenarios).find(([s, id]) => id === post.id && s !== 'default')?.[0];
+      back.setAttribute('href', `post-detail.html?auth=member${scenario === undefined ? '' : `&scenario=${scenario}`}`);
+      document.querySelector('main form')?.addEventListener('submit', (e) => e.preventDefault());
+      document.addEventListener('mock:change', (e) => {
+        const state = /** @type {CustomEvent<MockStateSnapshot>} */ (e).detail;
+        const own = state.auth !== 'guest' && sample.viewerIds[state.auth] === authorId;
+        for (const el of document.querySelectorAll('main [data-own-target]')) if (el instanceof HTMLElement) el.hidden = !own;
+        for (const el of document.querySelectorAll('main [data-report-form]')) if (el instanceof HTMLElement) el.hidden = own;
+      });
+    })();
+  </script>
 </body>
 </html>

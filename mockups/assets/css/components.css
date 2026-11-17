@@ -1608,3 +1608,21 @@ mk-weather {
 .screen-info-list li {
   overflow-wrap: anywhere;
 }
+
+/* Report and appeal screens (task 5.6): the reported or appealed content, set apart in a box. */
+.screen-target {
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.screen-target p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.screen-target__body {
+  white-space: pre-line;
+}
