@@ -152,6 +152,20 @@
     'screen.star-chart.fixed-sample': 'The chart in this mockup is a fixed sample. Changing the date, time or place does not change the chart (the initial input values are the sample date, time and place).',
     'screen.star-chart.sky': 'All-sky chart',
 
+    // Screen content: post detail (task 5.3)
+    'screen.post-detail.post': 'Post',
+    'screen.post-detail.author': 'Posted by',
+    'screen.post-detail.target-date': 'Date',
+    'screen.post-detail.posted-at': 'Posted at',
+    'screen.post-detail.location': 'Place and Sky',
+    'screen.post-detail.comments': 'Comments',
+    'screen.post-detail.comment-label': 'Write a comment',
+    'screen.post-detail.comment-note': 'In this mockup, sending a comment does not save it.',
+    'screen.post-detail.hidden': 'This post is temporarily hidden because it was reported.',
+    'screen.post-detail.back-to-top': 'Back to Home',
+    'screen.post-detail.own-hidden': 'Your post is temporarily hidden because it was reported. Other users cannot see it.',
+    'screen.post-detail.appeal': 'Appeal this decision',
+
     // Common errors
     'error.fetch': "We couldn't load the data. Please try again later.",
     'error.validation': 'Some fields need your attention. Please check them and try again.',

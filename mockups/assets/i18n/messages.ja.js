@@ -152,6 +152,20 @@
     'screen.star-chart.fixed-sample': 'このモックアップの星図は固定のサンプルです。日時や地点を変えても、星図は変わりません（入力欄の初期値が、サンプルの日時と地点です）。',
     'screen.star-chart.sky': '全天図',
 
+    // Screen content: post detail (task 5.3)
+    'screen.post-detail.post': '投稿の内容',
+    'screen.post-detail.author': '投稿者',
+    'screen.post-detail.target-date': '対象日',
+    'screen.post-detail.posted-at': '投稿日時',
+    'screen.post-detail.location': '場所と空のようす',
+    'screen.post-detail.comments': 'コメント',
+    'screen.post-detail.comment-label': 'コメントを書く',
+    'screen.post-detail.comment-note': 'このモックアップでは、送信しても保存されません。',
+    'screen.post-detail.hidden': 'この投稿は、通報により一時的に非表示になっています。',
+    'screen.post-detail.back-to-top': 'トップに戻る',
+    'screen.post-detail.own-hidden': 'あなたの投稿は、通報により一時的に非表示になっています。ほかの利用者には表示されていません。',
+    'screen.post-detail.appeal': '異議を申し立てる',
+
     // Common errors
     'error.fetch': 'データを取得できませんでした。時間をおいてもう一度お試しください。',
     'error.validation': '入力内容に誤りがあります。各項目を確認してください。',

@@ -1458,3 +1458,58 @@ mk-weather {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Post detail screen (task 5.3). */
+.screen-post-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.screen-post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-lg);
+  margin: 0;
+}
+
+.screen-post-meta > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.screen-post-meta dt {
+  color: var(--color-text-muted);
+}
+
+.screen-post-meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.screen-post-body {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Notices that stand in for a hidden post, or tell its author about the hidden status. */
+.screen-notice {
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.screen-notice p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

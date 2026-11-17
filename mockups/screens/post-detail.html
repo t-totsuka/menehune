@@ -15,7 +15,86 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.post-detail.title">投稿の詳細</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- The post follows the scenario (SampleDataSet.postDetailScenarios); the page script at the
+         end fills the content and shows exactly one of the three [data-post-view] wrappers:
+         - blocked: a guest opens a post that guests cannot see (private-blocked).
+         - hidden: a hidden post seen by anyone but its author (hidden-other, and guest + hidden-own).
+         - content: everything else; the author of a hidden post (member + hidden-own) also gets the
+           hidden status and the link to the appeal screen.
+         Wrappers toggled by the page script carry no layout class, so `hidden` is not overridden. -->
+    <div data-post-view="blocked">
+      <mk-guest-notice variant="private-post"></mk-guest-notice>
+    </div>
+
+    <div data-post-view="hidden">
+      <div class="screen-notice l-stack" role="note">
+        <p data-i18n="screen.post-detail.hidden">この投稿は、通報により一時的に非表示になっています。</p>
+        <p>
+          <a href="top.html" data-when-auth="guest" data-i18n="screen.post-detail.back-to-top">トップに戻る</a>
+          <a href="top.html?auth=member" data-when-auth="member" data-i18n="screen.post-detail.back-to-top">トップに戻る</a>
+        </p>
+      </div>
+    </div>
+
+    <div data-post-view="content">
+      <div class="l-stack">
+        <article class="screen-section l-stack" aria-labelledby="post-heading">
+          <h2 id="post-heading"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.post-detail.post">投稿の内容</span></h2>
+          <div class="screen-post-head">
+            <dl class="screen-post-meta">
+              <div>
+                <dt data-i18n="screen.post-detail.author">投稿者</dt>
+                <dd data-post-author></dd>
+              </div>
+              <div>
+                <dt data-i18n="screen.post-detail.target-date">対象日</dt>
+                <dd><time data-post-target-date></time></dd>
+              </div>
+              <div>
+                <dt data-i18n="screen.post-detail.posted-at">投稿日時</dt>
+                <dd><time data-post-posted-at></time></dd>
+              </div>
+            </dl>
+            <mk-status-badge data-post-status status="public"></mk-status-badge>
+          </div>
+          <div data-own-hidden>
+            <div class="screen-notice l-stack" role="note">
+              <p data-i18n="screen.post-detail.own-hidden">あなたの投稿は、通報により一時的に非表示になっています。ほかの利用者には表示されていません。</p>
+              <p><a href="appeal.html?auth=member" data-appeal-link data-i18n="screen.post-detail.appeal">異議を申し立てる</a></p>
+            </div>
+          </div>
+          <p class="screen-post-body" data-post-body></p>
+          <div class="l-cluster" data-post-actions>
+            <mk-like-button data-post-ref post-id="p-101"></mk-like-button>
+            <span data-post-report></span>
+          </div>
+          <mk-guest-notice data-when-auth="guest"></mk-guest-notice>
+        </article>
+
+        <div data-location-section>
+          <section class="screen-section l-stack" aria-labelledby="post-location">
+            <h2 id="post-location"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.post-detail.location">場所と空のようす</span></h2>
+            <mk-location-panel data-post-ref post-id="p-101"></mk-location-panel>
+          </section>
+        </div>
+
+        <section class="screen-section l-stack" aria-labelledby="post-comments">
+          <h2 id="post-comments"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.post-detail.comments">コメント</span></h2>
+          <div data-when-auth="member">
+            <!-- Mock reply entry: the button does not send or save anything. -->
+            <div data-comment-form>
+              <div class="field">
+                <label for="post-comment-body" data-i18n="screen.post-detail.comment-label">コメントを書く</label>
+                <textarea id="post-comment-body" rows="3" aria-describedby="post-comment-note"></textarea>
+                <p class="field-hint" id="post-comment-note" data-i18n="screen.post-detail.comment-note">このモックアップでは、送信しても保存されません。</p>
+                <p><button type="button" data-i18n="button.submit">送信</button></p>
+              </div>
+            </div>
+          </div>
+          <mk-comment-tree data-post-ref post-id="p-101"></mk-comment-tree>
+        </section>
+      </div>
+    </div>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +111,70 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Post detail page script (task 5.3). Registered before DOMContentLoaded, so it receives the
+    // initial mock:change and re-runs on every switch (scenario / auth / lang) from the review
+    // shell. It runs after the i18n runtime's handler, so the dates use the current language.
+    // The viewer is SampleDataSet.viewerIds[auth]; "own" posts get no report link.
+    (function () {
+      const sample = window.MockSample;
+      const main = document.querySelector('main');
+      if (main === null) return;
+      /** @param {string} selector @returns {HTMLElement[]} */
+      const all = (selector) => /** @type {HTMLElement[]} */ (Array.from(main.querySelectorAll(selector)));
+      /** @param {string} selector @param {string} text */
+      const setText = (selector, text) => { for (const el of all(selector)) el.textContent = text; };
+      /** @param {MockStateSnapshot} state */
+      const apply = (state) => {
+        /** @type {Record<string, string>} */
+        const scenarios = sample.postDetailScenarios;
+        let post = sample.posts.find((p) => p.id === (scenarios[state.scenario] ?? scenarios['default']));
+        if (post === undefined) {
+          console.warn(`[post-detail] no sample post for scenario=${state.scenario}`);
+          post = sample.posts.find((p) => p.id === scenarios['default']);
+          if (post === undefined) return;
+        }
+        const viewer = state.auth === 'guest' ? undefined : sample.viewerIds[state.auth];
+        const own = viewer !== undefined && post.authorId === viewer;
+        // Deleted posts (p-111) are not mapped to any post-detail scenario (README review point).
+        const hidden = post.status === 'hidden';
+        // A hidden post is shown only to its author; anyone else (also guest + hidden-own) gets the notice.
+        let mode = 'content';
+        if (hidden && !own) mode = 'hidden';
+        else if (!post.guestVisible && state.auth === 'guest') mode = 'blocked';
+        for (const el of all('[data-post-view]')) el.hidden = el.getAttribute('data-post-view') !== mode;
+        if (mode !== 'content') {
+          setText('[data-post-body], [data-post-author]', '');
+          return;
+        }
+        setText('[data-post-body]', post.body);
+        setText('[data-post-author]', sample.users.find((u) => u.id === post.authorId)?.displayName ?? post.authorId);
+        setText('[data-post-target-date]', window.MockI18n.formatDate(post.targetDate, 'date-long'));
+        setText('[data-post-posted-at]', window.MockI18n.formatDate(post.postedAt, 'datetime'));
+        for (const el of all('[data-post-target-date]')) el.setAttribute('datetime', post.targetDate);
+        for (const el of all('[data-post-posted-at]')) el.setAttribute('datetime', post.postedAt);
+        for (const el of all('[data-post-status]')) el.setAttribute('status', post.status);
+        for (const el of all('[data-post-ref]')) if (el.getAttribute('post-id') !== post.id) el.setAttribute('post-id', post.id);
+        for (const el of all('[data-own-hidden]')) el.hidden = !(own && hidden);
+        for (const a of all('a[data-appeal-link]')) {
+          const url = new URL(a.getAttribute('href') || 'appeal.html', window.location.href);
+          url.searchParams.set('target', post.id);
+          a.setAttribute('href', url.href);
+        }
+        // No reporting of one's own post; no new comments on a hidden post; no location, no section.
+        for (const slot of all('[data-post-report]')) {
+          if (own) slot.replaceChildren();
+          else if (slot.firstElementChild?.getAttribute('target-id') !== post.id) {
+            const link = document.createElement('mk-report-link');
+            link.setAttribute('target-id', post.id);
+            slot.replaceChildren(link);
+          }
+        }
+        for (const el of all('[data-comment-form]')) el.hidden = hidden;
+        for (const el of all('[data-location-section]')) el.hidden = post.location === undefined;
+      };
+      document.addEventListener('mock:change', (e) => apply(/** @type {CustomEvent<MockStateSnapshot>} */ (e).detail));
+    })();
+  </script>
 </body>
 </html>
