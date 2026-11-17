@@ -15,7 +15,46 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.login.title">ログイン</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- Guests get the Google sign-in entry; members (already logged in) get that state instead. The
+         explanation of the information received from Google is shown in both states. The sign-in
+         button is text with a neutral decorative mark, not the Google logo: the product follows
+         Google's branding guidelines for the real button. -->
+    <div class="l-stack" data-when-auth="guest" data-login-entry>
+      <p data-i18n="screen.login.intro">ログインすると、投稿、コメント、いいね、通報ができるようになります。</p>
+      <p class="l-cluster">
+        <a class="button screen-signin" href="top.html?auth=member">
+          <span class="screen-signin__mark" aria-hidden="true" data-decor></span>
+          <span data-i18n="screen.login.google">Google アカウントでログイン</span>
+        </a>
+      </p>
+      <p class="field-hint" data-i18n="screen.login.mock-note">このモックアップでは Google には接続せず、ログインした状態のトップに移ります。</p>
+    </div>
+
+    <div data-when-auth="member" data-logged-in>
+      <div class="screen-notice l-stack" role="note">
+        <p data-login-already data-i18n="screen.login.already">すでに {name} さんとしてログインしています。</p>
+        <p class="l-cluster">
+          <a href="top.html?auth=member" data-i18n="screen.login.to-top">トップへ</a>
+          <a href="settings.html?auth=member" data-i18n="nav.settings">設定</a>
+        </p>
+      </div>
+    </div>
+
+    <section class="l-stack" aria-labelledby="login-info" data-login-info>
+      <h2 id="login-info" data-i18n="screen.login.info">Google から受け取る情報</h2>
+      <p data-i18n="screen.login.minimal">ログインに必要な最低限の情報だけを受け取ります。</p>
+      <ul class="screen-info-list" data-received>
+        <li data-i18n="screen.login.received.id">Google アカウントの識別子（利用者を区別するための番号）</li>
+        <li data-i18n="screen.login.received.name">表示名（あとから設定で変えられます）</li>
+      </ul>
+      <h3 data-i18n="screen.login.not-received">受け取らない情報</h3>
+      <ul class="screen-info-list" data-not-received>
+        <li data-i18n="screen.login.not-received.password">Google アカウントのパスワード</li>
+        <li data-i18n="screen.login.not-received.services">Gmail、連絡先、カレンダー、写真など、ほかの Google のサービスのデータ</li>
+        <li data-i18n="screen.login.not-received.location">Google アカウントの位置情報（投稿の位置は、投稿するときに自分で付けたものだけを使います）</li>
+      </ul>
+      <p><a href="privacy.html" data-i18n="screen.login.privacy">詳しくはプライバシーポリシーをご覧ください</a></p>
+    </section>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +71,19 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Login page script (task 5.5): puts the member viewer's display name into the
+    // already-logged-in message (data-i18n-args, applied by the i18n runtime on every mock:change).
+    (function () {
+      const sample = window.MockSample;
+      const already = document.querySelector('[data-login-already]');
+      const user = sample.users.find((u) => u.id === sample.viewerIds.member);
+      if (already === null || user === undefined) {
+        console.warn('[login] the member viewer or the logged-in message is missing');
+        return;
+      }
+      already.setAttribute('data-i18n-args', JSON.stringify({ name: user.displayName }));
+    })();
+  </script>
 </body>
 </html>

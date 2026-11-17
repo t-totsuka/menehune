@@ -15,7 +15,81 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.settings.title">設定</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- Guests get a login prompt instead of the form. For members the page script at the end fills
+         the display name from the sample data and wires the language and theme radios to MockState,
+         the same as the header switches (choosing one applies it at once). -->
+    <div data-when-auth="guest" data-guest-prompt>
+      <div class="screen-notice l-stack" role="note">
+        <p data-i18n="screen.settings.login-required">設定を変えるには、ログインしてください。</p>
+        <p><a href="login.html" data-i18n="guest-notice.login">ログインする</a></p>
+      </div>
+    </div>
+
+    <form class="screen-form l-stack" data-when-auth="member" data-member-content novalidate>
+      <section class="l-stack" aria-labelledby="settings-profile">
+        <h2 id="settings-profile" data-i18n="screen.settings.profile">プロフィール</h2>
+        <div class="field">
+          <label for="settings-display-name" data-i18n="screen.settings.display-name">表示名</label>
+          <input type="text" id="settings-display-name" name="display-name" autocomplete="nickname" aria-describedby="settings-display-name-hint">
+          <p class="field-hint" id="settings-display-name-hint" data-i18n="screen.settings.display-name-hint">投稿やコメントに、この名前が表示されます。</p>
+        </div>
+      </section>
+
+      <section class="l-stack" aria-labelledby="settings-appearance">
+        <h2 id="settings-appearance" data-i18n="screen.settings.appearance">表示</h2>
+        <p class="field-hint" data-i18n="screen.settings.appearance-hint">言語とテーマは、選ぶとすぐに切り替わります（ヘッダーの切替と同じです）。</p>
+        <fieldset class="screen-choices" data-settings-lang>
+          <legend data-i18n="screen.settings.lang">UI の言語</legend>
+          <div class="screen-check">
+            <input type="radio" id="settings-lang-ja" name="lang" value="ja">
+            <label for="settings-lang-ja" lang="ja" data-i18n="toggle.lang.ja">日本語</label>
+          </div>
+          <div class="screen-check">
+            <input type="radio" id="settings-lang-en" name="lang" value="en">
+            <label for="settings-lang-en" lang="en" data-i18n="toggle.lang.en">English</label>
+          </div>
+        </fieldset>
+        <fieldset class="screen-choices" data-settings-theme>
+          <legend data-i18n="screen.settings.theme">テーマ</legend>
+          <div class="screen-check">
+            <input type="radio" id="settings-theme-system" name="theme" value="system">
+            <label for="settings-theme-system" data-i18n="toggle.theme.system">システム設定に合わせる</label>
+          </div>
+          <div class="screen-check">
+            <input type="radio" id="settings-theme-light" name="theme" value="light">
+            <label for="settings-theme-light" data-i18n="toggle.theme.light">ライト</label>
+          </div>
+          <div class="screen-check">
+            <input type="radio" id="settings-theme-dark" name="theme" value="dark">
+            <label for="settings-theme-dark" data-i18n="toggle.theme.dark">ダーク</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="l-stack" aria-labelledby="settings-post-defaults">
+        <h2 id="settings-post-defaults" data-i18n="screen.settings.post-defaults">投稿の既定値</h2>
+        <p class="field-hint" data-i18n="screen.settings.post-defaults-hint">新しく投稿するときの初期値です。投稿ごとに変えられます。</p>
+        <fieldset class="screen-choices">
+          <legend data-i18n="screen.settings.guest-visible">自分の投稿を、ログインしていない人にも公開するか</legend>
+          <div class="screen-check">
+            <input type="radio" id="settings-guest-visible-yes" name="guest-visible" value="yes" checked>
+            <label for="settings-guest-visible-yes" data-i18n="screen.settings.guest-visible-yes">ログインしていない人にも公開する</label>
+          </div>
+          <div class="screen-check">
+            <input type="radio" id="settings-guest-visible-no" name="guest-visible" value="no">
+            <label for="settings-guest-visible-no" data-i18n="screen.settings.guest-visible-no">ログインしたユーザだけに公開する</label>
+          </div>
+        </fieldset>
+        <mk-precision-picker value="municipality"></mk-precision-picker>
+      </section>
+
+      <div class="l-stack">
+        <p class="l-cluster">
+          <button type="button" data-i18n="button.save">保存</button>
+        </p>
+        <p class="field-hint" data-i18n="screen.settings.mock-note">このモックアップでは、保存しても設定は保存されません。</p>
+      </div>
+    </form>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +106,44 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Settings page script (task 5.5). Runs before DOMContentLoaded, so it receives the initial
+    // mock:change and every later switch from the header or the review shell.
+    // - The display name starts as the member viewer's name (SampleDataSet.viewerIds.member).
+    // - The language and theme radios are wired to MockState like the header switches: choosing
+    //   one calls MockState.update, and every mock:change checks the radio of the current value.
+    (function () {
+      const sample = window.MockSample;
+      const name = document.getElementById('settings-display-name');
+      const user = sample.users.find((u) => u.id === sample.viewerIds.member);
+      if (name instanceof HTMLInputElement && user !== undefined) name.value = user.displayName;
+      else console.warn('[settings] the member viewer or the display name field is missing');
+      /** @type {readonly LocaleId[]} */
+      const langs = ['ja', 'en'];
+      /** @type {readonly ThemePreference[]} */
+      const themes = ['system', 'light', 'dark'];
+      /** @param {string} groupName @returns {HTMLInputElement[]} */
+      const radiosOf = (groupName) => [...document.querySelectorAll(`main input[type="radio"][name="${groupName}"]`)]
+        .filter((el) => el instanceof HTMLInputElement);
+      for (const radio of radiosOf('lang')) {
+        radio.addEventListener('change', () => {
+          const value = langs.find((l) => l === radio.value);
+          if (radio.checked && value !== undefined) window.MockState.update({ lang: value });
+        });
+      }
+      for (const radio of radiosOf('theme')) {
+        radio.addEventListener('change', () => {
+          const value = themes.find((v) => v === radio.value);
+          if (radio.checked && value !== undefined) window.MockState.update({ theme: value });
+        });
+      }
+      document.querySelector('main form')?.addEventListener('submit', (e) => e.preventDefault());
+      document.addEventListener('mock:change', (e) => {
+        const state = /** @type {CustomEvent<MockStateSnapshot>} */ (e).detail;
+        for (const radio of radiosOf('lang')) radio.checked = radio.value === state.lang;
+        for (const radio of radiosOf('theme')) radio.checked = radio.value === state.theme;
+      });
+    })();
+  </script>
 </body>
 </html>

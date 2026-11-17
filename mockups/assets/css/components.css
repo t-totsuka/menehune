@@ -1582,3 +1582,29 @@ mk-weather {
   font-size: var(--font-size-sm);
   overflow-wrap: anywhere;
 }
+
+/* Settings screen (task 5.5): radio groups with each option on its own row. */
+.screen-choices {
+  display: grid;
+  gap: var(--space-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Login screen (task 5.5): the sign-in button with a neutral round mark (no logo image). */
+.screen-signin__mark {
+  flex: none;
+  inline-size: var(--space-md);
+  block-size: var(--space-md);
+  border: var(--border-width-thick) solid var(--color-on-accent);
+  border-radius: var(--radius-pill);
+}
+
+.screen-info-list {
+  margin: 0;
+  padding-inline-start: var(--space-lg);
+}
+
+.screen-info-list li {
+  overflow-wrap: anywhere;
+}
