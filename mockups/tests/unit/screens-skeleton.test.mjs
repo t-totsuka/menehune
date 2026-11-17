@@ -55,9 +55,15 @@ function assetsOf(html, prefix) {
     assert.doesNotMatch(attrs, /\b(defer|async|type\s*=)/, `classic script without defer/async/type: ${attrs}`);
   }
   const src = (/** @type {string} */ a) => (a.match(/\bsrc="([^"]+)"/) ?? [])[1] ?? '';
+  // An inline page script (task 5.1: day-detail reads ?date=) may follow the designed external
+  // scripts; it must not sit between them.
+  const bodySrcs = scriptTags(body).map(src);
+  const firstInline = bodySrcs.indexOf('');
+  const lastExternal = bodySrcs.reduce((last, p, i) => (p === '' ? last : i), -1);
   return {
     headScripts: scriptTags(head).map(src).map(strip),
-    bodyScripts: scriptTags(body).map(src).map(strip),
+    bodyScripts: bodySrcs.filter((p) => p !== '').map(strip),
+    inlineBeforeExternal: firstInline !== -1 && firstInline < lastExternal,
     styles: [...html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map((m) => strip(m[1])),
     stylesInBody: /<link\b[^>]*rel="stylesheet"/.test(body),
   };
@@ -71,6 +77,7 @@ function assertOrderedAssets(file, prefix) {
   assert.deepEqual(a.styles, STYLESHEETS, `${file}: stylesheet order`);
   assert.equal(a.stylesInBody, false, `${file}: stylesheets belong in <head>`);
   assert.deepEqual(a.bodyScripts, BODY_SCRIPTS, `${file}: body script order`);
+  assert.equal(a.inlineBeforeExternal, false, `${file}: an inline page script comes after the designed scripts`);
   assert.match(html, /<\/script>\s*<\/body>/, `${file}: scripts sit at the end of <body>`);
 }
 

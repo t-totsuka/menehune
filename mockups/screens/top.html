@@ -15,7 +15,41 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.top.title">トップ</h1>
-    <!-- Screen content is built in task 5. -->
+    <mk-guest-notice data-when-auth="guest"></mk-guest-notice>
+
+    <section class="screen-section l-stack" aria-labelledby="top-today">
+      <h2 id="top-today"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.top.today">今日の暦</span></h2>
+      <mk-almanac-summary date="2026-11-16" variant="brief"></mk-almanac-summary>
+      <p class="l-cluster">
+        <a href="day-detail.html?date=2026-11-16" data-when-auth="guest" data-i18n="calendar.open-day-detail">この日の詳細を見る</a>
+        <a href="day-detail.html?date=2026-11-16&amp;auth=member" data-when-auth="member" data-i18n="calendar.open-day-detail">この日の詳細を見る</a>
+        <a href="calendar-month.html" data-when-auth="guest" data-i18n="screen.top.open-calendar">月のカレンダーを見る</a>
+        <a href="calendar-month.html?auth=member" data-when-auth="member" data-i18n="screen.top.open-calendar">月のカレンダーを見る</a>
+      </p>
+    </section>
+
+    <section class="screen-section l-stack" aria-labelledby="top-events">
+      <h2 id="top-events"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.top.events">今日と直近の天文現象</span></h2>
+      <mk-event-list from="2026-11-16" to="2026-11-30"></mk-event-list>
+      <p>
+        <a href="astro-events.html" data-when-auth="guest" data-i18n="screen.top.all-events">天文現象の一覧を見る</a>
+        <a href="astro-events.html?auth=member" data-when-auth="member" data-i18n="screen.top.all-events">天文現象の一覧を見る</a>
+      </p>
+    </section>
+
+    <section class="screen-section l-stack" aria-labelledby="top-posts">
+      <h2 id="top-posts"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.top.posts">新しい投稿</span></h2>
+      <p data-when-auth="member">
+        <a class="button" href="post-edit.html?auth=member" data-i18n="button.post">投稿する</a>
+      </p>
+      <ul class="screen-post-list">
+        <li><mk-post-card post-id="p-107"></mk-post-card></li>
+        <li><mk-post-card post-id="p-101"></mk-post-card></li>
+        <li><mk-post-card post-id="p-105"></mk-post-card></li>
+        <li><mk-post-card post-id="p-106"></mk-post-card></li>
+        <li><mk-post-card post-id="p-102"></mk-post-card></li>
+      </ul>
+    </section>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>

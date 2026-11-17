@@ -15,7 +15,19 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.calendar-month.title">月のカレンダー</h1>
-    <!-- Screen content is built in task 5. -->
+    <p data-when-auth="member">
+      <a class="button" href="post-edit.html?auth=member" data-i18n="button.post">投稿する</a>
+    </p>
+
+    <!-- 2026-11 by default; 2027-03 (provisional equinox holidays) in the provisional-holiday scenario. -->
+    <section class="screen-section l-stack" aria-labelledby="calendar-2026-11" data-when-scenario="default">
+      <h2 id="calendar-2026-11"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n-date="2026-11-01" data-date-style="month-year">2026年11月</span></h2>
+      <mk-month-calendar month="2026-11"></mk-month-calendar>
+    </section>
+    <section class="screen-section l-stack" aria-labelledby="calendar-2027-03" data-when-scenario="provisional-holiday">
+      <h2 id="calendar-2027-03"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n-date="2027-03-01" data-date-style="month-year">2027年3月</span></h2>
+      <mk-month-calendar month="2027-03"></mk-month-calendar>
+    </section>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>

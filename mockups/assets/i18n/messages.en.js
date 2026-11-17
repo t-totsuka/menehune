@@ -130,6 +130,19 @@
     'screen.attribution.title': 'Credits and Attributions',
     'screen.privacy.title': 'Privacy Policy',
 
+    // Screen content: top, monthly calendar, day detail (task 5.1)
+    'screen.top.today': "Today's Almanac",
+    'screen.top.events': 'Today and Upcoming Astronomical Events',
+    'screen.top.posts': 'New Posts',
+    'screen.top.open-calendar': 'Open the monthly calendar',
+    'screen.top.all-events': 'See all astronomical events',
+    'screen.day-detail.almanac': 'Almanac for This Day',
+    'screen.day-detail.rise-set': 'Sunrise, Sunset, Moonrise and Moonset',
+    'screen.day-detail.rise-set-note': 'Times at a fictional sample point near Tokyo.',
+    'screen.day-detail.posts': 'Posts for This Day',
+    'screen.day-detail.new-post': 'Write a post for this day',
+    'screen.day-detail.back-to-calendar': 'Back to the monthly calendar',
+
     // Common errors
     'error.fetch': "We couldn't load the data. Please try again later.",
     'error.validation': 'Some fields need your attention. Please check them and try again.',

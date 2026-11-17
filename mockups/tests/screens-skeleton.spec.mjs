@@ -63,7 +63,8 @@ for (const { id, titleKey } of screens) {
         head: [...document.head.querySelectorAll('script')].map((s) => s.src.split('/').pop()),
         styles: [...document.querySelectorAll('link[rel="stylesheet"]')]
           .map((l) => /** @type {HTMLLinkElement} */ (l).href.split('/').pop()),
-        body: [...document.body.querySelectorAll('script')].map((s) => s.src.split('/').pop()),
+        // External scripts only: an inline page script (task 5.1, day-detail) may follow them.
+        body: [...document.body.querySelectorAll('script[src]')].map((s) => s.src.split('/').pop()),
       }));
       expect(assets.head).toEqual(['theme-boot.js']);
       expect(assets.styles).toEqual(STYLESHEETS);

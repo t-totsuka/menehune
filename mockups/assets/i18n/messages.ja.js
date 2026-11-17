@@ -130,6 +130,19 @@
     'screen.attribution.title': '出典・クレジット',
     'screen.privacy.title': 'プライバシーポリシー',
 
+    // Screen content: top, monthly calendar, day detail (task 5.1)
+    'screen.top.today': '今日の暦',
+    'screen.top.events': '今日と直近の天文現象',
+    'screen.top.posts': '新しい投稿',
+    'screen.top.open-calendar': '月のカレンダーを見る',
+    'screen.top.all-events': '天文現象の一覧を見る',
+    'screen.day-detail.almanac': 'この日の暦',
+    'screen.day-detail.rise-set': '日の出・日の入り、月の出・月の入り',
+    'screen.day-detail.rise-set-note': '架空のサンプル地点（東京付近）での時刻です。',
+    'screen.day-detail.posts': 'この日の投稿',
+    'screen.day-detail.new-post': 'この日について投稿する',
+    'screen.day-detail.back-to-calendar': '月のカレンダーに戻る',
+
     // Common errors
     'error.fetch': 'データを取得できませんでした。時間をおいてもう一度お試しください。',
     'error.validation': '入力内容に誤りがあります。各項目を確認してください。',

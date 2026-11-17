@@ -1425,3 +1425,24 @@ mk-weather {
   background-color: var(--color-surface);
   color: var(--color-error);
 }
+
+/* ---- Screen layouts (task 5.1: top, monthly calendar, day detail) ---- */
+/* Decorative star before section headings (data-decor: hidden on the wireframe stage). */
+.screen-decor {
+  color: var(--color-accent);
+}
+
+/* Lists of post cards on the screens. */
+.screen-post-list {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 960px) {
+  .screen-post-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
