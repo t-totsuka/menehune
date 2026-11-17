@@ -166,6 +166,24 @@
     'screen.post-detail.own-hidden': 'あなたの投稿は、通報により一時的に非表示になっています。ほかの利用者には表示されていません。',
     'screen.post-detail.appeal': '異議を申し立てる',
 
+    // Screen content: post create / edit and my posts (task 5.4)
+    'screen.post-edit.target-date': '対象日',
+    'screen.post-edit.target-date-hint': '今日（{date}）以降の日付だけを選べます。',
+    'screen.post-edit.target-date-error': '過去の日付は選べません。今日以降の日付を選んでください。',
+    'screen.post-edit.body': '本文',
+    'screen.post-edit.guest-visible': 'ログインしていない人にも公開する',
+    'screen.post-edit.guest-visible-hint': 'オフにすると、ログインしたユーザだけが見られます。',
+    'screen.post-edit.location-on': '投稿に位置情報を付ける',
+    'screen.post-edit.location-hint': 'ほかの人には、下で選んだ精度でだけ位置が公開されます。',
+    'screen.post-edit.mock-note': 'このモックアップでは、投稿しても保存されません。',
+    'screen.my-posts.login-required': '自分の投稿の一覧を見るには、ログインしてください。',
+    'screen.my-posts.new-post': '新しく投稿する',
+    'screen.my-posts.empty': 'まだ投稿していません。',
+    'screen.my-posts.list-label': '自分の投稿の一覧',
+    'screen.my-posts.visibility-guests': '公開範囲：ログインしていない人にも公開',
+    'screen.my-posts.visibility-members': '公開範囲：ログインしたユーザのみ',
+    'screen.my-posts.edit-label': '{date}の投稿を編集',
+
     // Common errors
     'error.fetch': 'データを取得できませんでした。時間をおいてもう一度お試しください。',
     'error.validation': '入力内容に誤りがあります。各項目を確認してください。',

@@ -166,6 +166,24 @@
     'screen.post-detail.own-hidden': 'Your post is temporarily hidden because it was reported. Other users cannot see it.',
     'screen.post-detail.appeal': 'Appeal this decision',
 
+    // Screen content: post create / edit and my posts (task 5.4)
+    'screen.post-edit.target-date': 'Date',
+    'screen.post-edit.target-date-hint': 'You can choose today ({date}) or a later date.',
+    'screen.post-edit.target-date-error': 'You cannot choose a past date. Choose today or a later date.',
+    'screen.post-edit.body': 'Text',
+    'screen.post-edit.guest-visible': 'Also show to people who are not logged in',
+    'screen.post-edit.guest-visible-hint': 'When this is off, only logged-in users can see the post.',
+    'screen.post-edit.location-on': 'Attach a location to the post',
+    'screen.post-edit.location-hint': 'Other people see the location only at the precision chosen below.',
+    'screen.post-edit.mock-note': 'In this mockup, posting does not save anything.',
+    'screen.my-posts.login-required': 'Log in to see the list of your posts.',
+    'screen.my-posts.new-post': 'Write a new post',
+    'screen.my-posts.empty': 'You have not posted anything yet.',
+    'screen.my-posts.list-label': 'Your posts',
+    'screen.my-posts.visibility-guests': 'Visibility: also shown to people who are not logged in',
+    'screen.my-posts.visibility-members': 'Visibility: logged-in users only',
+    'screen.my-posts.edit-label': 'Edit the post for {date}',
+
     // Common errors
     'error.fetch': "We couldn't load the data. Please try again later.",
     'error.validation': 'Some fields need your attention. Please check them and try again.',

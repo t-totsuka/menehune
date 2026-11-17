@@ -1513,3 +1513,72 @@ mk-weather {
   margin: 0;
   overflow-wrap: anywhere;
 }
+
+/* Post create / edit screen (task 5.4). */
+/* A checkbox with its label on one row and the hint below the label. */
+.screen-check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  row-gap: var(--space-2xs);
+  align-items: baseline;
+}
+
+.screen-check input {
+  margin: 0;
+}
+
+.screen-check .field-hint {
+  grid-column: 2;
+  margin: 0;
+}
+
+.screen-form .field p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Error summary at the top of the form and the screen-level fetch error (my posts). */
+.screen-error-summary,
+.screen-error {
+  margin: 0;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-error);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-error);
+  overflow-wrap: anywhere;
+}
+
+.screen-error-summary p,
+.screen-error-summary ul {
+  margin: 0;
+}
+
+.screen-error-summary a {
+  color: var(--color-error);
+}
+
+/* My posts screen (task 5.4): a card with its visibility setting and edit link below. */
+.screen-my-post {
+  display: grid;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.screen-my-post__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2xs) var(--space-md);
+}
+
+.screen-my-post__meta p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}

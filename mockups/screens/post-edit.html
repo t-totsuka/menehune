@@ -15,7 +15,56 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.post-edit.title">投稿の作成・編集</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- Guests get the read-only notice with the login link instead of the form. The page script at
+         the end fills the form (?post= of the viewer's own post, ?date= from day-detail) and follows
+         the scenario: validation-error puts a past date into the date field with its error. -->
+    <div data-when-auth="guest" data-guest-prompt>
+      <mk-guest-notice></mk-guest-notice>
+    </div>
+
+    <form class="screen-form l-stack" data-when-auth="member" data-member-content novalidate>
+      <div class="screen-error-summary l-stack" role="alert" data-error-summary data-when-scenario="validation-error">
+        <p data-i18n="error.validation">入力内容に誤りがあります。各項目を確認してください。</p>
+        <ul>
+          <li><a href="#post-target-date" data-i18n="screen.post-edit.target-date-error">過去の日付は選べません。今日以降の日付を選んでください。</a></li>
+        </ul>
+      </div>
+
+      <div class="field">
+        <label for="post-target-date" data-i18n="screen.post-edit.target-date">対象日</label>
+        <input type="date" id="post-target-date" name="target-date" min="2026-11-16" value="2026-11-16" aria-describedby="post-target-date-hint">
+        <p class="field-hint" id="post-target-date-hint">今日（2026年11月16日(月)）以降の日付だけを選べます。</p>
+        <p class="field-error" id="post-target-date-error" data-when-scenario="validation-error" data-i18n="screen.post-edit.target-date-error">過去の日付は選べません。今日以降の日付を選んでください。</p>
+      </div>
+
+      <div class="field">
+        <label for="post-body" data-i18n="screen.post-edit.body">本文</label>
+        <textarea id="post-body" name="body" rows="6"></textarea>
+      </div>
+
+      <div class="screen-check">
+        <input type="checkbox" id="post-guest-visible" name="guest-visible" checked aria-describedby="post-guest-visible-hint">
+        <label for="post-guest-visible" data-i18n="screen.post-edit.guest-visible">ログインしていない人にも公開する</label>
+        <p class="field-hint" id="post-guest-visible-hint" data-i18n="screen.post-edit.guest-visible-hint">オフにすると、ログインしたユーザだけが見られます。</p>
+      </div>
+
+      <div class="screen-check">
+        <input type="checkbox" id="post-location-on" name="location" checked aria-describedby="post-location-hint" aria-controls="post-precision">
+        <label for="post-location-on" data-i18n="screen.post-edit.location-on">投稿に位置情報を付ける</label>
+        <p class="field-hint" id="post-location-hint" data-i18n="screen.post-edit.location-hint">ほかの人には、下で選んだ精度でだけ位置が公開されます。</p>
+      </div>
+      <div id="post-precision">
+        <mk-precision-picker value="municipality"></mk-precision-picker>
+      </div>
+
+      <div class="l-stack">
+        <p class="l-cluster">
+          <button type="button" data-i18n="button.post">投稿する</button>
+          <a class="button" data-variant="secondary" href="my-posts.html?auth=member" data-i18n="button.cancel">キャンセル</a>
+        </p>
+        <p class="field-hint" data-i18n="screen.post-edit.mock-note">このモックアップでは、投稿しても保存されません。</p>
+      </div>
+    </form>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +81,65 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Post create / edit page script (task 5.4). Runs before DOMContentLoaded, so it receives the
+    // initial mock:change and every later switch from the review shell.
+    // - ?post=ID: one of the viewer's own posts (SampleDataSet.viewerIds.member), not deleted,
+    //   prefills the form for editing. ?date=YYYY-MM-DD (from day-detail) sets the date when it is
+    //   today or later; anything else keeps the default with a warning.
+    // - validation-error: the date field gets a past date, aria-invalid and the error in its
+    //   aria-describedby. Values are reset only when the scenario changes (not on lang / theme).
+    (function () {
+      const sample = window.MockSample;
+      const today = sample.today;
+      const PAST_DATE = '2026-11-10';
+      const params = new URLSearchParams(window.location.search);
+      const date = document.getElementById('post-target-date');
+      const body = document.getElementById('post-body');
+      const guest = document.getElementById('post-guest-visible');
+      const location = document.getElementById('post-location-on');
+      const precision = document.getElementById('post-precision');
+      const hint = document.getElementById('post-target-date-hint');
+      const picker = precision?.querySelector('mk-precision-picker');
+      if (!(date instanceof HTMLInputElement) || !(body instanceof HTMLTextAreaElement) || !(guest instanceof HTMLInputElement)
+        || !(location instanceof HTMLInputElement) || precision === null || hint === null || picker == null) return;
+      let initial = today;
+      const postId = params.get('post');
+      if (postId !== null) {
+        const post = sample.posts.find((p) => p.id === postId && p.authorId === sample.viewerIds.member && p.status !== 'deleted');
+        if (post === undefined) console.warn(`[post-edit] post=${postId} is not an editable post of the viewer; showing a new post`);
+        else {
+          initial = post.targetDate;
+          body.value = post.body;
+          guest.checked = post.guestVisible;
+          location.checked = post.location !== undefined;
+          if (post.location !== undefined) picker.setAttribute('value', post.location.precision);
+        }
+      }
+      const requested = params.get('date');
+      if (requested !== null) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(requested) && requested >= today) initial = requested;
+        else console.warn(`[post-edit] date=${requested} is not today or later; using ${initial}`);
+      }
+      date.min = today;
+      const syncLocation = () => { precision.hidden = !location.checked; };
+      location.addEventListener('change', syncLocation);
+      syncLocation();
+      document.querySelector('main form')?.addEventListener('submit', (e) => e.preventDefault());
+      /** @type {string | undefined} */
+      let scenario;
+      document.addEventListener('mock:change', (e) => {
+        const state = /** @type {CustomEvent<MockStateSnapshot>} */ (e).detail;
+        hint.textContent = window.MockI18n.t('screen.post-edit.target-date-hint', { date: window.MockI18n.formatDate(today, 'date-long') });
+        if (state.scenario === scenario) return;
+        scenario = state.scenario;
+        const invalid = scenario === 'validation-error';
+        date.value = invalid ? PAST_DATE : initial;
+        if (invalid) date.setAttribute('aria-invalid', 'true');
+        else date.removeAttribute('aria-invalid');
+        date.setAttribute('aria-describedby', invalid ? 'post-target-date-hint post-target-date-error' : 'post-target-date-hint');
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -15,7 +15,24 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.my-posts.title">自分の投稿</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- Guests get a login prompt instead of the list. For members the page script at the end lists
+         the viewer's own posts (SampleDataSet.viewerIds.member, every status including deleted,
+         newest first) with the visibility setting; empty and fetch-error replace the list. -->
+    <div data-when-auth="guest" data-guest-prompt>
+      <div class="screen-notice l-stack" role="note">
+        <p data-i18n="screen.my-posts.login-required">自分の投稿の一覧を見るには、ログインしてください。</p>
+        <p><a href="login.html" data-i18n="guest-notice.login">ログインする</a></p>
+      </div>
+    </div>
+
+    <div class="l-stack" data-when-auth="member" data-member-content>
+      <p data-when-scenario="default empty">
+        <a class="button" href="post-edit.html?auth=member" data-i18n="screen.my-posts.new-post">新しく投稿する</a>
+      </p>
+      <p class="screen-error" role="alert" data-when-scenario="fetch-error" data-i18n="error.fetch">データを取得できませんでした。時間をおいてもう一度お試しください。</p>
+      <p class="text-muted" data-my-posts-empty data-when-scenario="empty" data-i18n="screen.my-posts.empty">まだ投稿していません。</p>
+      <ul class="screen-post-list" data-my-posts data-when-scenario="default" data-i18n-attr="aria-label:screen.my-posts.list-label"></ul>
+    </div>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +49,49 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // My posts page script (task 5.4). Runs before DOMContentLoaded, so the review shell and the
+    // i18n runtime process the nodes it adds.
+    // - Lists every post of SampleDataSet.viewerIds.member, newest first, also hidden and deleted
+    //   ones (the card's status badge tells them apart). Each item shows the visibility setting
+    //   (guestVisible) and, unless deleted, an edit link to post-edit.html?post=ID.
+    // - The edit links get an accessible name with the target date on every mock:change.
+    (function () {
+      const sample = window.MockSample;
+      const list = document.querySelector('[data-my-posts]');
+      if (list === null) return;
+      const posts = sample.posts
+        .filter((p) => p.authorId === sample.viewerIds.member)
+        .sort((a, b) => Date.parse(b.postedAt) - Date.parse(a.postedAt));
+      for (const post of posts) {
+        const item = document.createElement('li');
+        item.className = 'screen-my-post';
+        item.setAttribute('data-my-post', post.id);
+        const card = document.createElement('mk-post-card');
+        card.setAttribute('post-id', post.id);
+        const meta = document.createElement('div');
+        meta.className = 'screen-my-post__meta';
+        const visibility = document.createElement('p');
+        visibility.setAttribute('data-visibility', '');
+        visibility.setAttribute('data-i18n', post.guestVisible ? 'screen.my-posts.visibility-guests' : 'screen.my-posts.visibility-members');
+        meta.append(visibility);
+        if (post.status !== 'deleted') {
+          const edit = document.createElement('a');
+          edit.setAttribute('href', `post-edit.html?auth=member&post=${post.id}`);
+          edit.setAttribute('data-i18n', 'button.edit');
+          edit.setAttribute('data-edit-date', post.targetDate);
+          meta.append(edit);
+        }
+        item.append(card, meta);
+        list.append(item);
+      }
+      document.addEventListener('mock:change', () => {
+        for (const a of list.querySelectorAll('a[data-edit-date]')) {
+          const date = window.MockI18n.formatDate(a.getAttribute('data-edit-date') ?? '', 'date-long');
+          a.setAttribute('aria-label', window.MockI18n.t('screen.my-posts.edit-label', { date }));
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
