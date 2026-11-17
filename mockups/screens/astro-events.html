@@ -15,7 +15,13 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.astro-events.title">天文現象</h1>
-    <!-- Screen content is built in task 5. -->
+    <p data-i18n="screen.astro-events.lead">惑星現象と、月の朔・上弦・望・下弦、最北・最南、近地点・遠地点を、日時と種類で一覧にします。期間と種類で絞り込めます。</p>
+
+    <!-- mk-event-list follows the scenario itself: empty -> empty.events, fetch-error -> error.fetch (role="alert"). -->
+    <section class="screen-section l-stack" aria-labelledby="events-list">
+      <h2 id="events-list"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.astro-events.list">天文現象の一覧</span></h2>
+      <mk-event-list></mk-event-list>
+    </section>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>

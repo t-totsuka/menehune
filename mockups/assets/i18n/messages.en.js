@@ -142,6 +142,15 @@
     'screen.day-detail.posts': 'Posts for This Day',
     'screen.day-detail.new-post': 'Write a post for this day',
     'screen.day-detail.back-to-calendar': 'Back to the monthly calendar',
+    'screen.astro-events.lead': 'Planetary phenomena and the Moon’s phases, northernmost and southernmost declinations, perigee and apogee, listed by date and kind. Filter them by period and kind.',
+    'screen.astro-events.list': 'Astronomical events',
+    'screen.star-chart.conditions': 'Date, time and place',
+    'screen.star-chart.datetime': 'Date and time',
+    'screen.star-chart.datetime-hint': 'In Japan Standard Time (JST).',
+    'screen.star-chart.place': 'Place',
+    'screen.star-chart.place-hint': 'A city, town or similar place name.',
+    'screen.star-chart.fixed-sample': 'The chart in this mockup is a fixed sample. Changing the date, time or place does not change the chart (the initial input values are the sample date, time and place).',
+    'screen.star-chart.sky': 'All-sky chart',
 
     // Common errors
     'error.fetch': "We couldn't load the data. Please try again later.",

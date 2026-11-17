@@ -15,7 +15,32 @@
   <mk-site-header></mk-site-header>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.star-chart.title">星図</h1>
-    <!-- Screen content is built in task 5. -->
+    <!-- The inputs are mock UI: the page script fills them with the fixed sample
+         (SampleDataSet.starChart: 2026-11-16 20:00 JST, the sample place); editing them does not
+         redraw the chart, and the fixed-sample note says so.
+         Wireframe review point (task 4.4): in Japanese, the names of Orion, Perseus and Andromeda
+         are omitted by the label layout (they remain in the chart's alt text). -->
+    <section class="screen-section l-stack" aria-labelledby="chart-conditions">
+      <h2 id="chart-conditions"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.star-chart.conditions">日時と地点</span></h2>
+      <div class="screen-chart-inputs">
+        <div class="field">
+          <label for="chart-datetime" data-i18n="screen.star-chart.datetime">日時</label>
+          <input id="chart-datetime" type="datetime-local" step="60" aria-describedby="chart-datetime-hint" data-chart-datetime>
+          <p class="field-hint" id="chart-datetime-hint" data-i18n="screen.star-chart.datetime-hint">日本時間（JST）で指定します。</p>
+        </div>
+        <div class="field">
+          <label for="chart-place" data-i18n="screen.star-chart.place">地点</label>
+          <input id="chart-place" type="text" autocomplete="off" aria-describedby="chart-place-hint" data-chart-place>
+          <p class="field-hint" id="chart-place-hint" data-i18n="screen.star-chart.place-hint">市区町村名などで指定します。</p>
+        </div>
+      </div>
+      <p class="text-muted" data-i18n="screen.star-chart.fixed-sample">このモックアップの星図は固定のサンプルです。日時や地点を変えても、星図は変わりません（入力欄の初期値が、サンプルの日時と地点です）。</p>
+    </section>
+
+    <section class="screen-section l-stack" aria-labelledby="chart-sky">
+      <h2 id="chart-sky"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.star-chart.sky">全天図</span></h2>
+      <mk-star-chart></mk-star-chart>
+    </section>
   </main>
   <mk-site-footer></mk-site-footer>
   <script src="../data/screens.js"></script>
@@ -32,5 +57,15 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Fill the mock inputs once with the fixed sample (local JST date-time, sample place label).
+    (function () {
+      const chart = window.MockSample.starChart;
+      const datetime = /** @type {HTMLInputElement} */ (document.querySelector('[data-chart-datetime]'));
+      const place = /** @type {HTMLInputElement} */ (document.querySelector('[data-chart-place]'));
+      datetime.value = chart.observedAt.slice(0, 16);
+      place.value = chart.placeLabel;
+    })();
+  </script>
 </body>
 </html>

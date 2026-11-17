@@ -142,6 +142,15 @@
     'screen.day-detail.posts': 'この日の投稿',
     'screen.day-detail.new-post': 'この日について投稿する',
     'screen.day-detail.back-to-calendar': '月のカレンダーに戻る',
+    'screen.astro-events.lead': '惑星現象と、月の朔・上弦・望・下弦、最北・最南、近地点・遠地点を、日時と種類で一覧にします。期間と種類で絞り込めます。',
+    'screen.astro-events.list': '天文現象の一覧',
+    'screen.star-chart.conditions': '日時と地点',
+    'screen.star-chart.datetime': '日時',
+    'screen.star-chart.datetime-hint': '日本時間（JST）で指定します。',
+    'screen.star-chart.place': '地点',
+    'screen.star-chart.place-hint': '市区町村名などで指定します。',
+    'screen.star-chart.fixed-sample': 'このモックアップの星図は固定のサンプルです。日時や地点を変えても、星図は変わりません（入力欄の初期値が、サンプルの日時と地点です）。',
+    'screen.star-chart.sky': '全天図',
 
     // Common errors
     'error.fetch': 'データを取得できませんでした。時間をおいてもう一度お試しください。',
