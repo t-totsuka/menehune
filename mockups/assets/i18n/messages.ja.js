@@ -433,6 +433,14 @@
     'location.precision.country': '国',
     'location.precision.country.description': 'ほかの人には、国名だけが表示されます。',
 
+    // Schematic map (task 4.6). {region} is the Japanese free-text region name.
+    'map.caption': '{region}（{precision}）',
+    'map.describe.exact': '{region}付近の模式地図。街路が見える縮尺で、投稿した地点をピンで示しています。',
+    'map.describe.fuzzed-1km': '{region}付近の模式地図。地区の縮尺で、地点のまわり半径約 1 km の円を示しています。正確な地点は示していません。',
+    'map.describe.municipality': '{region}の模式地図。市区町村が見える縮尺で、{region}の範囲を塗って示しています。',
+    'map.describe.prefecture': '{region}の模式地図。都道府県が見える縮尺で、{region}の範囲を塗って示しています。',
+    'map.describe.country': '{region}の模式地図。国全体が見える縮尺で、国土全体を塗って示しています。',
+
     // Weather snapshot
     'weather.label': '天気',
     'weather.condition.clear': '晴れ',

@@ -1177,3 +1177,161 @@ button.mk-like[aria-pressed="true"] {
     display: block;
   }
 }
+
+/* ---- mk-precision-picker (task 4.6; 6.2, 7.1, 8.2): a fieldset radio group with descriptions ---- */
+mk-precision-picker {
+  display: block;
+}
+
+.mk-precision-picker {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.mk-precision-picker__options {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+/* Radio in the first column; the label and its description share the second. */
+.mk-precision-picker__option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  row-gap: var(--space-2xs);
+  align-items: baseline;
+  padding: var(--space-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+/* The chosen level is marked by a thicker accent edge as well as the filled radio. */
+.mk-precision-picker__option:has(input:checked) {
+  border-color: var(--color-accent);
+  box-shadow: inset var(--border-width-focus) 0 0 var(--color-accent);
+}
+
+.mk-precision-picker__option input {
+  margin: 0;
+}
+
+.mk-precision-picker__label {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-precision-picker__description {
+  grid-column: 2;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ---- mk-map-sample (task 4.6; 7.2, 13.4): schematic SVG map, colors via token classes ---- */
+mk-map-sample {
+  display: block;
+}
+
+.mk-map {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+/* Non-focusable wrapper that owns the box (data-figure); keeps the 8:5 viewBox ratio. */
+.mk-map__figure {
+  inline-size: 100%;
+  aspect-ratio: 8 / 5;
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.mk-map__svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.mk-map__caption {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.mk-map__water {
+  fill: var(--color-bg);
+}
+
+.mk-map__land {
+  fill: var(--color-surface);
+}
+
+.mk-map__road {
+  stroke: var(--color-border);
+  stroke-width: 2;
+}
+
+.mk-map__road--major {
+  stroke-width: 6;
+}
+
+.mk-map__boundary {
+  stroke: var(--color-border);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+/* Shaded area: translucent accent fill plus a solid accent outline (3:1 against land and water). */
+.mk-map__region {
+  fill: var(--color-accent);
+  fill-opacity: 0.22;
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.mk-map__radius {
+  fill: var(--color-accent);
+  fill-opacity: 0.18;
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+  stroke-dasharray: 8 5;
+}
+
+.mk-map__pin-body {
+  fill: var(--color-accent);
+  stroke: var(--color-surface);
+  stroke-width: 1.5;
+}
+
+.mk-map__pin-dot {
+  fill: var(--color-surface);
+}
+
+.mk-map__scale-bar {
+  stroke: var(--color-text);
+  stroke-width: 2;
+}
+
+/* The scale label size is an SVG attribute (viewBox units), so it scales with the map. */
+.mk-map__scale-label {
+  fill: var(--color-text);
+  font-family: var(--font-body);
+  paint-order: stroke;
+  stroke: var(--color-surface);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+/* Catalog only (components.html): the map samples side by side on wide screens. */
+.mk-map-samples {
+  display: grid;
+  gap: var(--space-md);
+}
+
+@media (min-width: 960px) {
+  .mk-map-samples {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

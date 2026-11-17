@@ -433,6 +433,14 @@
     'location.precision.country': 'Country',
     'location.precision.country.description': 'Others see only the country name.',
 
+    // Schematic map (task 4.6). {region} is the Japanese free-text region name.
+    'map.caption': '{region} ({precision})',
+    'map.describe.exact': 'Schematic map near {region}. Street scale, with a pin on the posted spot.',
+    'map.describe.fuzzed-1km': 'Schematic map near {region}. District scale, with a circle of about 1 km radius around the spot; the exact spot is not shown.',
+    'map.describe.municipality': 'Schematic map of {region}. City scale, with the area of {region} shaded.',
+    'map.describe.prefecture': 'Schematic map of {region}. Prefecture scale, with the area of {region} shaded.',
+    'map.describe.country': 'Schematic map of {region}. Country scale, with the whole country shaded.',
+
     // Weather snapshot
     'weather.label': 'Weather',
     'weather.condition.clear': 'Clear',

@@ -362,7 +362,8 @@ interface ReportLinkAttrs { readonly 'target-id': string; }
 
 interface PrecisionPickerAttrs { readonly value?: LocationPrecision; }
 interface LocationPanelAttrs { readonly 'post-id': string; }
-interface MapSampleAttrs { readonly precision: LocationPrecision; }
+/** `region` overrides the region name (Japanese free text); omitted means the first sample post with that precision */
+interface MapSampleAttrs { readonly precision: LocationPrecision; readonly region?: string; }
 interface WeatherAttrs { readonly 'post-id': string; }
 
 /** Element name -> attribute contract. */

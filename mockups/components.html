@@ -313,6 +313,50 @@
       <p class="text-muted"><code>post-id="p-999"</code>（サンプルなし）</p>
       <mk-comment-tree id="comments-missing" post-id="p-999"></mk-comment-tree>
     </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-location">
+      <h2 id="sec-location">位置の公開精度と模式地図</h2>
+      <p class="text-muted">位置の公開精度の 5 段階を選ぶラジオグループと、精度ごとの模式地図です。地域名は日本語の自由記述で、英語表示でも日本語のままです。地図は模式図で、実際の地形ではありません。</p>
+
+      <h3 id="sec-precision-picker"><code>mk-precision-picker</code></h3>
+      <p class="text-muted">属性なし（未選択）</p>
+      <mk-precision-picker id="precision-default"></mk-precision-picker>
+      <p class="text-muted"><code>value="municipality"</code></p>
+      <mk-precision-picker id="precision-municipality" value="municipality"></mk-precision-picker>
+
+      <h3 id="sec-map-sample"><code>mk-map-sample</code></h3>
+      <p class="text-muted">厳密はピン、約 1 km の範囲は半径 1 km の円（ピンなし）、市区町村・都道府県・国は範囲の塗りと縮尺の違いで示します。地域名は、その精度を持つ最初のサンプル投稿から取ります。</p>
+      <div class="mk-map-samples">
+        <div class="l-stack">
+          <p class="text-muted"><code>precision="exact"</code></p>
+          <mk-map-sample id="map-exact" precision="exact"></mk-map-sample>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>precision="fuzzed-1km"</code></p>
+          <mk-map-sample id="map-fuzzed-1km" precision="fuzzed-1km"></mk-map-sample>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>precision="municipality"</code></p>
+          <mk-map-sample id="map-municipality" precision="municipality"></mk-map-sample>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>precision="prefecture"</code></p>
+          <mk-map-sample id="map-prefecture" precision="prefecture"></mk-map-sample>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>precision="country"</code></p>
+          <mk-map-sample id="map-country" precision="country"></mk-map-sample>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>precision="municipality" region="千葉県 船橋市"</code></p>
+          <mk-map-sample id="map-region" precision="municipality" region="千葉県 船橋市"></mk-map-sample>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>precision="unknown"</code>（サンプルなし）</p>
+          <mk-map-sample id="map-missing" precision="unknown"></mk-map-sample>
+        </div>
+      </div>
+    </section>
   </main>
   <script src="data/screens.js"></script>
   <script src="data/glossary.js"></script>
