@@ -365,7 +365,7 @@
   - _Depends: 6.1_
   - _Requirements: 13.3, 13.4, 13.5_
 
-- [ ] 7. E2E 検査
+- [x] 7. E2E 検査
 - [x] 7.1 E2E の実行環境と共通の仕組みを用意する
   - Chromium をインストールし、Playwright の設定ファイル（モック集の直下）で、モック集のファイルを `file://` で開くようにする。依存の追加は 1.1 で済んでいる
   - 次の共通の仕組みを用意する
@@ -383,7 +383,7 @@
   - 完了状態：全組み合わせで E2E が通る。失敗した場合は、画面・言語・テーマ・幅とスクリーンショットが出る
   - _Requirements: 11.1, 11.6, 12.2_
 
-- [ ] 7.3 テーマ・言語・段階・フォーカス・オフラインの E2E を作る
+- [x] 7.3 テーマ・言語・段階・フォーカス・オフラインの E2E を作る
   - 次の点を検査する
     - 外観設定がダークのときダークの配色になり、ヘッダーで選んだテーマが外観設定より優先される
     - ヘッダーの言語切替で、同じ画面が英語に変わる
@@ -471,3 +471,4 @@
 - 6.7：アクセシビリティのページの代替テキストの記述例は、ページに置いた実際の mk-star-chart と mk-map-sample の aria-label を mock:change のたびに写す。フォーカスの見本は、6.5 と同じく data-theme を一時的に切り替えて --color-* を読み、各パネルに設定する。外枠を固定で出した見本は base.css の :focus-visible の写しなので、base.css を変えたら合わせる。色以外の区別の一覧（20 行）は、記号・文字・破線などを追加・変更したら更新する（8.3 のアイコンなど）
 - 7.1：E2E の共通の仕組みは tests/helpers/e2e.mjs（listScreens は data/screens.js を node:vm で読む、screenPath(id, params)、blockExternalRequests は context.route で file:/data:/blob:/about: 以外を記録してから abort、watchConsole は警告も集める、saveScreenshot は mockups/.review/screenshots/ に保存（Git の管理外））。baseURL は mockups の file:// URL なので page.goto('screens/top.html') で開ける。context.route は WebSocket を捕まえないので、7.3 のオフライン検査では page.on('websocket') も記録し、判定の前に networkidle まで待つ。tests/ は tsconfig の対象外
 - 7.2：はみ出しの検出器は tests/helpers/layout-checks.mjs（pageHorizontalOverflow、collectLayoutIssues、collectMissingKeyMarkers）。文字を直接持つ要素すべてを、文字ノードの Range の矩形で測る（data-i18n だけに絞らない）。[data-decor]、非表示、読み上げ用の隠し文字（clip-path: inset(50%) など）、overflow-x が auto か scroll の祖先の中は除外する。検査するのは各画面の既定状態（hifi、guest、default）だけ。8.x で装飾や書体を変えたら、layout-overflow.spec をもう一度通す
+- 7.3：screens-state-offline.spec の FIGURE_SCREENS（star-chart、post-detail）は、既定の状態で [data-figure] を持つ画面の一覧で、それ以外の画面は figures === 0 を求める。図を描く画面を増やしたら一覧も直す。全画面で decor > 0（ヘッダーのロゴ ✦）を求める。最初の Tab の移動先はヘッダーの操作要素（ツールバーは body の末尾にあるので後になる）。8.3 で装飾やアイコンを足したら、ワイヤーフレームのグレースケールの検査（R=G=B）に通るよう、wireframe.css にもグレーの値を足す

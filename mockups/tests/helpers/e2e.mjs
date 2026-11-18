@@ -9,6 +9,7 @@
 //   data:/blob: URL), so a passing suite proves the mockups open without any network access (2.6).
 // - watchConsole(): collects console errors and warnings and uncaught page errors (note 1.9:
 //   screen E2E treats warnings as failures).
+// - recordWebSockets(): records WebSockets, which context.route() cannot see (task 7.3).
 // - saveScreenshot(): writes a full-page PNG to mockups/.review/screenshots/ (git-ignored, per
 //   design "E2ESuite") and attaches it to the test report.
 import { readFileSync, mkdirSync } from 'node:fs';
@@ -121,4 +122,18 @@ export async function saveScreenshot(page, testInfo, name) {
   await page.screenshot({ path, fullPage: true });
   await testInfo.attach(name, { path, contentType: 'image/png' });
   return path;
+}
+
+/**
+ * Records the URL of every WebSocket the page opens (task 7.3). context.route() does not see
+ * WebSockets (note 7.1), so the offline check combines this with blockExternalRequests().
+ * Call before page.goto(); wait for networkidle before asserting the array is empty.
+ * @param {Page} page
+ * @returns {string[]}
+ */
+export function recordWebSockets(page) {
+  /** @type {string[]} */
+  const sockets = [];
+  page.on('websocket', (ws) => sockets.push(ws.url()));
+  return sockets;
 }
