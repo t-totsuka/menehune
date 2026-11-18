@@ -326,7 +326,8 @@ test.describe('layout and stage', () => {
         const r = el.getBoundingClientRect();
         return r.right <= document.documentElement.clientWidth + 0.5;
       }));
-      expect(overflow.length).toBe(2);
+      // Task 6.4: the PC samples (2026-11, 2027-03) and the phone-width sample of the gallery.
+      expect(overflow.length).toBe(3);
       expect(overflow.every(Boolean)).toBe(true);
     });
   }

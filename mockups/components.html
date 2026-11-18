@@ -11,6 +11,42 @@
   <link rel="stylesheet" href="assets/css/wireframe.css">
   <!-- Review chrome only; always the last stylesheet and never referenced by product CSS. -->
   <link rel="stylesheet" href="assets/css/review.css">
+  <!-- Catalog page: fixed Japanese copy (no dictionary keys); page-specific styles go in a <style> here. -->
+  <style>
+    /* Gallery chrome (table of contents, overview table, narrow frame): gray literals like review.css. */
+    .gl-toc ol { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin: 0; padding-inline-start: 1.5em; }
+    .gl-table-wrap { max-width: 100%; overflow-x: auto; }
+    .gl-table-wrap:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+    .gl-table { border-collapse: collapse; min-width: 44rem; width: 100%; }
+    .gl-table caption { text-align: start; font-weight: 700; padding-block-end: 0.5rem; }
+    .gl-table th, .gl-table td { border: 1px solid #8a8a8a; padding: 0.5rem; text-align: start; vertical-align: top; }
+    .gl-table thead th { background: #e6e6e6; color: #1a1a1a; }
+    .gl-table ul { margin: 0; padding-inline-start: 1.25em; }
+    .gl-narrow { max-width: 375px; padding: 0.5rem; border: 2px dashed #8a8a8a; display: grid; gap: 1rem; }
+
+    /* Phone-width samples: the same rules components.css applies below 600px (header, month
+       calendar, comment tree), scoped to .gl-narrow so they show on a PC-width page too.
+       Keep in step with the (width < 600px) blocks of components.css. */
+    .gl-narrow .mk-header__inner { padding-inline: var(--space-md); }
+    .gl-narrow .mk-header__bar { flex: 1 1 100%; }
+    .gl-narrow .mk-header__toggle { display: inline-flex; }
+    .gl-narrow .mk-header__menu {
+      display: none;
+      flex-basis: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      padding-block: var(--space-sm);
+      border-block-start: var(--border-default);
+    }
+    .gl-narrow .mk-header__menu[data-open] { display: flex; }
+    .gl-narrow .mk-header__nav ul { flex-direction: column; }
+    .gl-narrow .mk-header__tools { flex-direction: column; align-items: flex-start; margin-inline-start: 0; }
+    .gl-narrow .mk-calendar__grid[data-layout="full"] { display: none; }
+    .gl-narrow .mk-calendar__compact { display: grid; gap: var(--space-md); }
+    .gl-narrow .mk-comment__replies { padding-inline-start: var(--space-md); }
+    .gl-narrow .mk-comment__replies[data-flat] { padding-inline-start: 0; border-inline-start: 0; }
+    .gl-narrow .mk-comment__reply-to[data-scope="phone"] { display: block; }
+  </style>
 </head>
 <body>
   <nav class="mk-catalog-nav" aria-label="カタログ">
@@ -26,9 +62,77 @@
   <main class="l-container l-stack">
     <header class="l-stack">
       <h1>部品ギャラリー</h1>
-      <p class="text-muted">基本スタイルと部品の見本ページです。後続のタスクで部品と仕組みを追加します。</p>
+      <p class="text-muted">画面で繰り返し使う UI 部品（<code>mk-*</code>）と基本スタイルを、属性と状態ごとに 1 ページに並べた見本です。言語とテーマはヘッダーの切替で、段階・ログイン状態・シナリオは画面下部のツールバーで切り替えます。表示している値はすべて架空のサンプルです。</p>
       <p><a href="index.html">一覧ページへ戻る</a></p>
     </header>
+
+    <nav class="gl-toc" aria-label="目次">
+      <ol>
+        <li><a href="#sec-overview">部品の一覧</a></li>
+        <li><a href="#sec-gallery-states">状態の切り替え</a></li>
+        <li><a href="#sec-typography">文字</a></li>
+        <li><a href="#sec-buttons">ボタン</a></li>
+        <li><a href="#sec-forms">フォーム部品</a></li>
+        <li><a href="#sec-wrap">長い文言の折り返し</a></li>
+        <li><a href="#sec-stage">装飾と図の印</a></li>
+        <li><a href="#sec-i18n">文言と日付の表記</a></li>
+        <li><a href="#sec-conditions">条件付きの表示</a></li>
+        <li><a href="#sec-shell">共通の部品</a></li>
+        <li><a href="#sec-almanac">月カレンダーと日付のセル</a></li>
+        <li><a href="#sec-almanac-summary">暦の要約と日月の出没</a></li>
+        <li><a href="#sec-event-list">天文現象の一覧</a></li>
+        <li><a href="#sec-star-chart">全天星図</a></li>
+        <li><a href="#sec-posts">投稿の部品</a></li>
+        <li><a href="#sec-location">位置の公開精度と模式地図</a></li>
+        <li><a href="#sec-weather-location">天気と位置パネル</a></li>
+        <li><a href="#sec-narrow">スマートフォン幅の見本</a></li>
+      </ol>
+    </nav>
+
+    <section id="gallery-overview" class="l-surface l-stack" aria-labelledby="sec-overview">
+      <h2 id="sec-overview">部品の一覧</h2>
+      <p class="text-muted">このページにある部品と、並べている変種です。要素名のリンクから各部品の見本へ移動します。</p>
+      <div class="gl-table-wrap" tabindex="0" role="region" aria-label="部品の一覧の表">
+        <table class="gl-table">
+          <caption>部品と見本の変種（19 部品）</caption>
+          <thead>
+            <tr><th scope="col">要素</th><th scope="col">ファイル</th><th scope="col">見本の変種（属性）</th><th scope="col">状態で変わる表示</th></tr>
+          </thead>
+          <tbody>
+            <tr data-element="mk-site-header"><th scope="row"><a href="#sec-shell-header"><code>mk-site-header</code></a></th><td>shell.js</td><td><ul><li>属性なし</li><li><code>current="star-chart"</code></li><li>スマートフォン幅（メニューの折りたたみ）</li></ul></td><td>ログイン状態（ログイン・表示名・管理）、言語、テーマ</td></tr>
+            <tr data-element="mk-site-footer"><th scope="row"><a href="#sec-shell-footer"><code>mk-site-footer</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
+            <tr data-element="mk-guest-notice"><th scope="row"><a href="#sec-shell-notice"><code>mk-guest-notice</code></a></th><td>shell.js</td><td><ul><li><code>variant="read-only"</code>（既定）</li><li><code>variant="private-post"</code></li></ul></td><td>常に表示（出し分けは画面側の <code>data-when-auth</code>）</td></tr>
+            <tr data-element="mk-status-badge"><th scope="row"><a href="#sec-shell-badge"><code>mk-status-badge</code></a></th><td>shell.js</td><td><code>status</code>：public、members-only、hidden、deleted</td><td>言語</td></tr>
+            <tr data-element="mk-admin-band"><th scope="row"><a href="#sec-shell-admin"><code>mk-admin-band</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
+            <tr data-element="mk-month-calendar"><th scope="row"><a href="#sec-almanac-2026-11"><code>mk-month-calendar</code></a></th><td>almanac.js</td><td><ul><li><code>month="2026-11"</code></li><li><code>month="2027-03"</code>（予定の祝日）</li><li>スマートフォン幅（小さな格子と要約パネル）</li></ul></td><td>言語（曜日・祝日名）</td></tr>
+            <tr data-element="mk-day-cell"><th scope="row"><a href="#sec-almanac-cells"><code>mk-day-cell</code></a></th><td>almanac.js</td><td><code>date</code>（節気・予定の祝日・天文現象・閏月・サンプルなし）、<code>compact</code></td><td>言語</td></tr>
+            <tr data-element="mk-almanac-summary"><th scope="row"><a href="#sec-summary-full"><code>mk-almanac-summary</code></a></th><td>almanac.js</td><td><code>variant="full"</code>（天文現象・予定の祝日・閏月）、<code>variant="brief"</code>、サンプルなし</td><td>言語</td></tr>
+            <tr data-element="mk-rise-set"><th scope="row"><a href="#sec-rise-set"><code>mk-rise-set</code></a></th><td>almanac.js</td><td><code>date</code>（月の入りなしを含む）、<code>post-id</code>（位置情報なしは何も出さない）</td><td>言語</td></tr>
+            <tr data-element="mk-event-list"><th scope="row"><a href="#sec-event-list-month"><code>mk-event-list</code></a></th><td>almanac.js</td><td><code>from</code> と <code>to</code>、<code>kinds</code></td><td>シナリオ：empty（空状態）、fetch-error（取得エラー）</td></tr>
+            <tr data-element="mk-star-chart"><th scope="row"><a href="#sec-star-chart-default"><code>mk-star-chart</code></a></th><td>sky.js</td><td>属性なし、<code>sample="unknown"</code>（サンプルなし）</td><td>段階（ワイヤーフレームでは占位表示）、言語、テーマ</td></tr>
+            <tr data-element="mk-post-card"><th scope="row"><a href="#sec-post-card"><code>mk-post-card</code></a></th><td>posts.js</td><td><code>post-id</code>（公開・ログインユーザのみ・一時非表示・削除済み・サンプルなし）、<code>variant="compact"</code></td><td>言語</td></tr>
+            <tr data-element="mk-comment-tree"><th scope="row"><a href="#sec-comment-tree"><code>mk-comment-tree</code></a></th><td>posts.js</td><td><code>post-id</code>（深さ 7 と削除済み、コメントなし、サンプルなし）、スマートフォン幅（字下げ 3 段）</td><td>ログイン状態（コメントごとの通報の導線）、言語</td></tr>
+            <tr data-element="mk-like-button"><th scope="row"><a href="#sec-like-button"><code>mk-like-button</code></a></th><td>posts.js</td><td><code>post-id</code>（サンプルなしを含む）</td><td>ログイン状態（未ログインは件数だけ）</td></tr>
+            <tr data-element="mk-report-link"><th scope="row"><a href="#sec-report-link"><code>mk-report-link</code></a></th><td>posts.js</td><td><code>target-id</code>（投稿・コメント・サンプルなし）</td><td>ログイン状態（未ログインは表示しない）</td></tr>
+            <tr data-element="mk-precision-picker"><th scope="row"><a href="#sec-precision-picker"><code>mk-precision-picker</code></a></th><td>location.js</td><td>属性なし（未選択）、<code>value</code>：5 段階それぞれ</td><td>言語</td></tr>
+            <tr data-element="mk-map-sample"><th scope="row"><a href="#sec-map-sample"><code>mk-map-sample</code></a></th><td>location.js</td><td><code>precision</code>：5 段階、<code>region</code>、サンプルなし</td><td>段階（占位表示）、テーマ</td></tr>
+            <tr data-element="mk-weather"><th scope="row"><a href="#sec-weather"><code>mk-weather</code></a></th><td>location.js</td><td><code>post-id</code>（晴れ・風あり・取得失敗・位置情報なし・サンプルなし）</td><td>言語</td></tr>
+            <tr data-element="mk-location-panel"><th scope="row"><a href="#sec-location-panel"><code>mk-location-panel</code></a></th><td>location.js</td><td><code>post-id</code>（天気あり・取得失敗・位置情報なし・サンプルなし）</td><td>シナリオに追従する例（weather-failed、no-location）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-gallery-states">
+      <h2 id="sec-gallery-states">状態の切り替え</h2>
+      <p class="text-muted">部品の表示は、属性のほかに、ログイン状態とシナリオでも変わります。次のリンクで、このページ全体を切り替えます（ツールバーからも切り替えられます）。</p>
+      <ul>
+        <li>ログイン状態：<a href="?auth=guest">?auth=guest</a>（いいねは件数だけ、通報の導線なし）、<a href="?auth=member">?auth=member</a>（ヘッダーに表示名）、<a href="?auth=admin">?auth=admin</a>（ヘッダーのナビに管理を追加）</li>
+        <li>シナリオ：<a href="?scenario=empty">?scenario=empty</a>（天文現象の一覧が空状態）、<a href="?scenario=fetch-error">?scenario=fetch-error</a>（天文現象の一覧が取得エラー）、<a href="?scenario=weather-failed">?scenario=weather-failed</a> と <a href="?scenario=no-location">?scenario=no-location</a>（位置パネルのシナリオ追従の例）</li>
+        <li>段階：<a href="?stage=wireframe">?stage=wireframe</a>（装飾を消し、図を占位表示にする）、<a href="?stage=hifi">?stage=hifi</a></li>
+      </ul>
+      <p class="text-muted">スマートフォン幅（600px 未満）の表示は、このページの最後の「スマートフォン幅の見本」か、幅を狭めたブラウザで確認します。画面ごとの幅の確認は <a href="viewer.html">幅プレビュー</a> を使います。</p>
+    </section>
 
     <section class="l-surface l-stack" aria-labelledby="sec-typography">
       <h2 id="sec-typography">文字</h2>
@@ -216,6 +320,10 @@
           <mk-almanac-summary id="summary-full-2027-03-21" date="2027-03-21" variant="full"></mk-almanac-summary>
         </div>
         <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-20"</code>（天文現象）</p>
+          <mk-almanac-summary id="summary-full-2026-11-20" date="2026-11-20" variant="full"></mk-almanac-summary>
+        </div>
+        <div class="l-stack">
           <p class="text-muted"><code>date="2025-07-25"</code>（閏月）</p>
           <mk-almanac-summary id="summary-full-leap" date="2025-07-25"></mk-almanac-summary>
         </div>
@@ -333,6 +441,24 @@
       <mk-precision-picker id="precision-default"></mk-precision-picker>
       <p class="text-muted"><code>value="municipality"</code></p>
       <mk-precision-picker id="precision-municipality" value="municipality"></mk-precision-picker>
+      <div class="mk-cell-samples">
+        <div class="l-stack">
+          <p class="text-muted"><code>value="exact"</code></p>
+          <mk-precision-picker id="precision-exact" value="exact"></mk-precision-picker>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>value="fuzzed-1km"</code></p>
+          <mk-precision-picker id="precision-fuzzed-1km" value="fuzzed-1km"></mk-precision-picker>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>value="prefecture"</code></p>
+          <mk-precision-picker id="precision-prefecture" value="prefecture"></mk-precision-picker>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>value="country"</code></p>
+          <mk-precision-picker id="precision-country" value="country"></mk-precision-picker>
+        </div>
+      </div>
 
       <h3 id="sec-map-sample"><code>mk-map-sample</code></h3>
       <p class="text-muted">厳密はピン、約 1 km の範囲は半径 1 km の円（ピンなし）、市区町村・都道府県・国は範囲の塗りと縮尺の違いで示します。地域名は、その精度を持つ最初のサンプル投稿から取ります。</p>
@@ -419,6 +545,19 @@
       <div id="scenario-location-no-location" class="l-stack" data-when-scenario="no-location">
         <p class="text-muted">位置なし：<code>post-id="p-106"</code>（位置パネルは表示されません）</p>
         <mk-location-panel post-id="p-106"></mk-location-panel>
+      </div>
+    </section>
+
+    <section class="l-surface l-stack" aria-labelledby="sec-narrow">
+      <h2 id="sec-narrow">スマートフォン幅の見本</h2>
+      <p class="text-muted">幅 600px 未満で表示が変わる部品を、幅 375px の枠の中で並べます。PC 幅のページでも見えるように、<code>components.css</code> の 600px 未満の規則を、このページの中で枠に限って当てています（実際の幅での確認は <a href="viewer.html">幅プレビュー</a> で行います）。</p>
+      <div class="gl-narrow" data-gallery-width="narrow">
+        <h3 id="sec-narrow-header"><code>mk-site-header</code>（メニューの折りたたみ）</h3>
+        <mk-site-header id="header-narrow"></mk-site-header>
+        <h3 id="sec-narrow-calendar"><code>mk-month-calendar month="2026-11"</code>（小さな格子と要約パネル）</h3>
+        <mk-month-calendar id="cal-narrow" month="2026-11"></mk-month-calendar>
+        <h3 id="sec-narrow-comments"><code>mk-comment-tree post-id="p-120"</code>（字下げ 3 段まで）</h3>
+        <mk-comment-tree id="comments-narrow" post-id="p-120"></mk-comment-tree>
       </div>
     </section>
   </main>

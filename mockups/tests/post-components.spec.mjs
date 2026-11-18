@@ -165,7 +165,9 @@ test.describe('mk-report-link', () => {
  * @param {import('@playwright/test').Page} page
  * @param {string} commentId
  */
-const comment = (page, commentId) => page.locator(`[data-comment-id="${commentId}"]`);
+// Task 6.4: the gallery also shows p-120 in its phone-width frame (#comments-narrow); these tests
+// check the PC samples.
+const comment = (page, commentId) => page.locator(`mk-comment-tree:not(#comments-narrow) [data-comment-id="${commentId}"]`);
 /**
  * Left edge of a comment's own box (not its replies).
  * @param {import('@playwright/test').Page} page
@@ -270,7 +272,8 @@ test.describe('layout', () => {
         const r = el.getBoundingClientRect();
         return r.right <= document.documentElement.clientWidth + 0.5;
       }));
-      expect(fits.length).toBe(29);
+      // 29 PC samples, plus the phone-width tree of p-120 and its 8 report links (task 6.4).
+      expect(fits.length).toBe(38);
       expect(fits.every(Boolean)).toBe(true);
     });
   }
