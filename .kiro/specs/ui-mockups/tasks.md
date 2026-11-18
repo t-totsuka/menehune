@@ -350,7 +350,7 @@
   - _Depends: 6.1_
   - _Requirements: 10.5_
 
-- [ ] 6.6 (P) 用語集のページを作る
+- [x] 6.6 (P) 用語集のページを作る
   - 用語集と辞書（読み取りのみ）から、分類ごとの表を作る。列は、キー、日本語、英語、英訳の方針、注記
   - 日付・時刻・曜日の書式の例を、日英それぞれについて示す
   - 完了状態：用語集のページで、全分類の用語と日英の書式例を確認できる
@@ -467,3 +467,4 @@
 - 6.3：幅プレビューは ?screen を読み（ない・不明なときは top。不明なときは role="alert" の警告）、MockState の stage/lang/theme を枠の src の URL パラメータで渡す。auth と scenario は、画面が許可していて既定値でないときだけ渡す。枠は 375px（実寸）と 1440px（縮小、倍率を文字で表示）、高さは 812 と 900 の固定。<body lang="ja"> でカタログの文言を日本語として扱う。ページスクリプトはインライン（約 110 行、tsc の対象外）
 - 6.4：部品ギャラリーは 19 部品すべてを一覧の表と目次で並べる。スマートフォン幅の見本は、components.css の (width < 600px) の規則を .gl-narrow に限ってページの <style> に写したものなので、components.css の狭い幅の規則を変えたら合わせる。部品の見本を増やすと、components.html を開く既存のテストの件数の期待値も変わる。既知の懸念：review-shell.js は余白の高さに toolbar の offsetHeight（整数に丸めた値）を使うため、ツールバーの手前に 1px 未満の重なりが出る（review-shell.spec の許容を 1px にした）。直すなら Math.ceil(getBoundingClientRect().height) にする（タスク 9 などで）
 - 6.5：file:// では読み込んだ CSS のルールを読めない（SecurityError）ので、トークン一覧は <html> の getComputedStyle から集め、data-theme と data-stage を一時的に切り替えて両テーマの値を読み、同期的に元へ戻す。mock:change は update() からしか出ないので、この切り替えでは発火しない。コントラストの組は tools/contrast-pairs.json の写しをページに埋め込んでいて、ずれると tokens-page.spec が失敗する。contrast-pairs.json に組を足したら（8.2、8.3）tokens.html の PAIR_GROUPS も更新する。色の見本は、ワイヤーフレームの段階でもハイフィの値で出す
+- 6.6：MockI18n.formatDate は言語の引数を持たないので、glossary.html は読み込みの途中（ReviewShell が購読する前）に mock:change を自分で 3 回（ja、en、MockState.get() で元に戻す）出して、日英の書式例を作る。6.5 の「mock:change は update() からしか出ない」の意図的な例外なので、このページには mk-* 部品や mock:change を聞く処理を置かない。直すなら i18n.js に formatDate(value, style, lang?) を足して直接呼ぶ（タスク 9 などで）

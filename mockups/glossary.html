@@ -12,8 +12,24 @@
   <!-- Review chrome only; always the last stylesheet and never referenced by product CSS. -->
   <link rel="stylesheet" href="assets/css/review.css">
   <!-- Catalog page: fixed Japanese copy (no dictionary keys); page-specific styles go in a <style> here. -->
+  <style>
+    /* Page chrome (table of contents, tables): gray literals like review.css. */
+    .gl-toc ol { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; margin: 0; padding-inline-start: 0; list-style-position: inside; }
+    .gl-table-wrap { max-width: 100%; overflow-x: auto; }
+    .gl-table-wrap:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+    .gl-table { border-collapse: collapse; min-width: 44rem; width: 100%; }
+    .gl-table--narrow { min-width: 20rem; }
+    .gl-table caption { text-align: start; font-weight: 700; padding-block-end: 0.5rem; }
+    .gl-table th, .gl-table td { border: 1px solid #8a8a8a; padding: 0.5rem; text-align: start; vertical-align: top; }
+    .gl-table thead th { background: #e6e6e6; color: #1a1a1a; }
+    .gl-table code { overflow-wrap: anywhere; }
+    .gl-key { min-width: 10rem; }
+    .gl-note { display: grid; gap: 0.25rem; font-size: 0.875rem; line-height: 1.5; }
+    .gl-note p { margin: 0; }
+    .gl-count { font-size: 0.875rem; font-weight: 400; }
+  </style>
 </head>
-<body>
+<body lang="ja">
   <nav class="mk-catalog-nav" aria-label="カタログ">
     <ul class="mk-catalog-nav__list">
       <li><a href="index.html">一覧</a></li>
@@ -26,7 +42,66 @@
   </nav>
   <main class="l-container l-stack">
     <h1>日英用語集</h1>
-    <p class="text-muted">用語の日英の対訳と英訳の方針、日付・時刻の書式を示すページです。表と書式の例は、このページに追加します。</p>
+    <p class="text-muted">画面の文言、暦注、天文用語、祝日名などについて、日本語と英語の対訳と英訳の方針を分類ごとに示すページです。表は、用語集（<code>data/glossary.js</code>）と辞書（<code>assets/i18n/messages.*.js</code>）から、ページを開いたときに作ります。キーは言語に依存しない識別名で、言語を追加するときもそのまま使います。</p>
+    <p class="text-muted">ページの最後に、日付・時刻・曜日の書式の例を、日本語と英語で並べて示します。表と例は、ページの表示言語によらず両方の言語で表示します。</p>
+
+    <nav class="gl-toc" aria-label="このページの目次">
+      <ol>
+        <li><a href="#gl-policies">英訳の方針</a></li>
+        <li><a href="#gl-ui">画面の文言</a></li>
+        <li><a href="#gl-rokuyo">六曜</a></li>
+        <li><a href="#gl-sekki">二十四節気</a></li>
+        <li><a href="#gl-kou">七十二候</a></li>
+        <li><a href="#gl-zassetsu">雑節</a></li>
+        <li><a href="#gl-lunar-month">旧暦の月名</a></li>
+        <li><a href="#gl-moon-phase">月の満ち欠け</a></li>
+        <li><a href="#gl-astro-event">天文現象・天体</a></li>
+        <li><a href="#gl-holiday">祝日</a></li>
+        <li><a href="#gl-location">位置情報</a></li>
+        <li><a href="#gl-weather">天気</a></li>
+        <li><a href="#gl-moderation">通報と非表示</a></li>
+        <li><a href="#gl-dates">日付・時刻・曜日の書式</a></li>
+      </ol>
+    </nav>
+
+    <section id="gl-policies" class="l-stack">
+      <h2>英訳の方針</h2>
+      <p>各用語の「英訳の方針」の列は、次の 4 つのいずれかです。分類ごとの既定の方針と違う用語には、注記で理由を書いています。</p>
+      <dl>
+        <dt>意訳</dt>
+        <dd>意味を英語に訳します（例：七十二候の東風解凍 → East wind melts the ice。祝日は内閣府の英語の名称）。</dd>
+        <dt>音写</dt>
+        <dd>読みをローマ字で書きます（例：大安 → Taian）。</dd>
+        <dt>音写と意訳の併記</dt>
+        <dd>音写と意訳を並べます。六曜・雑節・旧暦の月名は「音写 (意訳)」（例：Taian (Great Peace)）、二十四節気は「意訳 (音写)」（例：Start of Spring (Risshun)）の順です。</dd>
+        <dt>標準の英語</dt>
+        <dd>天文学などで標準的に使う英語にします（例：衝 → Opposition）。</dd>
+      </dl>
+    </section>
+
+    <section id="gl-ui" data-category="ui" class="l-stack"><h2>画面の文言</h2></section>
+    <section id="gl-rokuyo" data-category="rokuyo" class="l-stack"><h2>六曜</h2></section>
+    <section id="gl-sekki" data-category="sekki" class="l-stack"><h2>二十四節気</h2></section>
+    <section id="gl-kou" data-category="kou" class="l-stack"><h2>七十二候</h2></section>
+    <section id="gl-zassetsu" data-category="zassetsu" class="l-stack"><h2>雑節</h2></section>
+    <section id="gl-lunar-month" data-category="lunar-month" class="l-stack"><h2>旧暦の月名</h2></section>
+    <section id="gl-moon-phase" data-category="moon-phase" class="l-stack"><h2>月の満ち欠け</h2></section>
+    <section id="gl-astro-event" data-category="astro-event" class="l-stack">
+      <h2>天文現象・天体</h2>
+      <p>天体・星座・恒星の名前も、この分類に含めます。</p>
+    </section>
+    <section id="gl-holiday" data-category="holiday" class="l-stack"><h2>祝日</h2></section>
+    <section id="gl-location" data-category="location" class="l-stack"><h2>位置情報</h2></section>
+    <section id="gl-weather" data-category="weather" class="l-stack"><h2>天気</h2></section>
+    <section id="gl-moderation" data-category="moderation" class="l-stack"><h2>通報と非表示</h2></section>
+
+    <section id="gl-dates" class="l-stack">
+      <h2>日付・時刻・曜日の書式</h2>
+      <p>日付と時刻は、日本時間（Asia/Tokyo）に固定して表示します。時刻は、日本語と英語のどちらも 24 時間表記です。オフセットのない日時（例：<code>2026-11-16T18:42</code>）は、日本時間（+09:00）として読みます。</p>
+      <p>下の例は、画面と同じ書式の処理（<code>MockI18n.formatDate</code>）で作っています。書式の名前は、マークアップの <code>data-date-style</code> に書く値です。</p>
+      <div data-slot="formats"></div>
+      <div data-slot="weekdays"></div>
+    </section>
   </main>
 
   <script src="data/screens.js"></script>
@@ -43,5 +118,138 @@
   <script src="assets/js/components/posts.js"></script>
   <script src="assets/js/components/location.js"></script>
   <script src="assets/js/review-shell.js"></script>
+  <script>
+    // Glossary page (11.3, 11.4, 11.7). One table per glossary category, built from
+    // window.MockGlossary (category, policy, note) and the copy of window.MockMessages.ja / .en
+    // (both read only), followed by the date / time / weekday format examples of both languages.
+    (function () {
+      var LANGS = ['ja', 'en'];
+      var POLICY_LABELS = {
+        translation: '意訳',
+        transliteration: '音写',
+        both: '音写と意訳の併記',
+        standard: '標準の英語'
+      };
+
+      // ---- DOM helpers ----
+      function el(tag, attrs, children) {
+        var node = document.createElement(tag);
+        Object.keys(attrs || {}).forEach(function (name) { node.setAttribute(name, attrs[name]); });
+        (children || []).forEach(function (c) { node.append(c); });
+        return node;
+      }
+      function code(text) { return el('code', null, [text]); }
+      function table(caption, heads, rows, extraClass) {
+        var t = el('table', { class: 'gl-table' + (extraClass ? ' ' + extraClass : '') }, [
+          el('caption', null, [caption]),
+          el('thead', null, [el('tr', null, heads.map(function (h) { return el('th', { scope: 'col' }, [h]); }))]),
+          el('tbody', null, rows)
+        ]);
+        return el('div', { class: 'gl-table-wrap', tabindex: '0', role: 'region', 'aria-label': caption }, [t]);
+      }
+
+      // ---- glossary tables ----
+      var messages = window.MockMessages || {};
+      function copyOf(lang, id) {
+        var dict = messages[lang];
+        if (dict && Object.prototype.hasOwnProperty.call(dict, id)) return dict[id];
+        console.warn('[glossary] missing message key "' + id + '" for "' + lang + '"');
+        return '⟦' + id + '⟧';
+      }
+      function noteCell(note) {
+        var cell = el('td', null, []);
+        if (!note) return cell;
+        cell.append(el('div', { class: 'gl-note' }, LANGS.map(function (lang) {
+          return el('p', { lang: lang }, [note[lang] || '']);
+        })));
+        return cell;
+      }
+
+      var glossary = window.MockGlossary || [];
+      var sections = Array.prototype.slice.call(document.querySelectorAll('section[data-category]'));
+      var known = sections.map(function (s) { return s.getAttribute('data-category'); });
+      glossary.forEach(function (entry) {
+        if (known.indexOf(entry.category) < 0) console.warn('[glossary] unknown category "' + entry.category + '" (' + entry.key + ')');
+      });
+      sections.forEach(function (section) {
+        var category = section.getAttribute('data-category');
+        var heading = section.querySelector('h2');
+        var label = heading ? heading.textContent : category;
+        var entries = glossary.filter(function (entry) { return entry.category === category; });
+        var rows = entries.map(function (entry) {
+          var tr = el('tr', null, [
+            el('th', { scope: 'row', class: 'gl-key' }, [code(entry.key)]),
+            el('td', { lang: 'ja' }, [copyOf('ja', entry.key)]),
+            el('td', { lang: 'en' }, [copyOf('en', entry.key)]),
+            el('td', { 'data-policy': entry.policy }, [POLICY_LABELS[entry.policy] || entry.policy]),
+            noteCell(entry.note)
+          ]);
+          tr.setAttribute('data-key', entry.key);
+          return tr;
+        });
+        if (heading) heading.append(' ', el('span', { class: 'gl-count' }, ['（' + entries.length + ' 語）']));
+        section.append(table(label + 'の用語', ['キー', '日本語', '英語', '英訳の方針', '注記'], rows));
+      });
+
+      // ---- date / time / weekday formats ----
+      // MockI18n.formatDate formats in the current page language. To show both languages side by
+      // side, the examples are produced while this script runs (before DOMContentLoaded, so only
+      // I18nRuntime listens to 'mock:change' yet): one mock:change per language, then one with the
+      // real MockState snapshot so the runtime goes back to the page language.
+      var FORMATS = [
+        ['date-long', '2026-11-16', '日付（年・曜日付き）'],
+        ['date-short', '2026-11-16', '日付（短い形）'],
+        ['weekday', '2026-11-16', '曜日'],
+        ['time', '2026-11-16T18:42:00+09:00', '時刻'],
+        ['datetime', '2026-11-16T18:42:00+09:00', '日時'],
+        ['datetime', '2026-11-16T18:42', '日時（オフセットのない値）'],
+        ['month-year', '2026-11-16', '年月']
+      ];
+      var WEEK = ['2026-11-15', '2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-21'];
+      var requests = FORMATS.map(function (f) { return { style: f[0], value: f[1] }; })
+        .concat(WEEK.map(function (d) { return { style: 'weekday', value: d }; }));
+
+      function formatBoth(list) {
+        var out = { ja: [], en: [] };
+        var i18n = window.MockI18n;
+        var state = window.MockState;
+        if (!i18n || !state) {
+          console.warn('[glossary] MockI18n or MockState is missing; no format examples');
+          return out;
+        }
+        var snapshot = state.get();
+        LANGS.forEach(function (lang) {
+          document.dispatchEvent(new CustomEvent('mock:change', { detail: Object.assign({}, snapshot, { lang: lang }) }));
+          out[lang] = list.map(function (r) { return i18n.formatDate(r.value, r.style); });
+        });
+        document.dispatchEvent(new CustomEvent('mock:change', { detail: state.get() }));
+        return out;
+      }
+      var formatted = formatBoth(requests);
+
+      function formatRow(index, firstCells) {
+        var r = requests[index];
+        var tr = el('tr', { 'data-format-row': '', 'data-style': r.style, 'data-value': r.value }, firstCells.concat(LANGS.map(function (lang) {
+          return el('td', { lang: lang, 'data-lang-cell': lang }, [formatted[lang][index] || '']);
+        })));
+        return tr;
+      }
+
+      var formatRows = FORMATS.map(function (f, i) {
+        return formatRow(i, [
+          el('th', { scope: 'row' }, [code(f[0])]),
+          el('td', null, [f[2]]),
+          el('td', null, [code(f[1])])
+        ]);
+      });
+      var weekRows = WEEK.map(function (d, i) {
+        return formatRow(FORMATS.length + i, [el('th', { scope: 'row' }, [code(d)])]);
+      });
+      var formatSlot = document.querySelector('[data-slot="formats"]');
+      if (formatSlot) formatSlot.append(table('書式の例', ['書式の名前', '内容', '入力の値', '日本語', '英語'], formatRows));
+      var weekSlot = document.querySelector('[data-slot="weekdays"]');
+      if (weekSlot) weekSlot.append(table('曜日の表記（weekday、1 週間分）', ['日付', '日本語', '英語'], weekRows, 'gl-table--narrow'));
+    })();
+  </script>
 </body>
 </html>
