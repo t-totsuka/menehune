@@ -313,7 +313,7 @@
   - 完了状態：管理画面がログイン状態の切替で、管理者には管理 UI、それ以外には権限なしの表示になり、一般の画面と見た目で区別できる。トークンと辞書の検査が通る
   - _Requirements: 3.4, 3.6, 8.6_
 
-- [ ] 6. レビュー用のカタログページ
+- [x] 6. レビュー用のカタログページ
 - [x] 6.1 カタログページの共通部分を作る
   - カタログページ間の共通ナビゲーションと、共通の見た目を、レビュー用のスタイルに追加する
   - 一覧、幅プレビュー、トークン一覧、用語集、アクセシビリティの 5 ページを、共通ナビゲーションだけを持つ空のページとして作る。6.2〜6.7 は、それぞれ自分のページのファイルだけを編集する
@@ -358,7 +358,7 @@
   - _Depends: 6.1_
   - _Requirements: 11.3, 11.4, 11.7_
 
-- [ ] 6.7 (P) アクセシビリティ方針のページを作る
+- [x] 6.7 (P) アクセシビリティ方針のページを作る
   - 星図・地図の代替テキストの方針と記述例、両テーマのフォーカス表示の見本、色以外で区別している箇所の一覧を載せる
   - 完了状態：アクセシビリティのページで、代替テキストの記述例と、両テーマのフォーカス表示の見本を確認できる
   - _Boundary: CatalogPages（a11y）_
@@ -468,3 +468,4 @@
 - 6.4：部品ギャラリーは 19 部品すべてを一覧の表と目次で並べる。スマートフォン幅の見本は、components.css の (width < 600px) の規則を .gl-narrow に限ってページの <style> に写したものなので、components.css の狭い幅の規則を変えたら合わせる。部品の見本を増やすと、components.html を開く既存のテストの件数の期待値も変わる。既知の懸念：review-shell.js は余白の高さに toolbar の offsetHeight（整数に丸めた値）を使うため、ツールバーの手前に 1px 未満の重なりが出る（review-shell.spec の許容を 1px にした）。直すなら Math.ceil(getBoundingClientRect().height) にする（タスク 9 などで）
 - 6.5：file:// では読み込んだ CSS のルールを読めない（SecurityError）ので、トークン一覧は <html> の getComputedStyle から集め、data-theme と data-stage を一時的に切り替えて両テーマの値を読み、同期的に元へ戻す。mock:change は update() からしか出ないので、この切り替えでは発火しない。コントラストの組は tools/contrast-pairs.json の写しをページに埋め込んでいて、ずれると tokens-page.spec が失敗する。contrast-pairs.json に組を足したら（8.2、8.3）tokens.html の PAIR_GROUPS も更新する。色の見本は、ワイヤーフレームの段階でもハイフィの値で出す
 - 6.6：MockI18n.formatDate は言語の引数を持たないので、glossary.html は読み込みの途中（ReviewShell が購読する前）に mock:change を自分で 3 回（ja、en、MockState.get() で元に戻す）出して、日英の書式例を作る。6.5 の「mock:change は update() からしか出ない」の意図的な例外なので、このページには mk-* 部品や mock:change を聞く処理を置かない。直すなら i18n.js に formatDate(value, style, lang?) を足して直接呼ぶ（タスク 9 などで）
+- 6.7：アクセシビリティのページの代替テキストの記述例は、ページに置いた実際の mk-star-chart と mk-map-sample の aria-label を mock:change のたびに写す。フォーカスの見本は、6.5 と同じく data-theme を一時的に切り替えて --color-* を読み、各パネルに設定する。外枠を固定で出した見本は base.css の :focus-visible の写しなので、base.css を変えたら合わせる。色以外の区別の一覧（20 行）は、記号・文字・破線などを追加・変更したら更新する（8.3 のアイコンなど）
