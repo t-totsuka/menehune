@@ -343,7 +343,7 @@
   - _Depends: 6.1_
   - _Requirements: 2.4_
 
-- [ ] 6.5 (P) トークン一覧のページを作る
+- [x] 6.5 (P) トークン一覧のページを作る
   - 色・文字・余白などのトークンを見本で表示する。色はライトとダークを並べ、主な組み合わせのコントラスト比を表示する
   - 完了状態：トークン一覧で、全カテゴリのトークンの見本と使用例が見える
   - _Boundary: CatalogPages（tokens）_
@@ -466,3 +466,4 @@
 - 6.2：一覧ページは window.MockScreens から表を作る（状態は記号と文字。ワイヤーフレームが未承認ならハイフィに「未確定」）。幅プレビューへのリンクは viewer.html?screen={ScreenId} だけを付ける（6.3 は ?screen を読み、段階・言語・テーマは MockState から決める）。カタログページの表の罫線などは、review.css と同じくグレーの固定値（製品のトークンの検査の対象外）。レジストリを書き換える E2E は、addInitScript で window.MockScreens に setter を仕掛けて差し替える
 - 6.3：幅プレビューは ?screen を読み（ない・不明なときは top。不明なときは role="alert" の警告）、MockState の stage/lang/theme を枠の src の URL パラメータで渡す。auth と scenario は、画面が許可していて既定値でないときだけ渡す。枠は 375px（実寸）と 1440px（縮小、倍率を文字で表示）、高さは 812 と 900 の固定。<body lang="ja"> でカタログの文言を日本語として扱う。ページスクリプトはインライン（約 110 行、tsc の対象外）
 - 6.4：部品ギャラリーは 19 部品すべてを一覧の表と目次で並べる。スマートフォン幅の見本は、components.css の (width < 600px) の規則を .gl-narrow に限ってページの <style> に写したものなので、components.css の狭い幅の規則を変えたら合わせる。部品の見本を増やすと、components.html を開く既存のテストの件数の期待値も変わる。既知の懸念：review-shell.js は余白の高さに toolbar の offsetHeight（整数に丸めた値）を使うため、ツールバーの手前に 1px 未満の重なりが出る（review-shell.spec の許容を 1px にした）。直すなら Math.ceil(getBoundingClientRect().height) にする（タスク 9 などで）
+- 6.5：file:// では読み込んだ CSS のルールを読めない（SecurityError）ので、トークン一覧は <html> の getComputedStyle から集め、data-theme と data-stage を一時的に切り替えて両テーマの値を読み、同期的に元へ戻す。mock:change は update() からしか出ないので、この切り替えでは発火しない。コントラストの組は tools/contrast-pairs.json の写しをページに埋め込んでいて、ずれると tokens-page.spec が失敗する。contrast-pairs.json に組を足したら（8.2、8.3）tokens.html の PAIR_GROUPS も更新する。色の見本は、ワイヤーフレームの段階でもハイフィの値で出す
