@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Test fixture only (task 7.2): intentional overflow cases that the layout detector in
+       tests/helpers/layout-checks.mjs must flag (id="bad-*"), and look-alike cases it must not
+       flag (id="ok-*"). Never copy into a real page. Inline styles are fine here: fixtures are
+       outside the scope of check-tokens. -->
+  <title>Overflow fixture</title>
+  <style>
+    body { margin: 0; font: 16px/1.5 sans-serif; }
+    .narrow { width: 120px; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Cases that must be flagged ------------------------------------------------------------>
+  <!-- A long unbreakable word escapes its own box (overflow visible): overlaps the neighbour. -->
+  <p id="bad-escape" class="narrow" style="overflow-wrap: normal;">Supercalifragilisticexpialidocious</p>
+  <!-- Clipped by its own overflow: hidden. -->
+  <p id="bad-clip" class="narrow" style="overflow: hidden; white-space: nowrap;">This sentence is far too long to fit</p>
+  <!-- Truncated with an ellipsis. -->
+  <p id="bad-ellipsis" class="narrow" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Truncated label text that does not fit</p>
+  <!-- Fits its own box, but the box sits inside a clipping ancestor that cuts it off. -->
+  <div class="narrow" style="overflow: hidden;">
+    <span id="bad-ancestor-clip" style="display: inline-block; white-space: nowrap;">A label wider than its clipping parent</span>
+  </div>
+  <!-- SVG label placed partly outside the drawing area (clipped by the svg element). -->
+  <svg width="100" height="40" viewBox="0 0 100 40">
+    <text id="bad-svg" x="60" y="25" font-size="14">Outside label</text>
+  </svg>
+
+  <!-- Cases that must NOT be flagged ---------------------------------------------------------->
+  <p id="ok-wrap" class="narrow">A normal sentence that wraps across several lines without trouble.</p>
+  <p id="ok-break" class="narrow" style="overflow-wrap: anywhere;">Supercalifragilisticexpialidocious</p>
+  <span id="ok-sr" class="sr-only">Visually hidden text that is much longer than one pixel</span>
+  <p class="narrow"><span id="ok-decor" data-decor style="display: inline-block; white-space: nowrap;">Decorative ornament ✦✦✦✦✦✦✦✦✦✦✦✦✦✦</span></p>
+  <p id="ok-hidden" class="narrow" hidden style="white-space: nowrap;">Hidden text far too long to fit the box</p>
+  <!-- An intentional, keyboard-reachable scroll container: the content is reachable by scrolling. -->
+  <div class="narrow" style="overflow-x: auto;" tabindex="0" role="region" aria-label="scroll">
+    <table><tr><td id="ok-scroll" style="white-space: nowrap;">A wide table cell inside a scroll region</td></tr></table>
+  </div>
+  <svg width="100" height="40" viewBox="0 0 100 40">
+    <text id="ok-svg" x="5" y="25" font-size="14">Inside</text>
+  </svg>
+</body>
+</html>

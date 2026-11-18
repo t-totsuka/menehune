@@ -375,7 +375,7 @@
   - 完了状態：全画面を順に開いて表示するだけの E2E が通る
   - _Requirements: 2.1, 2.6_
 
-- [ ] 7.2 はみ出しと文言の欠落の E2E を作る
+- [x] 7.2 はみ出しと文言の欠落の E2E を作る
   - 全 15 画面 × 日英 × ライトとダーク × 幅 360、375、768、1440、1920 の組み合わせで、次の点を検査する
     - ページ全体の横スクロールがない
     - 文言の要素がはみ出していない
@@ -470,3 +470,4 @@
 - 6.6：MockI18n.formatDate は言語の引数を持たないので、glossary.html は読み込みの途中（ReviewShell が購読する前）に mock:change を自分で 3 回（ja、en、MockState.get() で元に戻す）出して、日英の書式例を作る。6.5 の「mock:change は update() からしか出ない」の意図的な例外なので、このページには mk-* 部品や mock:change を聞く処理を置かない。直すなら i18n.js に formatDate(value, style, lang?) を足して直接呼ぶ（タスク 9 などで）
 - 6.7：アクセシビリティのページの代替テキストの記述例は、ページに置いた実際の mk-star-chart と mk-map-sample の aria-label を mock:change のたびに写す。フォーカスの見本は、6.5 と同じく data-theme を一時的に切り替えて --color-* を読み、各パネルに設定する。外枠を固定で出した見本は base.css の :focus-visible の写しなので、base.css を変えたら合わせる。色以外の区別の一覧（20 行）は、記号・文字・破線などを追加・変更したら更新する（8.3 のアイコンなど）
 - 7.1：E2E の共通の仕組みは tests/helpers/e2e.mjs（listScreens は data/screens.js を node:vm で読む、screenPath(id, params)、blockExternalRequests は context.route で file:/data:/blob:/about: 以外を記録してから abort、watchConsole は警告も集める、saveScreenshot は mockups/.review/screenshots/ に保存（Git の管理外））。baseURL は mockups の file:// URL なので page.goto('screens/top.html') で開ける。context.route は WebSocket を捕まえないので、7.3 のオフライン検査では page.on('websocket') も記録し、判定の前に networkidle まで待つ。tests/ は tsconfig の対象外
+- 7.2：はみ出しの検出器は tests/helpers/layout-checks.mjs（pageHorizontalOverflow、collectLayoutIssues、collectMissingKeyMarkers）。文字を直接持つ要素すべてを、文字ノードの Range の矩形で測る（data-i18n だけに絞らない）。[data-decor]、非表示、読み上げ用の隠し文字（clip-path: inset(50%) など）、overflow-x が auto か scroll の祖先の中は除外する。検査するのは各画面の既定状態（hifi、guest、default）だけ。8.x で装飾や書体を変えたら、layout-overflow.spec をもう一度通す
