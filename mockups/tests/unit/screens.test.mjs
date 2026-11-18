@@ -95,11 +95,21 @@ test('authStates are valid, unique, include the default guest, and admin can swi
   assert.deepEqual([...byId().get('admin').authStates], ['guest', 'member', 'admin']);
 });
 
-test('both stages start as draft and the hifi/wireframe invariant holds', () => {
+// Screens whose wireframe review has been recorded by a person (see data/screens.js).
+const REVIEWED_WIREFRAMES = new Map([['top', 'changes-requested']]);
+
+test('review statuses are valid, unreviewed stages are draft and the hifi/wireframe invariant holds', () => {
   for (const s of registry()) {
     for (const stage of ['wireframe', 'hifi']) {
       assert.ok(REVIEW_STATUSES.includes(s.review[stage]?.status), `${s.id} ${stage} status`);
-      assert.equal(s.review[stage].status, 'draft', `${s.id} ${stage} initial status`);
+      const expected = (stage === 'wireframe' && REVIEWED_WIREFRAMES.get(s.id)) || 'draft';
+      assert.equal(s.review[stage].status, expected, `${s.id} ${stage} status`);
+    }
+    if (s.review.wireframe.status !== 'draft') {
+      assert.ok(s.review.wireframe.reviewedAt, `${s.id} reviewed wireframe has reviewedAt`);
+      if (s.review.wireframe.status === 'changes-requested') {
+        assert.ok((s.review.wireframe.notes ?? []).length > 0, `${s.id} changes-requested has notes`);
+      }
     }
     if (s.review.hifi.status !== 'draft') {
       assert.equal(s.review.wireframe.status, 'approved', `${s.id} invariant`);

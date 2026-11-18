@@ -33,21 +33,35 @@
    * @param {ScreenAccess} access
    * @param {readonly AuthState[]} authStates
    * @param {readonly ScenarioId[]} extraScenarios scenarios after 'default'
+   * @param {Readonly<Record<StageId, StageReview>>} [reviewState]
    * @returns {ScreenEntry}
    */
-  const screen = (id, access, authStates, extraScenarios = []) =>
+  const screen = (id, access, authStates, extraScenarios = [], reviewState = review(DRAFT, DRAFT)) =>
     Object.freeze({
       id,
       titleKey: `screen.${id}.title`,
       access,
       authStates,
       scenarios: Object.freeze(/** @type {ScenarioId[]} */ (['default', ...extraScenarios])),
-      review: review(DRAFT, DRAFT),
+      review: reviewState,
     });
 
   /** @type {ScreenRegistry} */
   const screens = Object.freeze([
-    screen('top', 'public', GUEST_MEMBER),
+    screen('top', 'public', GUEST_MEMBER, [], review(
+      Object.freeze({
+        status: 'changes-requested',
+        reviewedAt: '2026-11-19',
+        notes: Object.freeze([
+          '題名の「トップ」の見出しは不要',
+          '投稿を主な内容とする。PC 幅では左右を 1:3 に分け、3 の側に投稿を並べる',
+          '1 の側には「ログインしていない…」の案内、今日の暦、直近の天文現象を並べる',
+          '天文現象の期間と種類を選ぶチェックボックスは、目立たないようにアコーディオンにする',
+          '今日の暦があっさりしているので、月齢を模した月の満ち欠けの絵と、今日の日の出・日の入り・月の出・月の入り（未ログインでは東京を基準）の情報を、図で見せる',
+        ]),
+      }),
+      DRAFT,
+    )),
     screen('calendar-month', 'public', GUEST_MEMBER, ['provisional-holiday']),
     screen('day-detail', 'public', GUEST_MEMBER),
     screen('astro-events', 'public', GUEST_MEMBER, ['empty', 'fetch-error']),

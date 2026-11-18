@@ -23,9 +23,12 @@ const load = (/** @type {string[]} */ ...files) => {
   return window;
 };
 const w = load('data/screens.js', 'assets/i18n/messages.ja.js');
-/** @type {{ id: string, titleKey: string, access: 'public' | 'member' | 'admin' }[]} */
+/** @type {{ id: string, titleKey: string, access: 'public' | 'member' | 'admin', review: Record<'wireframe' | 'hifi', { status: string }> }[]} */
 const screens = w.MockScreens;
 const ja = w.MockMessages.ja;
+/** Labels shown by index.html for each review status. */
+/** @type {Record<string, string>} */
+const STATUS_LABELS = { 'draft': '下書き', 'in-review': 'レビュー中', 'changes-requested': '修正依頼', 'approved': '承認済み' };
 
 const ACCESS = { public: '公開', member: 'ログインユーザ', admin: '管理者' };
 const COLUMNS = ['画面', '閲覧権限', 'ワイヤーフレーム', 'ハイフィ', '幅プレビュー'];
@@ -80,9 +83,10 @@ test('each row links to both stages and to the width preview, with the review st
     // The links are distinguishable out of context (screen name + stage).
     await expect(wf.getByRole('link')).toHaveAccessibleName(new RegExp(`${ja[s.titleKey]}.*ワイヤーフレーム`));
     await expect(hf.getByRole('link')).toHaveAccessibleName(new RegExp(`${ja[s.titleKey]}.*ハイフィ`));
-    await expect(wf.locator('[data-review-state]')).toHaveText(/下書き/);
-    await expect(wf.locator('[data-review-state]')).toHaveAttribute('data-review-state', 'draft');
-    await expect(hf.locator('[data-review-state]')).toHaveText(/下書き/);
+    const wfStatus = s.review.wireframe.status;
+    await expect(wf.locator('[data-review-state]')).toHaveText(new RegExp(STATUS_LABELS[wfStatus]));
+    await expect(wf.locator('[data-review-state]')).toHaveAttribute('data-review-state', wfStatus);
+    await expect(hf.locator('[data-review-state]')).toHaveText(new RegExp(STATUS_LABELS[s.review.hifi.status]));
     // Wireframe not approved -> the hifi cell carries the textual "未確定" mark.
     await expect(hf.locator('[data-provisional]')).toHaveText(/未確定/);
   }
@@ -154,10 +158,12 @@ test('changing a registry review status changes the index display', async ({ pag
 
 test('the review status does not rely on color alone (each status has its own symbol and text)', async ({ page }) => {
   await page.goto(indexUrl);
-  const cell = row(page, 'top').locator('td').nth(1).locator('[data-review-state]');
-  const text = await cell.textContent();
-  // A symbol precedes the label, so the state is readable without color.
-  expect(text?.trim()).toMatch(/^\S+\s*下書き$/);
+  for (const s of screens) {
+    const cell = row(page, s.id).locator('td').nth(1).locator('[data-review-state]');
+    const text = await cell.textContent();
+    // A symbol precedes the label, so the state is readable without color.
+    expect(text?.trim()).toMatch(new RegExp(`^\\S+\\s*${STATUS_LABELS[s.review.wireframe.status]}$`));
+  }
 });
 
 test('links to the guide pages, the review points and the unverified-sample note', async ({ page }) => {
