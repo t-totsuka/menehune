@@ -106,9 +106,9 @@
             <tr data-element="mk-admin-band"><th scope="row"><a href="#sec-shell-admin"><code>mk-admin-band</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
             <tr data-element="mk-month-calendar"><th scope="row"><a href="#sec-almanac-2026-11"><code>mk-month-calendar</code></a></th><td>almanac.js</td><td><ul><li><code>month="2026-11"</code></li><li><code>month="2027-03"</code>（予定の祝日）</li><li>スマートフォン幅（小さな格子と要約パネル）</li></ul></td><td>言語（曜日・祝日名）</td></tr>
             <tr data-element="mk-day-cell"><th scope="row"><a href="#sec-almanac-cells"><code>mk-day-cell</code></a></th><td>almanac.js</td><td><code>date</code>（節気・予定の祝日・天文現象・閏月・サンプルなし）、<code>compact</code></td><td>言語</td></tr>
-            <tr data-element="mk-almanac-summary"><th scope="row"><a href="#sec-summary-full"><code>mk-almanac-summary</code></a></th><td>almanac.js</td><td><code>variant="full"</code>（天文現象・予定の祝日・閏月）、<code>variant="brief"</code>、サンプルなし</td><td>言語</td></tr>
-            <tr data-element="mk-rise-set"><th scope="row"><a href="#sec-rise-set"><code>mk-rise-set</code></a></th><td>almanac.js</td><td><code>date</code>（月の入りなしを含む）、<code>post-id</code>（位置情報なしは何も出さない）</td><td>言語</td></tr>
-            <tr data-element="mk-event-list"><th scope="row"><a href="#sec-event-list-month"><code>mk-event-list</code></a></th><td>almanac.js</td><td><code>from</code> と <code>to</code>、<code>kinds</code></td><td>シナリオ：empty（空状態）、fetch-error（取得エラー）</td></tr>
+            <tr data-element="mk-almanac-summary"><th scope="row"><a href="#sec-summary-full"><code>mk-almanac-summary</code></a></th><td>almanac.js</td><td><code>variant="full"</code>（天文現象・予定の祝日・閏月）、<code>variant="brief"</code>（月齢から描いた月の図つき）、サンプルなし</td><td>言語</td></tr>
+            <tr data-element="mk-rise-set"><th scope="row"><a href="#sec-rise-set"><code>mk-rise-set</code></a></th><td>almanac.js</td><td><code>date</code>（月の入りなしを含む）、<code>post-id</code>（位置情報なしは何も出さない）、<code>chart</code>（日月が地平線の上にある時間の図）</td><td>言語</td></tr>
+            <tr data-element="mk-event-list"><th scope="row"><a href="#sec-event-list-month"><code>mk-event-list</code></a></th><td>almanac.js</td><td><code>from</code> と <code>to</code>、<code>kinds</code>、<code>filters="collapsed"</code>（絞り込みを閉じたアコーディオンにする）</td><td>シナリオ：empty（空状態）、fetch-error（取得エラー）</td></tr>
             <tr data-element="mk-star-chart"><th scope="row"><a href="#sec-star-chart-default"><code>mk-star-chart</code></a></th><td>sky.js</td><td>属性なし、<code>sample="unknown"</code>（サンプルなし）</td><td>段階（ワイヤーフレームでは占位表示）、言語、テーマ</td></tr>
             <tr data-element="mk-post-card"><th scope="row"><a href="#sec-post-card"><code>mk-post-card</code></a></th><td>posts.js</td><td><code>post-id</code>（公開・ログインユーザのみ・一時非表示・削除済み・サンプルなし）、<code>variant="compact"</code></td><td>言語</td></tr>
             <tr data-element="mk-comment-tree"><th scope="row"><a href="#sec-comment-tree"><code>mk-comment-tree</code></a></th><td>posts.js</td><td><code>post-id</code>（深さ 7 と削除済み、コメントなし、サンプルなし）、スマートフォン幅（字下げ 3 段）</td><td>ログイン状態（コメントごとの通報の導線）、言語</td></tr>
@@ -307,7 +307,7 @@
 
     <section class="l-surface l-stack" aria-labelledby="sec-almanac-summary">
       <h2 id="sec-almanac-summary">暦の要約と日月の出没</h2>
-      <p class="text-muted">暦の要約は 2 種類あります。日詳細用（<code>variant="full"</code>、既定）は全項目（閏月の表記を含む）、トップ用（<code>variant="brief"</code>）は日付・六曜・旧暦・月齢と、その日にある節気・祝日だけを表示します。日月の出没は、日付の指定（サンプル地点）と投稿の指定（投稿地点）の両方に対応します。出没がない日は「なし」と表示し、位置情報のない投稿では何も表示しません。</p>
+      <p class="text-muted">暦の要約は 2 種類あります。日詳細用（<code>variant="full"</code>、既定）は全項目（閏月の表記を含む）、トップ用（<code>variant="brief"</code>）は日付・六曜・旧暦・月齢と、その日にある節気・祝日だけを、月齢から描いた月の満ち欠けの図と並べて表示します（ワイヤーフレームでは図は占位表示）。<code>chart</code> を付けた日月の出没は、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示します。日月の出没は、日付の指定（サンプル地点）と投稿の指定（投稿地点）の両方に対応します。出没がない日は「なし」と表示し、位置情報のない投稿では何も表示しません。</p>
 
       <h3 id="sec-summary-full"><code>mk-almanac-summary variant="full"</code></h3>
       <div class="mk-cell-samples">
@@ -364,6 +364,18 @@
           <mk-rise-set id="riseset-post-p-106" post-id="p-106"></mk-rise-set>
         </div>
       </div>
+
+      <h3 id="sec-rise-set-chart"><code>mk-rise-set chart</code>（トップ用）</h3>
+      <div class="mk-cell-samples">
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-16" chart</code>（月の入りなし：月は 24 時まで出ている）</p>
+          <mk-rise-set id="riseset-chart-2026-11-16" date="2026-11-16" chart></mk-rise-set>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-24" chart</code>（満月：月は夕方に出て翌朝に沈む）</p>
+          <mk-rise-set id="riseset-chart-2026-11-24" date="2026-11-24" chart></mk-rise-set>
+        </div>
+      </div>
     </section>
 
     <section class="l-surface l-stack" aria-labelledby="sec-event-list">
@@ -375,6 +387,9 @@
 
       <h3 id="sec-event-list-kinds"><code>mk-event-list kinds="moon-phase planet-opposition"</code>（属性なしの期間は全期間）</h3>
       <mk-event-list id="events-kinds" kinds="moon-phase planet-opposition"></mk-event-list>
+
+      <h3 id="sec-event-list-collapsed"><code>mk-event-list filters="collapsed"</code>（トップ用：絞り込みは閉じたアコーディオン）</h3>
+      <mk-event-list id="events-collapsed" from="2026-11-16" to="2026-11-30" filters="collapsed"></mk-event-list>
     </section>
 
     <section class="l-surface l-stack" aria-labelledby="sec-star-chart">

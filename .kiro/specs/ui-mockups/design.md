@@ -652,9 +652,9 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 | mk-admin-band | shell.js | — | 管理者専用であることを示す帯（3.6） |
 | mk-month-calendar | almanac.js | `month` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3） |
 | mk-day-cell | almanac.js | `date`、`compact` | 日付、曜日、祝日（予定の表記つき）、六曜、旧暦、月齢。節気・候・雑節・天文現象の印は、記号と文字を併用する（4.1、4.2、4.6、13.3） |
-| mk-almanac-summary | almanac.js | `date`、`variant` | 日詳細用は全項目（4.3）、トップ用は要約（4.7） |
-| mk-rise-set | almanac.js | `date`、`post-id` | 日の出・日の入り・月の出・月の入り（4.3、7.3） |
-| mk-event-list | almanac.js | `from`、`to`、`kinds` | 天文現象の日時と種類の一覧、期間と種類の絞り込み UI、空状態、取得エラー（4.4、4.5、3.4、3.5） |
+| mk-almanac-summary | almanac.js | `date`、`variant` | 日詳細用は全項目（4.3）、トップ用は要約（4.7）。トップ用は月齢から描いた月の満ち欠けの図（`role="img"` と `aria-label`）を添える（ワイヤーフレームのレビューの指摘、8.1） |
+| mk-rise-set | almanac.js | `date`、`post-id`、`chart` | 日の出・日の入り・月の出・月の入り（4.3、7.3）。`chart` では、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示す（トップ用、8.1） |
+| mk-event-list | almanac.js | `from`、`to`、`kinds`、`filters` | 天文現象の日時と種類の一覧、期間と種類の絞り込み UI、空状態、取得エラー（4.4、4.5、3.4、3.5）。`filters="collapsed"` では絞り込みを閉じたアコーディオンにする（トップ用、8.1） |
 | mk-star-chart | sky.js | `sample` | 天頂中心の円形の全天図（立体射影）と方位。恒星の大きさは等級に応じる。星座線、星座名、太陽・月・惑星。入力欄は画面側に置く。`viewBox` で幅に追従させる（5.1〜5.5、13.4） |
 | mk-post-card | posts.js | `post-id`、`variant` | 一覧用のカード（対象日、抜粋、状態バッジ、いいね数）（6.6） |
 | mk-comment-tree | posts.js | `post-id` | 入れ子のコメント。字下げの上限は PC で 6 段、スマートフォンで 3 段。それより深いものは字下げせず、「↳ ○○さんへの返信」と表示する。削除済みは本文の代わりに「このコメントは削除されました」と出し、子は残す（6.1、6.4、12.4） |

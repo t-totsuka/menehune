@@ -738,6 +738,80 @@ mk-event-list {
   color: var(--color-event-moon);
 }
 
+/* Brief summary (top page, task 8.1): the moon figure beside the label / value pairs. */
+.mk-almanac-summary__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.mk-almanac-summary__body > .mk-almanac-summary__items {
+  flex: 1 1 0;
+  min-width: min(100%, calc(var(--space-2xl) * 3));
+}
+
+/* Moon figure: the dark part is the surface with a strong outline, the lit part the moon color. */
+.mk-moon-figure {
+  flex: none;
+  inline-size: calc(var(--space-2xl) * 2);
+  aspect-ratio: 1;
+}
+
+.mk-moon__svg,
+.mk-rise-set-chart__svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.mk-moon__disc {
+  fill: var(--color-surface);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.5;
+}
+
+.mk-moon__lit {
+  fill: var(--color-event-moon);
+  stroke: none;
+}
+
+/* Rise / set chart (mk-rise-set chart): a 0-24h track, one row per body labelled with text. */
+mk-rise-set[chart] {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.mk-rise-set-chart {
+  inline-size: 100%;
+  aspect-ratio: 300 / 74;
+}
+
+.mk-rise-set-chart__track {
+  fill: var(--color-surface);
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.mk-rise-set-chart__tick {
+  stroke: var(--color-border);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.mk-rise-set-chart__hour,
+.mk-rise-set-chart__label {
+  fill: var(--color-text);
+}
+
+.mk-rise-set-chart__span[data-body="sun"] {
+  fill: var(--color-event-sun);
+}
+
+.mk-rise-set-chart__span[data-body="moon"] {
+  fill: var(--color-event-moon);
+}
+
 .mk-event-list {
   display: grid;
   gap: var(--space-md);
@@ -758,6 +832,19 @@ mk-event-list {
 .mk-event-list__period,
 .mk-event-list__kinds {
   min-width: 0;
+}
+
+/* filters="collapsed" (top page, task 8.1): a quiet accordion that starts closed. */
+.mk-event-list__filter-toggle {
+  display: grid;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.mk-event-list__filter-summary {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
 }
 
 .mk-event-list__dates {
@@ -1445,6 +1532,57 @@ mk-weather {
   .screen-post-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* Top page (task 8.1, wireframe review): one column in reading order (notice, today, posts,
+   events) on narrow screens; from 960px two columns 1:3 with the posts in the wide column
+   spanning every row, and the side items stacked in the narrow one. The narrow column does not
+   shrink below 15rem so the figures and the event list stay legible at 960px. */
+.screen-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  align-content: start;
+  /* The hidden h1 no longer spaces the content from the header. */
+  padding-block-start: var(--space-lg);
+}
+
+@media (min-width: 960px) {
+  .screen-top {
+    grid-template-columns: minmax(min(100%, calc(var(--space-2xl) * 5)), 1fr) minmax(0, 3fr);
+    grid-template-rows: auto auto 1fr;
+    align-items: start;
+  }
+
+  .screen-top-side {
+    grid-column: 1;
+  }
+
+  .screen-top-posts {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+
+  /* Rows of the side column hug their content; the last one takes the rest. */
+  .screen-top-notice { grid-row: 1; }
+  .screen-top-today { grid-row: 2; }
+  .screen-top-events { grid-row: 3; }
+
+  /* Without the guest notice (logged in) the side column starts with today's almanac. */
+  .screen-top-notice[hidden] + .screen-top-today { grid-row: 1; }
+  .screen-top-notice[hidden] ~ .screen-top-events { grid-row: 2 / span 2; }
+
+  /* The narrow column is phone-sized: event rows and filters use one column there. */
+  .screen-top-side .mk-event,
+  .screen-top-side .mk-event-list__filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.screen-top-basis {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
 /* Star chart screen (task 5.2): the date-time and place fields, side by side from 600px. */

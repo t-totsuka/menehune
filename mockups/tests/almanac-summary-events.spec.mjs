@@ -285,8 +285,9 @@ test.describe('layout', () => {
         const r = el.getBoundingClientRect();
         return r.right <= document.documentElement.clientWidth + 0.5;
       }));
-      // Task 6.4 added the full summary of 2026-11-20 (a day with events).
-      expect(fits.length).toBe(13);
+      // Task 6.4 added the full summary of 2026-11-20 (a day with events); task 8.1 the two
+      // rise / set charts and the collapsed event list.
+      expect(fits.length).toBe(16);
       expect(fits.every(Boolean)).toBe(true);
     });
   }

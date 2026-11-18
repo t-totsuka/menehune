@@ -348,9 +348,10 @@ type AdminBandAttrs = Readonly<Record<string, never>>;
 interface MonthCalendarAttrs { readonly month: string; }
 interface DayCellAttrs { readonly date: IsoDate; readonly compact?: BooleanAttr; }
 interface AlmanacSummaryAttrs { readonly date: IsoDate; readonly variant?: 'full' | 'brief'; }
-interface RiseSetAttrs { readonly date?: IsoDate; readonly 'post-id'?: string; }
-/** `kinds` is a space-separated list of AstroEventKind */
-interface EventListAttrs { readonly from?: IsoDate; readonly to?: IsoDate; readonly kinds?: string; }
+/** `chart` (boolean, task 8.1) adds the 0-24h chart of when the sun and the moon are up */
+interface RiseSetAttrs { readonly date?: IsoDate; readonly 'post-id'?: string; readonly chart?: ''; }
+/** `kinds` is a space-separated list of AstroEventKind; `filters="collapsed"` (task 8.1) folds the filters into a closed accordion */
+interface EventListAttrs { readonly from?: IsoDate; readonly to?: IsoDate; readonly kinds?: string; readonly filters?: 'collapsed'; }
 
 /** `sample` selects a star chart sample; omitted means SampleDataSet.starChart */
 interface StarChartAttrs { readonly sample?: string; }

@@ -113,6 +113,20 @@ hr {
   color: var(--color-text-muted);
 }
 
+/* Read by assistive technology, not shown (e.g. the top page's h1, task 8.1). A 1px box
+   (the thin border width) clipped to nothing, taken out of the flow. */
+.visually-hidden {
+  position: absolute;
+  inline-size: var(--border-width-thin);
+  block-size: var(--border-width-thin);
+  margin: calc(-1 * var(--border-width-thin));
+  padding: 0;
+  overflow: hidden;
+  clip-path: circle(0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---- Layout basics ---- */
 .l-container {
   max-width: var(--bp-lg);

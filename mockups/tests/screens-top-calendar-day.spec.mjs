@@ -109,7 +109,8 @@ test.describe('top', () => {
   test('today brief summary, today and upcoming events, new posts', async ({ page }) => {
     await page.goto(urlOf('top', '?lang=ja'));
     const headings = page.locator('main h2 > [data-i18n]');
-    await expect(headings).toHaveText([ja['screen.top.today'], ja['screen.top.events'], ja['screen.top.posts']]);
+    // Reading order after the wireframe review (task 8.1): today, posts, events.
+    await expect(headings).toHaveText([ja['screen.top.today'], ja['screen.top.posts'], ja['screen.top.events']]);
 
     const summary = page.locator('main mk-almanac-summary');
     await expect(summary).toHaveAttribute('date', sample.today);
@@ -136,7 +137,7 @@ test.describe('top', () => {
 
   test('English copy and member links keep the auth state', async ({ page }) => {
     await page.goto(urlOf('top', '?lang=en&auth=member'));
-    await expect(page.locator('main h2 > [data-i18n]')).toHaveText([en['screen.top.today'], en['screen.top.events'], en['screen.top.posts']]);
+    await expect(page.locator('main h2 > [data-i18n]')).toHaveText([en['screen.top.today'], en['screen.top.posts'], en['screen.top.events']]);
     await expect(page.locator('main a[href*="day-detail.html"]:visible')).toHaveAttribute('href', /auth=member/);
     await expect(page.locator('main a[href*="astro-events.html"]:visible')).toHaveAttribute('href', /auth=member/);
   });

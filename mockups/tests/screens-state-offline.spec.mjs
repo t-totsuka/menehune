@@ -34,8 +34,8 @@ const messages = /** @type {{ ja: Record<string, string>, en: Record<string, str
 const { ja, en } = messages;
 const INDEX_URL = pathToFileURL(join(MOCKUPS_ROOT, 'index.html')).href;
 const SCHEMES = /** @type {const} */ (['light', 'dark']);
-/** Screens whose default state draws a figure (star chart / map) marked with [data-figure]. */
-const FIGURE_SCREENS = new Set(['star-chart', 'post-detail']);
+/** Screens whose default state draws a figure (star chart / map / top's moon and rise-set charts) marked with [data-figure]. */
+const FIGURE_SCREENS = new Set(['top', 'star-chart', 'post-detail']);
 
 /** @typedef {import('@playwright/test').Page} Page */
 

@@ -20,15 +20,22 @@
 //   full (default, day detail): date, rokuyo, lunar date (leap label), moon phase / age, sekki,
 //                               kou, zassetsu, holiday (+ provisional label), the day's events;
 //                               items without a value show almanac.none as text.
-//   brief (top page)          : date, rokuyo, lunar date, moon, plus sekki / holiday when present.
+//   brief (top page)          : date, rokuyo, lunar date, moon, plus sekki / holiday when present,
+//                               next to a moon figure drawn from the moon age (task 8.1: the lit
+//                               part is bounded by the limb and the terminator ellipse; waxing is
+//                               lit on the right, as seen from Japan; role="img" + aria-label).
 // - mk-rise-set (4.3, 7.3, 7.6) `date` (AlmanacDay.riseSet) or `post-id` (post.location.riseSet;
 //   a post without location renders nothing). A time that does not occur shows
-//   almanac.riseset-none.
+//   almanac.riseset-none. With `chart` (task 8.1, top page) a 0-24h chart of when the sun and the
+//   moon are above the horizon comes first (rows labelled with text, role="img" + aria-label
+//   listing the times); a missing rise or set means the body was already up / stays up.
+// - Figures sit in a non-focusable wrapper with data-figure (wireframe placeholder, note 1.7).
 // - mk-event-list (3.4, 3.5, 4.4, 4.5) `from`, `to`, `kinds` (initial filter values; the filter
 //   state is local and survives language / theme re-renders, reset when the attributes change):
 //   period (date inputs bounded by the sample events) and kind checkboxes in fieldsets; changes
 //   update only the results and the role="status" count. Scenario `empty` (or no match) shows
-//   empty.events, `fetch-error` shows error.fetch (role="alert").
+//   empty.events, `fetch-error` shows error.fetch (role="alert"). `filters="collapsed"` (task
+//   8.1, top page) folds the filters into a closed <details>; its open state survives re-renders.
 //
 // Days are looked up by date in SampleDataSet.almanac (its first row is the leap-month example
 // 2025-07-25, so the calendar filters by month); events by AlmanacDay.eventIds.
@@ -59,6 +66,46 @@
     'moon-phase.full-moon': '○',
     'moon-phase.last-quarter': '◑',
   };
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  /**
+   * @template {keyof SVGElementTagNameMap} K
+   * @param {K} tag
+   * @param {Readonly<Record<string, string>>} attrs
+   * @param {readonly (Node | string)[]} children
+   * @returns {SVGElementTagNameMap[K]}
+   */
+  const svg = (tag, attrs, ...children) => {
+    const node = /** @type {SVGElementTagNameMap[K]} */ (document.createElementNS(SVG_NS, tag));
+    for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, value);
+    node.append(...children);
+    return node;
+  };
+
+  /** @param {number} n */
+  const fmt = (n) => String(Math.round(n * 100) / 100);
+
+  /** Mean synodic month in days. */
+  const SYNODIC_MONTH = 29.53;
+
+  /**
+   * Shape of the moon at a moon age (days since the new moon).
+   * @param {number} age
+   * @returns {{ waxing: boolean, illumination: number, terminatorRx: number }}
+   *   illumination 0..1 = (1 - cos(phase angle)) / 2; terminatorRx relative to the radius (0..1)
+   */
+  const moonShape = (age) => {
+    const angle = (2 * Math.PI * age) / SYNODIC_MONTH;
+    return {
+      waxing: age < SYNODIC_MONTH / 2,
+      illumination: (1 - Math.cos(angle)) / 2,
+      terminatorRx: Math.abs(Math.cos(angle)),
+    };
+  };
+
+  /** Moon figure geometry (viewBox units). */
+  const MOON = { view: 100, c: 50, r: 45 };
 
   /** @typedef {'sekki' | 'kou' | 'zassetsu' | 'event'} MarkKind */
   /** @type {Readonly<Record<MarkKind, string>>} */
@@ -544,7 +591,38 @@
       this.replaceChildren(this.el('div', { class: 'mk-almanac-summary', 'data-variant': brief ? 'brief' : 'full' },
         this.el('p', { class: 'mk-almanac-summary__date' },
           this.el('time', { datetime: day.date }, window.MockI18n.formatDate(day.date, 'date-long'))),
-        list));
+        brief ? this.el('div', { class: 'mk-almanac-summary__body' }, this.moonFigure(day), list) : list));
+    }
+
+    /**
+     * Moon figure of the day (brief variant). Non-focusable wrapper with data-figure.
+     * @param {AlmanacDay} day
+     */
+    moonFigure(day) {
+      const { waxing, illumination, terminatorRx } = moonShape(day.moonAge);
+      const { view, c, r } = MOON;
+      const top = `${fmt(c)} ${fmt(c - r)}`;
+      const bottom = `${fmt(c)} ${fmt(c + r)}`;
+      const crescent = illumination < 0.5;
+      // Limb from the top to the bottom on the lit side, then the terminator ellipse back up.
+      const limbSweep = waxing ? 1 : 0;
+      const terminatorSweep = waxing === crescent ? 0 : 1;
+      const d = `M ${top} A ${fmt(r)} ${fmt(r)} 0 0 ${limbSweep} ${bottom} `
+        + `A ${fmt(r * terminatorRx)} ${fmt(r)} 0 0 ${terminatorSweep} ${top} Z`;
+      const percent = Math.round(illumination * 100);
+      const drawing = svg('svg', {
+        class: 'mk-moon__svg',
+        viewBox: `0 0 ${view} ${view}`,
+        role: 'img',
+        'aria-label': this.t(waxing ? 'almanac.moon-figure.waxing' : 'almanac.moon-figure.waning',
+          { age: day.moonAge.toFixed(1), percent }),
+      },
+      svg('circle', { class: 'mk-moon__disc', cx: fmt(c), cy: fmt(c), r: fmt(r) }),
+      svg('path', { class: 'mk-moon__lit', d }));
+      return this.el('div', {
+        class: 'mk-moon-figure', 'data-figure': '',
+        'data-waxing': String(waxing), 'data-illumination': String(percent),
+      }, drawing);
     }
   }
 
@@ -557,10 +635,99 @@
     { item: 'moonset', labelKey: 'astro.riseset.moonset' },
   ];
 
-  class RiseSetTimes extends MockElement {
-    static observedAttributes = ['date', 'post-id'];
+  const MINUTES_PER_DAY = 24 * 60;
 
-    render() {
+  /** Minutes after JST midnight of an IsoDateTime (offsets other than +09:00 are not used). @param {IsoDateTime} at */
+  const minutesOf = (at) => {
+    const match = /T(\d{2}):(\d{2})/.exec(at);
+    return match ? Number(match[1]) * 60 + Number(match[2]) : 0;
+  };
+
+  /**
+   * Intervals (minutes) of the day when a body is above the horizon. A missing rise means the body
+   * was already up at midnight; a missing set means it stays up until midnight. Neither -> none.
+   * @param {IsoDateTime | undefined} rise
+   * @param {IsoDateTime | undefined} set
+   * @returns {[number, number][]}
+   */
+  const upIntervals = (rise, set) => {
+    if (rise !== undefined && set !== undefined) {
+      const from = minutesOf(rise);
+      const to = minutesOf(set);
+      return from < to ? [[from, to]] : [[0, to], [from, MINUTES_PER_DAY]];
+    }
+    if (rise !== undefined) return [[minutesOf(rise), MINUTES_PER_DAY]];
+    if (set !== undefined) return [[0, minutesOf(set)]];
+    return [];
+  };
+
+  /** Rise / set chart geometry (viewBox units): label column, 24h track, two rows, hour ticks. */
+  const CHART = {
+    width: 300, height: 74, labelEnd: 38, trackX: 44, trackW: 248,
+    rows: { sun: 8, moon: 30 }, rowH: 14, trackY: 4, trackH: 44, tickY: 66, fontSize: 10,
+  };
+
+  class RiseSetTimes extends MockElement {
+    static observedAttributes = ['date', 'post-id', 'chart'];
+
+    /**
+     * 0-24h chart of when the sun and the moon are up. Non-focusable wrapper with data-figure.
+     * @param {RiseSet} riseSet
+     * @param {MockStateSnapshot} state
+     */
+    chart(riseSet, state) {
+      const { width, height, labelEnd, trackX, trackW, rows, rowH, trackY, trackH, tickY, fontSize } = CHART;
+      const xOf = (/** @type {number} */ minutes) => trackX + (trackW * minutes) / MINUTES_PER_DAY;
+      const track = svg('rect', {
+        class: 'mk-rise-set-chart__track', x: fmt(trackX), y: fmt(trackY), width: fmt(trackW), height: fmt(trackH),
+      });
+      const ticks = svg('g', { class: 'mk-rise-set-chart__ticks' });
+      for (const hour of [0, 6, 12, 18, 24]) {
+        const x = xOf(hour * 60);
+        if (hour > 0 && hour < 24) {
+          ticks.append(svg('line', {
+            class: 'mk-rise-set-chart__tick', x1: fmt(x), x2: fmt(x), y1: fmt(trackY), y2: fmt(trackY + trackH),
+          }));
+        }
+        ticks.append(svg('text', {
+          class: 'mk-rise-set-chart__hour', x: fmt(x), y: fmt(tickY), 'text-anchor': 'middle', 'font-size': String(fontSize),
+        }, String(hour)));
+      }
+      const spans = svg('g', { class: 'mk-rise-set-chart__spans' });
+      const labels = svg('g', { class: 'mk-rise-set-chart__labels' });
+      /** @type {readonly { body: 'sun' | 'moon', rise: IsoDateTime | undefined, set: IsoDateTime | undefined }[]} */
+      const bodies = [
+        { body: 'sun', rise: riseSet.sunrise, set: riseSet.sunset },
+        { body: 'moon', rise: riseSet.moonrise, set: riseSet.moonset },
+      ];
+      for (const { body, rise, set } of bodies) {
+        const y = rows[body];
+        labels.append(svg('text', {
+          class: 'mk-rise-set-chart__label', x: fmt(labelEnd), y: fmt(y + rowH / 2 + fontSize * 0.35),
+          'text-anchor': 'end', 'font-size': String(fontSize),
+        }, this.t(`astro.body.${body}`)));
+        for (const [from, to] of upIntervals(rise, set)) {
+          spans.append(svg('rect', {
+            class: 'mk-rise-set-chart__span', 'data-body': body, 'data-from': String(from), 'data-to': String(to),
+            x: fmt(xOf(from)), y: fmt(y), width: fmt(xOf(to) - xOf(from)), height: fmt(rowH),
+          }));
+        }
+      }
+      const items = RISE_SET_ITEMS.map(({ item, labelKey }) => {
+        const at = riseSet[item];
+        return `${this.t(labelKey)} ${at === undefined ? this.t('almanac.riseset-none') : window.MockI18n.formatDate(at, 'time')}`;
+      }).join(state.lang === 'ja' ? '、' : ', ');
+      const drawing = svg('svg', {
+        class: 'mk-rise-set-chart__svg',
+        viewBox: `0 0 ${width} ${height}`,
+        role: 'img',
+        'aria-label': this.t('almanac.riseset-chart.describe', { items }),
+      }, track, ticks, spans, labels);
+      return this.el('div', { class: 'mk-rise-set-chart', 'data-figure': '' }, drawing);
+    }
+
+    /** @param {MockStateSnapshot} state */
+    render(state) {
       const postId = this.getAttribute('post-id');
       /** @type {RiseSet} */
       let riseSet;
@@ -597,7 +764,8 @@
             ? this.t('almanac.riseset-none')
             : this.el('time', { datetime: at }, window.MockI18n.formatDate(at, 'time')))));
       }
-      this.replaceChildren(list);
+      if (this.hasAttribute('chart')) this.replaceChildren(this.chart(riseSet, state), list);
+      else this.replaceChildren(list);
     }
   }
 
@@ -627,10 +795,12 @@
    */
 
   class EventList extends MockElement {
-    static observedAttributes = ['from', 'to', 'kinds'];
+    static observedAttributes = ['from', 'to', 'kinds', 'filters'];
 
     constructor() {
       super();
+      /** Whether the collapsed filters (filters="collapsed") are open; kept across re-renders. */
+      this.filtersOpen = false;
       /** Filter state; the attributes are its initial values (reset when they change). @type {EventFilter | null} */
       this.filter = null;
       /** @type {string} */
@@ -699,10 +869,23 @@
         this.el('fieldset', { class: 'mk-event-list__kinds' },
           this.el('legend', null, this.t('event-list.kinds')), kindList));
 
+      /** @type {HTMLElement} */
+      let controls = filters;
+      if (this.getAttribute('filters') === 'collapsed') {
+        // Top page: the filters stay out of the way in a closed accordion (task 8.1).
+        const details = this.el('details', { class: 'mk-event-list__filter-toggle' },
+          this.el('summary', { class: 'mk-event-list__filter-summary', 'data-mk-focus': 'filters-toggle' },
+            this.t('event-list.filters')),
+          filters);
+        details.open = this.filtersOpen;
+        details.addEventListener('toggle', () => { this.filtersOpen = details.open; });
+        controls = details;
+      }
+
       const count = this.el('p', { class: 'mk-event-list__count', role: 'status' });
       const results = this.el('div', { class: 'mk-event-list__results' });
       this.parts = { results, count };
-      this.replaceChildren(this.el('div', { class: 'mk-event-list' }, filters, count, results));
+      this.replaceChildren(this.el('div', { class: 'mk-event-list' }, controls, count, results));
       this.updateResults(state);
     }
 

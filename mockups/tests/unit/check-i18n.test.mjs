@@ -163,7 +163,7 @@ test('a dictionary key that is not language independent is a format violation', 
 
 test('a used key with a bad format is a format violation at the usage', () => {
   withFixture(
-    ({ read, write }) => write('screens/top.html', read('screens/top.html').replace('<h1 data-i18n="screen.top.title">', '<h1 data-i18n="TopTitle">')),
+    ({ read, write }) => write('screens/top.html', read('screens/top.html').replace(/<h1([^>]*) data-i18n="screen.top.title">/, '<h1$1 data-i18n="TopTitle">')),
     (r, dir) => {
       const html = readFileSync(join(dir, 'screens/top.html'), 'utf8');
       const { line } = assertViolation(r, 'screens/top.html', /TopTitle.*format/);

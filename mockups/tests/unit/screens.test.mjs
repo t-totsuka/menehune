@@ -96,7 +96,7 @@ test('authStates are valid, unique, include the default guest, and admin can swi
 });
 
 // Screens whose wireframe review has been recorded by a person (see data/screens.js).
-const REVIEWED_WIREFRAMES = new Map([['top', 'changes-requested']]);
+const REVIEWED_WIREFRAMES = new Map([['top', 'in-review']]);
 
 test('review statuses are valid, unreviewed stages are draft and the hifi/wireframe invariant holds', () => {
   for (const s of registry()) {
@@ -115,6 +115,21 @@ test('review statuses are valid, unreviewed stages are draft and the hifi/wirefr
       assert.equal(s.review.wireframe.status, 'approved', `${s.id} invariant`);
     }
   }
+});
+
+// Task 8.1: after the changes are applied the wireframe goes back to in-review (only a person
+// approves). The five recorded notes stay, and the outcome of each is recorded after them
+// as "反映（8.1）：..." or "見送り（8.1）：...".
+test('top: the 2026-11-19 review notes are kept and each outcome is recorded', () => {
+  const top = byId().get('top').review.wireframe;
+  assert.equal(top.status, 'in-review');
+  assert.equal(top.reviewedAt, '2026-11-19');
+  const notes = [...(top.notes ?? [])];
+  const original = notes.filter((n) => !/^(反映|見送り)（8\.1）：/.test(n));
+  const outcomes = notes.filter((n) => /^(反映|見送り)（8\.1）：/.test(n));
+  assert.equal(original.length, 5);
+  assert.ok(outcomes.length >= original.length, 'every note has an applied / deferred entry');
+  assert.ok(outcomes.some((n) => n.startsWith('見送り')), 'the deferred member location basis is recorded');
 });
 
 test('registry and every nested object is frozen', () => {
