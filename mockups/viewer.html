@@ -12,8 +12,23 @@
   <!-- Review chrome only; always the last stylesheet and never referenced by product CSS. -->
   <link rel="stylesheet" href="assets/css/review.css">
   <!-- Catalog page: fixed Japanese copy (no dictionary keys); page-specific styles go in a <style> here. -->
+  <style>
+    /* Review chrome: grey fixed values like review.css, not product tokens. */
+    .vw-controls { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: end; margin: 0; padding: 0; border: 0; }
+    .vw-field { display: flex; flex-direction: column; gap: 0.25rem; }
+    .vw-field select { font: inherit; padding: 0.25rem 0.5rem; border: 1px solid #6b6b6b; border-radius: 4px; background: #ffffff; color: #1a1a1a; min-height: 2.5rem; }
+    .vw-field select:focus-visible { outline: 3px solid #1a1a1a; outline-offset: 2px; }
+    .vw-warning { border: 2px solid #6b6b6b; background: #f2f2f2; color: #1a1a1a; padding: 0.5rem 0.75rem; }
+    .vw-frames { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start; }
+    .vw-figure { margin: 0; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+    .vw-figure[data-viewer-figure="375"] { flex: 0 1 auto; width: 377px; max-width: 100%; }
+    .vw-figure[data-viewer-figure="1440"] { flex: 1 1 30rem; }
+    .vw-figure figcaption { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; font-size: 0.875em; }
+    .vw-viewport { position: relative; overflow: hidden; box-sizing: content-box; border: 1px solid #8a8a8a; background: #ffffff; }
+    .vw-viewport iframe { position: absolute; inset-block-start: 0; inset-inline-start: 0; border: 0; transform-origin: 0 0; background: #ffffff; }
+  </style>
 </head>
-<body>
+<body lang="ja">
   <nav class="mk-catalog-nav" aria-label="カタログ">
     <ul class="mk-catalog-nav__list">
       <li><a href="index.html">一覧</a></li>
@@ -26,7 +41,55 @@
   </nav>
   <main class="l-container l-stack">
     <h1>幅プレビュー</h1>
-    <p class="text-muted">指定した画面を、375px と 1440px の幅で並べて表示するページです。表示の枠は、このページに追加します。</p>
+    <p>指定した画面を、スマートフォン幅（375px）と PC 幅（1440px）の枠で並べて表示します。1440px の枠は、ページに収まるように縮小しています。段階・言語・テーマは、このページの値（URL パラメータ、保存値、既定値の順）を枠の中の画面に引き継ぎます。ログイン状態とシナリオは、その画面が許可している値のときだけ引き継ぎます。</p>
+
+    <p class="vw-warning" role="alert" data-viewer-warning hidden></p>
+
+    <form class="vw-controls" data-viewer-controls aria-label="表示の指定">
+      <div class="vw-field">
+        <label for="vw-screen">画面</label>
+        <select id="vw-screen" name="screen" data-viewer-control="screen"></select>
+      </div>
+      <div class="vw-field">
+        <label for="vw-lang">言語</label>
+        <select id="vw-lang" data-viewer-control="lang">
+          <option value="ja">日本語（ja）</option>
+          <option value="en">英語（en）</option>
+        </select>
+      </div>
+      <div class="vw-field">
+        <label for="vw-theme">テーマ</label>
+        <select id="vw-theme" data-viewer-control="theme">
+          <option value="system">端末の設定に合わせる（system）</option>
+          <option value="light">ライト（light）</option>
+          <option value="dark">ダーク（dark）</option>
+        </select>
+      </div>
+    </form>
+    <p class="text-muted">段階、ログイン状態、シナリオは、画面下部のレビュー用ツールバーで切り替えます。</p>
+
+    <div class="vw-frames">
+      <figure class="vw-figure" data-viewer-figure="375">
+        <figcaption>
+          <strong>スマートフォン幅（375px）</strong>
+          <span data-viewer-scale="375"></span>
+          <a data-viewer-open="375" href="screens/top.html">新しいタブで開く</a>
+        </figcaption>
+        <div class="vw-viewport">
+          <iframe data-viewer-frame="375" title="画面（375px）"></iframe>
+        </div>
+      </figure>
+      <figure class="vw-figure" data-viewer-figure="1440">
+        <figcaption>
+          <strong>PC 幅（1440px）</strong>
+          <span data-viewer-scale="1440"></span>
+          <a data-viewer-open="1440" href="screens/top.html">新しいタブで開く</a>
+        </figcaption>
+        <div class="vw-viewport">
+          <iframe data-viewer-frame="1440" title="画面（1440px）"></iframe>
+        </div>
+      </figure>
+    </div>
   </main>
 
   <script src="data/screens.js"></script>
@@ -43,5 +106,118 @@
   <script src="assets/js/components/posts.js"></script>
   <script src="assets/js/components/location.js"></script>
   <script src="assets/js/review-shell.js"></script>
+  <script>
+    // Width preview (12.1): screens/{id}.html in a 375px frame and a scaled-down 1440px frame.
+    // ?screen picks the screen (missing -> top, unknown -> top with a warning). stage / lang / theme
+    // come from MockState and are passed to the frames as URL parameters (MockState does not save
+    // values read from the URL, so the frames cannot rely on the saved value). auth / scenario are
+    // passed only when the screen allows them and they are not the default.
+    (function () {
+      var FALLBACK = 'top';
+      var SIZES = { 375: 812, 1440: 900 };
+      var screens = window.MockScreens || [];
+      var ja = (window.MockMessages && window.MockMessages.ja) || {};
+      var state = window.MockState;
+
+      var byId = function (id) {
+        for (var i = 0; i < screens.length; i++) if (screens[i].id === id) return screens[i];
+        return null;
+      };
+      var nameOf = function (entry) { return ja[entry.titleKey] || entry.id; };
+
+      var warning = document.querySelector('[data-viewer-warning]');
+      var chooser = document.querySelector('[data-viewer-control="screen"]');
+      var langSelect = document.querySelector('[data-viewer-control="lang"]');
+      var themeSelect = document.querySelector('[data-viewer-control="theme"]');
+      var form = document.querySelector('[data-viewer-controls]');
+
+      var requested = new URLSearchParams(window.location.search).get('screen');
+      var current = byId(requested || '') || byId(FALLBACK) || screens[0];
+      if (requested && !byId(requested)) {
+        warning.textContent = '画面「' + requested + '」は見つかりません。トップを表示しています。';
+        warning.hidden = false;
+      }
+
+      screens.forEach(function (entry) {
+        var option = document.createElement('option');
+        option.value = entry.id;
+        option.textContent = nameOf(entry) + '（' + entry.id + '）';
+        chooser.append(option);
+      });
+
+      var frameSrc = function (snapshot) {
+        var params = new URLSearchParams();
+        params.set('stage', snapshot.stage);
+        params.set('lang', snapshot.lang);
+        params.set('theme', snapshot.theme);
+        if (snapshot.auth !== 'guest' && current.authStates.indexOf(snapshot.auth) !== -1) params.set('auth', snapshot.auth);
+        if (snapshot.scenario !== 'default' && current.scenarios.indexOf(snapshot.scenario) !== -1) params.set('scenario', snapshot.scenario);
+        return 'screens/' + current.id + '.html?' + params.toString();
+      };
+
+      var render = function (snapshot) {
+        var src = frameSrc(snapshot);
+        var name = nameOf(current);
+        [375, 1440].forEach(function (width) {
+          var iframe = document.querySelector('[data-viewer-frame="' + width + '"]');
+          var open = document.querySelector('[data-viewer-open="' + width + '"]');
+          iframe.title = name + '（' + width + 'px）';
+          if (iframe.getAttribute('src') !== src) iframe.setAttribute('src', src);
+          open.setAttribute('href', src);
+          open.setAttribute('aria-label', name + 'を新しいタブで開く（' + width + 'px の枠と同じ指定）');
+        });
+        chooser.value = current.id;
+        langSelect.value = snapshot.lang;
+        themeSelect.value = snapshot.theme;
+      };
+
+      // Scale each frame to its box: the 375px frame only shrinks below 375px, the 1440px frame
+      // always fits the remaining width. Heights keep the nominal proportions.
+      var fit = function () {
+        [375, 1440].forEach(function (width) {
+          var figure = document.querySelector('[data-viewer-figure="' + width + '"]');
+          var viewport = figure.querySelector('.vw-viewport');
+          var iframe = figure.querySelector('iframe');
+          var available = Math.max(0, figure.clientWidth - 2);
+          var scale = Math.min(1, available / width);
+          var height = SIZES[width];
+          viewport.style.width = Math.floor(width * scale) + 'px';
+          viewport.style.height = Math.floor(height * scale) + 'px';
+          iframe.style.width = width + 'px';
+          iframe.style.height = height + 'px';
+          iframe.style.transform = scale < 1 ? 'scale(' + scale + ')' : 'none';
+          document.querySelector('[data-viewer-scale="' + width + '"]').textContent = '表示倍率 ' + Math.round(scale * 100) + '%';
+        });
+      };
+
+      chooser.addEventListener('change', function () {
+        var next = byId(chooser.value);
+        if (!next) return;
+        current = next;
+        warning.hidden = true;
+        warning.textContent = '';
+        try {
+          var url = new URL(window.location.href);
+          url.searchParams.set('screen', current.id);
+          window.history.replaceState(window.history.state, '', url.href);
+        } catch (e) {
+          // replaceState can be refused in unusual embeddings; the frames still update.
+        }
+        render(state.get());
+      });
+      langSelect.addEventListener('change', function () { state.update({ lang: langSelect.value }); });
+      themeSelect.addEventListener('change', function () { state.update({ theme: themeSelect.value }); });
+      form.addEventListener('submit', function (event) { event.preventDefault(); });
+      document.addEventListener('mock:change', function (event) { render(event.detail); });
+
+      render(state.get());
+      fit();
+      if (typeof ResizeObserver === 'function') {
+        new ResizeObserver(fit).observe(document.querySelector('.vw-frames'));
+      } else {
+        window.addEventListener('resize', fit);
+      }
+    })();
+  </script>
 </body>
 </html>
