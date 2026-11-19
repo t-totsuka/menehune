@@ -274,3 +274,12 @@ test('the sample data stays deeply frozen', () => {
   assert.ok(Object.isFrozen(sample.postDetailScenarios) && Object.isFrozen(sample.viewerIds));
   for (const { node } of allComments) assert.ok(Object.isFrozen(node) && Object.isFrozen(node.children));
 });
+
+// Task 8.1 (my-posts review, 2026-11-19): the list is sorted by target date, newest first, so
+// the viewer's own posts need several distinct target dates (and no ties) to show the order.
+test('the member viewer has at least three own posts with distinct target dates', () => {
+  const mine = posts.filter((p) => p.authorId === sample.viewerIds.member);
+  const dates = mine.map((p) => p.targetDate);
+  assert.ok(dates.length >= 3, 'three or more own posts');
+  assert.equal(new Set(dates).size, dates.length, 'no two own posts share a target date');
+});

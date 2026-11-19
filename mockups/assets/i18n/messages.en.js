@@ -92,6 +92,9 @@
 
     // Post components (task 4.5). like.count-one is the one-like form (same wording in Japanese).
     'post-card.target-date': 'Date',
+    'post-card.visibility.guests': 'Visibility: also shown to people who are not logged in',
+    'post-card.visibility.members': 'Visibility: logged-in users only',
+    'post-card.status-label': 'Status: {status}',
     'like.count': '{count} likes',
     'like.count-one': '{count} like',
     'comment.tree-label': 'Comments',
@@ -198,8 +201,8 @@
     'screen.my-posts.new-post': 'Write a new post',
     'screen.my-posts.empty': 'You have not posted anything yet.',
     'screen.my-posts.list-label': 'Your posts',
-    'screen.my-posts.visibility-guests': 'Visibility: also shown to people who are not logged in',
-    'screen.my-posts.visibility-members': 'Visibility: logged-in users only',
+    'screen.my-posts.icon-legend': 'What the icons mean',
+    'screen.my-posts.icon-legend-note': 'Temporarily hidden and deleted posts are shown in words, not as icons.',
     'screen.my-posts.edit-label': 'Edit the post for {date}',
 
     // Screen content: settings and login (task 5.5)

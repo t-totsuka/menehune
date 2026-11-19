@@ -1192,6 +1192,49 @@ mk-report-link {
   margin-inline-end: var(--space-xs);
 }
 
+/* meta="icons" (task 8.1, my-posts): the visibility setting as an outlined icon and the status
+   badge in one row. Public / members-only badges ([data-icon]) show their symbol only; the text
+   stays for assistive technology (same clipping as .visually-hidden in base.css) and the title
+   explains it on hover. Shapes and symbols differ, so the state does not depend on colour. */
+.mk-post-card__icons {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.mk-post-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs);
+  border: var(--border-width-thin) solid currentColor;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  line-height: 0;
+}
+
+.mk-post-card__icon-svg {
+  inline-size: var(--font-size-md);
+  block-size: var(--font-size-md);
+}
+
+.mk-post-card__icons mk-status-badge[data-icon] .mk-status-badge {
+  padding-inline: var(--space-sm);
+}
+
+.mk-post-card__icons mk-status-badge[data-icon] .mk-status-badge__text {
+  position: absolute;
+  inline-size: var(--border-width-thin);
+  block-size: var(--border-width-thin);
+  margin: calc(-1 * var(--border-width-thin));
+  padding: 0;
+  overflow: hidden;
+  clip-path: circle(0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Like: a toggle for logged-in viewers (pressed = filled, plus the filled heart symbol, so the
    state does not depend on color alone); a plain count for guests. */
 .mk-like {
@@ -1846,7 +1889,44 @@ mk-weather {
   color: var(--color-error);
 }
 
-/* My posts screen (task 5.4): a card with its visibility setting and edit link below. */
+/* My posts screen (task 5.4): a card with its edit link below. Task 8.1 (wireframe review): one
+   column at every width so the order by date reads top to bottom (the shared .screen-post-list
+   keeps two columns from 960px on top and day-detail). */
+@media (min-width: 960px) {
+  .screen-post-list.screen-my-posts-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The icon legend of my-posts (task 8.1): a closed <details> under the create-post button. */
+.screen-my-posts-legend ul {
+  display: grid;
+  gap: var(--space-xs);
+  margin-block: var(--space-sm) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-my-posts-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.screen-my-posts-legend__symbol {
+  display: inline-flex;
+  justify-content: center;
+  min-inline-size: var(--space-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.screen-my-posts-legend p {
+  margin-block: var(--space-sm) 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
 .screen-my-post {
   display: grid;
   gap: var(--space-xs);

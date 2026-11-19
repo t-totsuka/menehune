@@ -361,7 +361,11 @@ interface EventListAttrs { readonly from?: IsoDate; readonly to?: IsoDate; reado
 /** `sample` selects a star chart sample; omitted means SampleDataSet.starChart */
 interface StarChartAttrs { readonly sample?: string; }
 
-interface PostCardAttrs { readonly 'post-id': string; readonly variant?: 'list' | 'compact'; }
+/**
+ * `meta="icons"` (task 8.1, my-posts) shows the visibility setting as an icon and the public /
+ * members-only status badge as its symbol only (hidden / deleted keep their text)
+ */
+interface PostCardAttrs { readonly 'post-id': string; readonly variant?: 'list' | 'compact'; readonly meta?: 'icons'; }
 interface CommentTreeAttrs { readonly 'post-id': string; }
 interface LikeButtonAttrs { readonly 'post-id': string; }
 interface ReportLinkAttrs { readonly 'target-id': string; }

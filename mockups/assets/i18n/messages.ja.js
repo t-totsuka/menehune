@@ -92,6 +92,9 @@
 
     // Post components (task 4.5). like.count-one is the one-like form (same wording in Japanese).
     'post-card.target-date': '対象日',
+    'post-card.visibility.guests': '公開範囲：ログインしていない人にも公開',
+    'post-card.visibility.members': '公開範囲：ログインしたユーザのみ',
+    'post-card.status-label': '状態：{status}',
     'like.count': 'いいね {count}件',
     'like.count-one': 'いいね {count}件',
     'comment.tree-label': 'コメント',
@@ -198,8 +201,8 @@
     'screen.my-posts.new-post': '新しく投稿する',
     'screen.my-posts.empty': 'まだ投稿していません。',
     'screen.my-posts.list-label': '自分の投稿の一覧',
-    'screen.my-posts.visibility-guests': '公開範囲：ログインしていない人にも公開',
-    'screen.my-posts.visibility-members': '公開範囲：ログインしたユーザのみ',
+    'screen.my-posts.icon-legend': 'アイコンの見方',
+    'screen.my-posts.icon-legend-note': '一時非表示と削除済みは、アイコンにせず文字で示します。',
     'screen.my-posts.edit-label': '{date}の投稿を編集',
 
     // Screen content: settings and login (task 5.5)

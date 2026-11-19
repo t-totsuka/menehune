@@ -20,7 +20,9 @@
     <!-- Guests get a one-line reason (the notice with the login link is the band above <main>,
          task 8.1) instead of the list. For members the page script at the end lists
          the viewer's own posts (SampleDataSet.viewerIds.member, every status including deleted,
-         newest first) with the visibility setting; empty and fetch-error replace the list. -->
+         target date newest first) as cards with the status icons; empty and fetch-error replace
+         the list. Task 8.1 (wireframe review): one column, newest target date first, visibility
+         and status as icons (mk-post-card meta="icons") explained by the legend below. -->
     <div data-when-auth="guest" data-guest-prompt>
       <p data-i18n="screen.my-posts.login-required">自分の投稿の一覧を見るには、ログインしてください。</p>
     </div>
@@ -29,9 +31,34 @@
       <p data-when-scenario="default empty">
         <a class="button" href="post-edit.html?auth=member" data-i18n="screen.my-posts.new-post">新しく投稿する</a>
       </p>
+      <!-- The legend repeats the visibility icon shapes of posts.js (VISIBILITY_SHAPES); the
+           review spec checks that they stay equal. It is the explanation for keyboard and touch
+           users, since the icons' title tooltip only appears on mouse hover. -->
+      <details class="screen-my-posts-legend" data-icon-legend data-when-scenario="default">
+        <summary data-i18n="screen.my-posts.icon-legend">アイコンの見方</summary>
+        <ul>
+          <li data-legend-icon="visibility-guests">
+            <span class="mk-post-card__icon" aria-hidden="true"><svg class="mk-post-card__icon-svg" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5"/><ellipse cx="8" cy="8" rx="2.75" ry="6.5"/><path d="M1.5 8h13"/></svg></span>
+            <span data-i18n="post-card.visibility.guests">公開範囲：ログインしていない人にも公開</span>
+          </li>
+          <li data-legend-icon="visibility-members">
+            <span class="mk-post-card__icon" aria-hidden="true"><svg class="mk-post-card__icon-svg" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7.5" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg></span>
+            <span data-i18n="post-card.visibility.members">公開範囲：ログインしたユーザのみ</span>
+          </li>
+          <li data-legend-icon="status-public">
+            <span class="screen-my-posts-legend__symbol" data-legend-symbol aria-hidden="true">●</span>
+            <span data-i18n="post.status.public">公開中</span>
+          </li>
+          <li data-legend-icon="status-members-only">
+            <span class="screen-my-posts-legend__symbol" data-legend-symbol aria-hidden="true">◆</span>
+            <span data-i18n="post.status.members-only">ログインユーザのみ</span>
+          </li>
+        </ul>
+        <p data-i18n="screen.my-posts.icon-legend-note">一時非表示と削除済みは、アイコンにせず文字で示します。</p>
+      </details>
       <p class="screen-error" role="alert" data-when-scenario="fetch-error" data-i18n="error.fetch">データを取得できませんでした。時間をおいてもう一度お試しください。</p>
       <p class="text-muted" data-my-posts-empty data-when-scenario="empty" data-i18n="screen.my-posts.empty">まだ投稿していません。</p>
-      <ul class="screen-post-list" data-my-posts data-when-scenario="default" data-i18n-attr="aria-label:screen.my-posts.list-label"></ul>
+      <ul class="screen-post-list screen-my-posts-list" data-my-posts data-when-scenario="default" data-i18n-attr="aria-label:screen.my-posts.list-label"></ul>
     </div>
   </main>
   <mk-site-footer></mk-site-footer>
@@ -52,9 +79,11 @@
   <script>
     // My posts page script (task 5.4). Runs before DOMContentLoaded, so the review shell and the
     // i18n runtime process the nodes it adds.
-    // - Lists every post of SampleDataSet.viewerIds.member, newest first, also hidden and deleted
-    //   ones (the card's status badge tells them apart). Each item shows the visibility setting
-    //   (guestVisible) and, unless deleted, an edit link to post-edit.html?post=ID.
+    // - Lists every post of SampleDataSet.viewerIds.member, also hidden and deleted ones (the
+    //   card's status badge tells them apart). Task 8.1: sorted by the target date the card shows
+    //   (newest first; ties by postedAt, newest first, then by id, so the order is deterministic),
+    //   and each card shows the visibility setting and the status as icons (meta="icons").
+    //   Unless deleted, an edit link to post-edit.html?post=ID follows the card.
     // - The edit links get an accessible name with the target date on every mock:change.
     (function () {
       const sample = window.MockSample;
@@ -62,27 +91,27 @@
       if (list === null) return;
       const posts = sample.posts
         .filter((p) => p.authorId === sample.viewerIds.member)
-        .sort((a, b) => Date.parse(b.postedAt) - Date.parse(a.postedAt));
+        .sort((a, b) => b.targetDate.localeCompare(a.targetDate)
+          || Date.parse(b.postedAt) - Date.parse(a.postedAt)
+          || a.id.localeCompare(b.id));
       for (const post of posts) {
         const item = document.createElement('li');
         item.className = 'screen-my-post';
         item.setAttribute('data-my-post', post.id);
         const card = document.createElement('mk-post-card');
         card.setAttribute('post-id', post.id);
-        const meta = document.createElement('div');
-        meta.className = 'screen-my-post__meta';
-        const visibility = document.createElement('p');
-        visibility.setAttribute('data-visibility', '');
-        visibility.setAttribute('data-i18n', post.guestVisible ? 'screen.my-posts.visibility-guests' : 'screen.my-posts.visibility-members');
-        meta.append(visibility);
+        card.setAttribute('meta', 'icons');
+        item.append(card);
         if (post.status !== 'deleted') {
+          const meta = document.createElement('div');
+          meta.className = 'screen-my-post__meta';
           const edit = document.createElement('a');
           edit.setAttribute('href', `post-edit.html?auth=member&post=${post.id}`);
           edit.setAttribute('data-i18n', 'button.edit');
           edit.setAttribute('data-edit-date', post.targetDate);
           meta.append(edit);
+          item.append(meta);
         }
-        item.append(card, meta);
         list.append(item);
       }
       document.addEventListener('mock:change', () => {

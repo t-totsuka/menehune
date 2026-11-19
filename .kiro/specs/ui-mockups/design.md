@@ -656,7 +656,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 | mk-rise-set | almanac.js | `date`、`post-id`、`chart` | 日の出・日の入り・月の出・月の入り（4.3、7.3）。`chart` では、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示す（トップ用、8.1） |
 | mk-event-list | almanac.js | `from`、`to`、`kinds`、`filters`、`mark-past` | 天文現象の日時と種類の一覧、期間と種類の絞り込み UI、空状態、取得エラー（4.4、4.5、3.4、3.5）。`filters="collapsed"` では絞り込みを閉じたアコーディオンにする（トップ用、8.1）。`mark-past` では、サンプルの今日より前の日付の現象に、日時の前に文字の印（「過去」／Past）と `data-past` を付ける（色だけに頼らない。天文現象一覧用、8.1） |
 | mk-star-chart | sky.js | `sample` | 天頂中心の円形の全天図（立体射影）と方位。恒星の大きさは等級に応じる。星座線、星座名、太陽・月・惑星。入力欄は画面側に置く。`viewBox` で幅に追従させる（5.1〜5.5、13.4） |
-| mk-post-card | posts.js | `post-id`、`variant` | 一覧用のカード（対象日、抜粋、状態バッジ、いいね数）（6.6） |
+| mk-post-card | posts.js | `post-id`、`variant`、`meta` | 一覧用のカード（対象日、抜粋、状態バッジ、いいね数）（6.6）。`meta="icons"` では、公開範囲（未ログインに公開するか）をアイコン（`role="img"`、`aria-label`、`title`）で添え、公開中・ログインユーザのみの状態バッジを記号だけにする（文字は読み上げ用に残す）。一時非表示と削除済みは文字のバッジのまま（自分の投稿用、8.1） |
 | mk-comment-tree | posts.js | `post-id` | 入れ子のコメント。字下げの上限は PC で 6 段、スマートフォンで 3 段。それより深いものは字下げせず、「↳ ○○さんへの返信」と表示する。削除済みは本文の代わりに「このコメントは削除されました」と出し、子は残す（6.1、6.4、12.4） |
 | mk-like-button | posts.js | `post-id` | 件数と、いいね済みかの状態。guest では件数のみ（6.7、6.8） |
 | mk-report-link | posts.js | `target-id` | 通報画面への導線。guest では表示しない（8.3） |

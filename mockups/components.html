@@ -110,7 +110,7 @@
             <tr data-element="mk-rise-set"><th scope="row"><a href="#sec-rise-set"><code>mk-rise-set</code></a></th><td>almanac.js</td><td><code>date</code>（月の入りなしを含む）、<code>post-id</code>（位置情報なしは何も出さない）、<code>chart</code>（日月が地平線の上にある時間の図）</td><td>言語</td></tr>
             <tr data-element="mk-event-list"><th scope="row"><a href="#sec-event-list-month"><code>mk-event-list</code></a></th><td>almanac.js</td><td><code>from</code> と <code>to</code>、<code>kinds</code>、<code>filters="collapsed"</code>（絞り込みを閉じたアコーディオンにする）、<code>mark-past</code>（サンプルの今日より前の日付の現象に「過去」の文字を付ける）</td><td>シナリオ：empty（空状態）、fetch-error（取得エラー）</td></tr>
             <tr data-element="mk-star-chart"><th scope="row"><a href="#sec-star-chart-default"><code>mk-star-chart</code></a></th><td>sky.js</td><td>属性なし、<code>sample="unknown"</code>（サンプルなし）</td><td>段階（ワイヤーフレームでは占位表示）、言語、テーマ</td></tr>
-            <tr data-element="mk-post-card"><th scope="row"><a href="#sec-post-card"><code>mk-post-card</code></a></th><td>posts.js</td><td><code>post-id</code>（公開・ログインユーザのみ・一時非表示・削除済み・サンプルなし）、<code>variant="compact"</code></td><td>言語</td></tr>
+            <tr data-element="mk-post-card"><th scope="row"><a href="#sec-post-card"><code>mk-post-card</code></a></th><td>posts.js</td><td><code>post-id</code>（公開・ログインユーザのみ・一時非表示・削除済み・サンプルなし）、<code>variant="compact"</code>、<code>meta="icons"</code>（公開範囲のアイコンと記号だけの状態）</td><td>言語</td></tr>
             <tr data-element="mk-comment-tree"><th scope="row"><a href="#sec-comment-tree"><code>mk-comment-tree</code></a></th><td>posts.js</td><td><code>post-id</code>（深さ 7 と削除済み、コメントなし、サンプルなし）、スマートフォン幅（字下げ 3 段）</td><td>ログイン状態（コメントごとの通報の導線）、言語</td></tr>
             <tr data-element="mk-like-button"><th scope="row"><a href="#sec-like-button"><code>mk-like-button</code></a></th><td>posts.js</td><td><code>post-id</code>（サンプルなしを含む）</td><td>ログイン状態（未ログインは件数だけ）</td></tr>
             <tr data-element="mk-report-link"><th scope="row"><a href="#sec-report-link"><code>mk-report-link</code></a></th><td>posts.js</td><td><code>target-id</code>（投稿・コメント・サンプルなし）</td><td>ログイン状態（未ログインは表示しない）</td></tr>
@@ -426,6 +426,11 @@
         <mk-post-card id="post-card-p-111" post-id="p-111"></mk-post-card>
         <mk-post-card id="post-card-compact" post-id="p-102" variant="compact"></mk-post-card>
         <mk-post-card id="post-card-missing" post-id="p-999"></mk-post-card>
+      </div>
+      <p class="text-muted"><code>meta="icons"</code>（自分の投稿用：公開範囲をアイコンで添え、公開中・ログインユーザのみの状態を記号だけにする。アイコンにマウスを載せると説明が出ます。一時非表示と削除済みは文字のまま）</p>
+      <div class="mk-post-card-samples">
+        <mk-post-card id="post-card-icons" post-id="p-104" meta="icons"></mk-post-card>
+        <mk-post-card id="post-card-icons-hidden" post-id="p-108" meta="icons"></mk-post-card>
       </div>
 
       <h3 id="sec-like-button"><code>mk-like-button</code></h3>

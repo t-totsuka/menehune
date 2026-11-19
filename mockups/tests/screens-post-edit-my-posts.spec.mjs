@@ -6,7 +6,8 @@
 //   aria-describedby) and an error summary that links to the field.
 // - my-posts (members): cards of the viewer's own posts (SampleDataSet.viewerIds.member), newest
 //   first, including the deleted one, with the visibility setting and a status badge that differs
-//   by symbol, text and data-status; empty and fetch-error scenarios.
+//   by symbol, text and data-status; empty and fetch-error scenarios. Task 8.1 changed the order
+//   to the target date, newest first, and the visibility to an icon on the card.
 // - Guests get a login prompt instead of the form / list on both screens.
 // - No console problems, valid heading hierarchy and no horizontal overflow at 375 / 1440 px in
 //   wireframe / hifi x ja / en x guest / member for every scenario.
@@ -39,7 +40,8 @@ const postOf = (id) => sample.posts.find((/** @type {any} */ p) => p.id === id);
 const me = sample.viewerIds.member;
 const myPosts = sample.posts
   .filter((/** @type {any} */ p) => p.authorId === me)
-  .sort((/** @type {any} */ a, /** @type {any} */ b) => Date.parse(b.postedAt) - Date.parse(a.postedAt));
+  // target date (the date the card shows) newest first; task 8.1 review of my-posts
+  .sort((/** @type {any} */ a, /** @type {any} */ b) => b.targetDate.localeCompare(a.targetDate) || Date.parse(b.postedAt) - Date.parse(a.postedAt));
 
 const urlOf = (/** @type {string} */ id, query = '') => pathToFileURL(join(root, 'screens', `${id}.html`)).href + query;
 
@@ -259,8 +261,9 @@ test.describe('my-posts (6.6, 3.4, 3.5)', () => {
 
     for (const post of myPosts) {
       const item = page.locator(`main [data-my-post="${post.id}"]`);
-      await expect(item.locator('[data-visibility]')).toHaveText(
-        ja[post.guestVisible ? 'screen.my-posts.visibility-guests' : 'screen.my-posts.visibility-members']);
+      // task 8.1: the visibility is an icon on the card (mk-post-card meta="icons")
+      await expect(item.locator('[data-meta-icon="visibility"]')).toHaveAttribute('aria-label',
+        ja[post.guestVisible ? 'post-card.visibility.guests' : 'post-card.visibility.members']);
       const edit = item.locator('a[href*="post-edit.html"]');
       if (post.status === 'deleted') {
         await expect(edit).toHaveCount(0);
