@@ -377,8 +377,11 @@ interface ReportLinkAttrs { readonly 'target-id': string; }
 /** `collapsed` (boolean, task 8.1) folds the radio group into a closed accordion whose summary shows the current choice */
 interface PrecisionPickerAttrs { readonly value?: LocationPrecision; readonly collapsed?: ''; }
 interface LocationPanelAttrs { readonly 'post-id': string; }
-/** `region` overrides the region name (Japanese free text); omitted means the first sample post with that precision */
-interface MapSampleAttrs { readonly precision: LocationPrecision; readonly region?: string; }
+/**
+ * `region` overrides the region name (Japanese free text); omitted means the first sample post with that precision.
+ * `subject="observer"` (task 8.1, star chart) labels the map as the star chart's observing location (caption and alt text)
+ */
+interface MapSampleAttrs { readonly precision: LocationPrecision; readonly region?: string; readonly subject?: 'observer'; }
 interface WeatherAttrs { readonly 'post-id': string; }
 
 /** Element name -> attribute contract. */

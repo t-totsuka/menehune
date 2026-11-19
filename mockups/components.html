@@ -115,7 +115,7 @@
             <tr data-element="mk-like-button"><th scope="row"><a href="#sec-like-button"><code>mk-like-button</code></a></th><td>posts.js</td><td><code>post-id</code>（サンプルなしを含む）</td><td>ログイン状態（未ログインは件数だけ）</td></tr>
             <tr data-element="mk-report-link"><th scope="row"><a href="#sec-report-link"><code>mk-report-link</code></a></th><td>posts.js</td><td><code>target-id</code>（投稿・コメント・サンプルなし）</td><td>ログイン状態（未ログインは表示しない）</td></tr>
             <tr data-element="mk-precision-picker"><th scope="row"><a href="#sec-precision-picker"><code>mk-precision-picker</code></a></th><td>location.js</td><td>属性なし（未選択）、<code>value</code>：5 段階それぞれ、<code>collapsed</code>（閉じたアコーディオンにし、見出しに今の選択を出す）</td><td>言語</td></tr>
-            <tr data-element="mk-map-sample"><th scope="row"><a href="#sec-map-sample"><code>mk-map-sample</code></a></th><td>location.js</td><td><code>precision</code>：5 段階、<code>region</code>、サンプルなし</td><td>段階（占位表示）、テーマ</td></tr>
+            <tr data-element="mk-map-sample"><th scope="row"><a href="#sec-map-sample"><code>mk-map-sample</code></a></th><td>location.js</td><td><code>precision</code>：5 段階、<code>region</code>、<code>subject="observer"</code>（星図の観測地点の地図として、説明と代替テキストに「観測地点」を出す）、サンプルなし</td><td>段階（占位表示）、テーマ</td></tr>
             <tr data-element="mk-weather"><th scope="row"><a href="#sec-weather"><code>mk-weather</code></a></th><td>location.js</td><td><code>post-id</code>（晴れ・風あり・取得失敗・位置情報なし・サンプルなし）</td><td>言語</td></tr>
             <tr data-element="mk-location-panel"><th scope="row"><a href="#sec-location-panel"><code>mk-location-panel</code></a></th><td>location.js</td><td><code>post-id</code>（天気あり・取得失敗・位置情報なし・サンプルなし）</td><td>シナリオに追従する例（weather-failed、no-location）</td></tr>
           </tbody>
@@ -517,6 +517,10 @@
         <div class="l-stack">
           <p class="text-muted"><code>precision="municipality" region="千葉県 船橋市"</code></p>
           <mk-map-sample id="map-region" precision="municipality" region="千葉県 船橋市"></mk-map-sample>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>precision="municipality" region="東京都 三鷹市" subject="observer"</code>（星図の画面用：星図の観測地点の地図）</p>
+          <mk-map-sample id="map-observer" precision="municipality" region="東京都 三鷹市" subject="observer"></mk-map-sample>
         </div>
         <div class="l-stack">
           <p class="text-muted"><code>precision="unknown"</code>（サンプルなし）</p>

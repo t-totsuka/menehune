@@ -169,7 +169,7 @@
     'screen.star-chart.datetime-hint': '日本時間（JST）で指定します。',
     'screen.star-chart.place': '地点',
     'screen.star-chart.place-hint': '市区町村名などで指定します。',
-    'screen.star-chart.fixed-sample': 'このモックアップの星図は固定のサンプルです。日時や地点を変えても、星図は変わりません（入力欄の初期値が、サンプルの日時と地点です）。',
+    'screen.star-chart.fixed-sample': 'このモックアップの星図と観測地点の地図は固定のサンプルです。日時や地点を変えても、星図と地図は変わりません（入力欄の初期値が、サンプルの日時と地点です）。',
     'screen.star-chart.sky': '全天図',
 
     // Screen content: post detail (task 5.3)
@@ -632,6 +632,10 @@
     'map.describe.municipality': '{region}の模式地図。市区町村が見える縮尺で、{region}の範囲を塗って示しています。',
     'map.describe.prefecture': '{region}の模式地図。都道府県が見える縮尺で、{region}の範囲を塗って示しています。',
     'map.describe.country': '{region}の模式地図。国全体が見える縮尺で、国土全体を塗って示しています。',
+    // mk-map-sample subject="observer" (task 8.1, star chart): the map of the chart's observing location
+    'map.caption.observer': '観測地点：{region}',
+    'map.describe.observer': '星図の観測地点を示す地図。{map}',
+    'map.describe.observer.exact': '{region}付近の模式地図。街路が見える縮尺で、観測地点をピンで示しています。',
 
     // Weather snapshot
     'weather.label': '天気',

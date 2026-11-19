@@ -29,6 +29,12 @@
 // - The non-focusable wrapper carries data-figure (wireframe placeholder); the <svg> has
 //   role="img" and aria-label = describe(state) naming the region (Japanese free text, also in the
 //   English UI). The caption repeats the region and the precision as visible text.
+// - `subject="observer"` (task 8.1, star chart only): the map shows the observing location the
+//   star chart is drawn for, not a posted place. The caption becomes map.caption.observer
+//   (「観測地点：{region}」, no precision: the precision levels are about sharing a post) and the
+//   alt text is prefixed with map.describe.observer (「星図の観測地点を示す地図。」). For exact, the
+//   body says the pin marks the observing location (map.describe.observer.exact). Any other value
+//   or no attribute keeps the posted-place wording.
 //
 // mk-weather (`post-id`):
 // - Display follows the data (SamplePost): location present with weather -> condition, temperature
@@ -242,7 +248,12 @@
 
   /** @implements {DescribableElement} */
   class MapSample extends MockElement {
-    static observedAttributes = ['precision', 'region'];
+    static observedAttributes = ['precision', 'region', 'subject'];
+
+    /** Whether the map shows the star chart's observing location (`subject="observer"`). */
+    isObserver() {
+      return this.getAttribute('subject') === 'observer';
+    }
 
     /** The sample location for this precision (first sample post with it), or null. */
     location() {
@@ -268,7 +279,12 @@
       const level = location ? levelOf(location.precision) : undefined;
       if (!location || !level) return '';
       // this.t() reads the current language (state.lang); the region name is not translated.
-      return this.t(level.describeKey, { region: this.regionName(location) });
+      const region = this.regionName(location);
+      if (!this.isObserver()) return this.t(level.describeKey, { region });
+      const body = level.precision === 'exact'
+        ? this.t('map.describe.observer.exact', { region })
+        : this.t(level.describeKey, { region });
+      return this.t('map.describe.observer', { map: body });
     }
 
     /** @param {MockStateSnapshot} state */
@@ -280,10 +296,9 @@
         return;
       }
       const figure = this.el('div', { class: 'mk-map__figure', 'data-figure': '' }, this.drawing(location, state));
-      const caption = this.el('p', { class: 'mk-map__caption' }, this.t('map.caption', {
-        region: this.regionName(location),
-        precision: this.t(level.labelKey),
-      }));
+      const caption = this.el('p', { class: 'mk-map__caption' }, this.isObserver()
+        ? this.t('map.caption.observer', { region: this.regionName(location) })
+        : this.t('map.caption', { region: this.regionName(location), precision: this.t(level.labelKey) }));
       this.replaceChildren(this.el('div', { class: 'mk-map' }, figure, caption));
     }
 

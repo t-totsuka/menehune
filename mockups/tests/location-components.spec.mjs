@@ -194,6 +194,28 @@ test.describe('mk-map-sample', () => {
     await expect(svg).toHaveAttribute('aria-label', ja['map.describe.municipality'].replaceAll('{region}', '千葉県 船橋市'));
   });
 
+  // Task 8.1 (star chart): subject="observer" says the map shows the observing location of the
+  // star chart (caption and alt text); without it the map is unchanged (the posted place).
+  test('subject="observer" names the observing location in the caption and the alt text', async ({ page }) => {
+    const problems = collectProblems(page);
+    await open(page, 1440, '?lang=ja');
+    const map = page.locator('#map-observer');
+    const base = ja['map.describe.municipality'].replaceAll('{region}', '東京都 三鷹市');
+    await expect(map.locator('svg')).toHaveAttribute('aria-label', ja['map.describe.observer'].replace('{map}', base));
+    await expect(map.locator('.mk-map__caption')).toHaveText(ja['map.caption.observer'].replace('{region}', '東京都 三鷹市'));
+    await expect(map.locator('svg')).toHaveAttribute('data-zoom', 'city');
+    // exact: the pin marks the observing location, not a posted spot
+    await map.evaluate((el) => el.setAttribute('precision', 'exact'));
+    await expect(map.locator('svg')).toHaveAttribute('aria-label',
+      ja['map.describe.observer'].replace('{map}', ja['map.describe.observer.exact'].replaceAll('{region}', '東京都 三鷹市')));
+    await expect(map.locator('[data-mark="pin"]')).toHaveCount(1);
+    // without the attribute: the default caption and alt text
+    await map.evaluate((el) => el.removeAttribute('subject'));
+    await expect(map.locator('svg')).toHaveAttribute('aria-label', ja['map.describe.exact'].replaceAll('{region}', '東京都 三鷹市'));
+    await expect(map.locator('.mk-map__caption')).toHaveText(ja['map.caption'].replace('{region}', '東京都 三鷹市').replace('{precision}', ja['location.precision.exact']));
+    expect(problems).toEqual([]);
+  });
+
   test('changing precision re-renders the map', async ({ page }) => {
     await open(page, 1440);
     const map = page.locator('#map-region');

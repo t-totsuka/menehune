@@ -284,6 +284,33 @@ test('admin: the 2026-11-19 review notes are kept and each outcome follows its n
   }
 });
 
+// Task 8.1 (star-chart, 2026-11-19): one note in the user's words, followed right after by its
+// outcome; the guest band note and its outcome recorded earlier stay first.
+const STAR_CHART_NOTE = '星図の全天図右に４：１くらいのサイズ感で地図を表示したい';
+const STAR_CHART_ENDS_NOTE = '全天図と地図を両端において３：１から４：１の範囲に収まるようにしてみて';
+const STAR_CHART_FLEX_NOTE = '全天図の幅が固定なので、地図のほうを可変として両端に寄せた状態で互いのマージンは固定して、地図の上下の比率は保ってほしい';
+
+test('star-chart: the 2026-11-19 review note is kept and its outcome follows it', () => {
+  const wf = byId().get('star-chart').review.wireframe;
+  assert.equal(wf.status, 'in-review');
+  assert.equal(wf.reviewedAt, '2026-11-19');
+  const notes = [...(wf.notes ?? [])];
+  assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
+  assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');
+  const at = notes.indexOf(STAR_CHART_NOTE);
+  assert.ok(at >= 2, `records "${STAR_CHART_NOTE}" verbatim after the guest band outcome`);
+  assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
+  // follow-up (2026-11-19): chart and map at both ends, 3:1..4:1, after the first outcome
+  const next = notes.indexOf(STAR_CHART_ENDS_NOTE);
+  assert.ok(next >= at + 2, `records "${STAR_CHART_ENDS_NOTE}" verbatim after the first outcome`);
+  assert.match(notes[next + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the follow-up note');
+  // refinement (2026-11-19): the map takes the remaining width; the 3:1..4:1 outcome says it was superseded
+  assert.match(notes[next + 1] ?? '', /置き換え/, 'the 3:1..4:1 outcome says it was superseded');
+  const flex = notes.indexOf(STAR_CHART_FLEX_NOTE);
+  assert.ok(flex >= next + 2, `records "${STAR_CHART_FLEX_NOTE}" verbatim after the 3:1..4:1 outcome`);
+  assert.match(notes[flex + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the refinement note');
+});
+
 test('registry and every nested object is frozen', () => {
   const screens = registry();
   assert.ok(Object.isFrozen(screens));

@@ -41,7 +41,16 @@
 
     <section class="screen-section l-stack" aria-labelledby="chart-sky">
       <h2 id="chart-sky"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.star-chart.sky">全天図</span></h2>
-      <mk-star-chart></mk-star-chart>
+      <!-- Task 8.1 (wireframe review): from 960px the drawn chart sits at the left edge and the
+           map of the observing location takes the remaining width up to the right edge (fixed
+           gap, 8:5, at least 15rem); on narrow screens the map follows the chart. The page script sets `region` to the
+           sample place (the chart's place). -->
+      <div class="screen-star-chart-sky">
+        <mk-star-chart></mk-star-chart>
+        <div class="screen-star-chart-map">
+          <mk-map-sample precision="municipality" subject="observer" data-chart-map></mk-map-sample>
+        </div>
+      </div>
     </section>
   </main>
   <mk-site-footer></mk-site-footer>
@@ -60,13 +69,16 @@
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
   <script>
-    // Fill the mock inputs once with the fixed sample (local JST date-time, sample place label).
+    // Fill the mock inputs once with the fixed sample (local JST date-time, sample place label),
+    // and point the observing-location map at the same place (task 8.1).
     (function () {
       const chart = window.MockSample.starChart;
       const datetime = /** @type {HTMLInputElement} */ (document.querySelector('[data-chart-datetime]'));
       const place = /** @type {HTMLInputElement} */ (document.querySelector('[data-chart-place]'));
+      const map = /** @type {HTMLElement} */ (document.querySelector('[data-chart-map]'));
       datetime.value = chart.observedAt.slice(0, 16);
       place.value = chart.placeLabel;
+      map.setAttribute('region', chart.placeLabel);
     })();
   </script>
 </body>

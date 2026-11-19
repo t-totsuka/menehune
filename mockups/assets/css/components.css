@@ -1749,6 +1749,40 @@ mk-weather {
   }
 }
 
+/* Star chart screen (task 8.1, wireframe review): the map of the observing location follows the
+   chart in one column on narrow screens (centred like the chart, at most 24rem wide so it does not
+   outgrow the chart between 600px and 960px). From 960px (follow-up reviews: 両端, the chart fixed
+   and the map variable with a fixed gap) the chart column is as wide as the chart figure
+   (min(80vh, the width left for the --space-lg gap and a 15rem map)), so the figure's own rule
+   min(column, 80vh) fills it at the left edge; the map takes all the remaining width up to the
+   right edge and keeps its 8:5 figure (height follows width). The 15rem floor keeps the map
+   usable where the width is tight (960px, very tall screens); there the chart gives way. */
+.screen-star-chart-sky {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-items: start;
+}
+
+.screen-star-chart-map {
+  inline-size: 100%;
+  max-inline-size: calc(var(--space-2xl) * 8);
+  justify-self: center;
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .screen-star-chart-sky {
+    --screen-star-chart-size: min(80vh, calc(100% - var(--space-lg) - var(--space-2xl) * 5));
+    grid-template-columns: var(--screen-star-chart-size) minmax(calc(var(--space-2xl) * 5), 1fr);
+    column-gap: var(--space-lg);
+  }
+
+  .screen-star-chart-map {
+    max-inline-size: none;
+  }
+}
+
 /* Post detail screen (task 5.3). */
 
 /* Post detail content (task 8.1, wireframe review): one column in DOM order (post, comments,

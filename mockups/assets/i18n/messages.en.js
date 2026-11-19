@@ -169,7 +169,7 @@
     'screen.star-chart.datetime-hint': 'In Japan Standard Time (JST).',
     'screen.star-chart.place': 'Place',
     'screen.star-chart.place-hint': 'A city, town or similar place name.',
-    'screen.star-chart.fixed-sample': 'The chart in this mockup is a fixed sample. Changing the date, time or place does not change the chart (the initial input values are the sample date, time and place).',
+    'screen.star-chart.fixed-sample': 'The chart and the map of the observing location in this mockup are fixed samples. Changing the date, time or place does not change them (the initial input values are the sample date, time and place).',
     'screen.star-chart.sky': 'All-sky chart',
 
     // Screen content: post detail (task 5.3)
@@ -632,6 +632,10 @@
     'map.describe.municipality': 'Schematic map of {region}. City scale, with the area of {region} shaded.',
     'map.describe.prefecture': 'Schematic map of {region}. Prefecture scale, with the area of {region} shaded.',
     'map.describe.country': 'Schematic map of {region}. Country scale, with the whole country shaded.',
+    // mk-map-sample subject="observer" (task 8.1, star chart): the map of the chart's observing location
+    'map.caption.observer': 'Observing location: {region}',
+    'map.describe.observer': 'Map of the observing location of the star chart. {map}',
+    'map.describe.observer.exact': 'Schematic map near {region}. Street scale, with a pin on the observing location.',
 
     // Weather snapshot
     'weather.label': 'Weather',
