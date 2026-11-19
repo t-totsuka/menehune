@@ -461,7 +461,7 @@ interface SamplePost {
   readonly comments: readonly CommentNode[];
 }
 type ReportReason = 'spam' | 'harassment' | 'inappropriate' | 'personal-info' | 'other';
-interface ReportQueueItem { readonly targetId: string; readonly targetType: 'post' | 'comment'; readonly reportCount: number; readonly reasons: readonly ReportReason[]; readonly state: 'open' | 'auto-hidden' | 'hidden-by-admin' | 'appealed' | 'restored' | 'removed'; }
+interface ReportQueueItem { readonly targetId: string; readonly targetType: 'post' | 'comment'; readonly reportCount: number; readonly reasons: readonly ReportReason[]; readonly reasonCounts: Readonly<Partial<Record<ReportReason, number>>>; readonly state: 'open' | 'auto-hidden' | 'hidden-by-admin' | 'appealed' | 'restored' | 'removed'; }
 
 interface StarChartSample {
   readonly observedAt: IsoDateTime; readonly placeLabel: string;

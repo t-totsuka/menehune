@@ -357,17 +357,19 @@
   ];
 
   /**
-   * Report queue: one item per state (open has a post and a comment).
+   * Report queue: one item per state (open has a post and a comment). Each report names one
+   * reason, so reasonCounts adds up to reportCount; reasons are listed most frequent first
+   * (task 8.1: the admin screen shows the per-reason counts).
    * @type {ReportQueueItem[]}
    */
   const reports = [
-    { targetId: 'p-101', targetType: 'post', reportCount: 2, reasons: ['inappropriate', 'other'], state: 'open' },
-    { targetId: 'c-120-04', targetType: 'comment', reportCount: 1, reasons: ['harassment'], state: 'open' },
-    { targetId: 'p-109', targetType: 'post', reportCount: 5, reasons: ['spam', 'inappropriate'], state: 'auto-hidden' },
-    { targetId: 'p-110', targetType: 'post', reportCount: 1, reasons: ['personal-info'], state: 'hidden-by-admin' },
-    { targetId: 'p-108', targetType: 'post', reportCount: 3, reasons: ['spam', 'other'], state: 'appealed' },
-    { targetId: 'p-103', targetType: 'post', reportCount: 2, reasons: ['spam'], state: 'restored' },
-    { targetId: 'c-120-03', targetType: 'comment', reportCount: 4, reasons: ['harassment', 'personal-info'], state: 'removed' },
+    { targetId: 'p-101', targetType: 'post', reportCount: 2, reasons: ['inappropriate', 'other'], reasonCounts: { inappropriate: 1, other: 1 }, state: 'open' },
+    { targetId: 'c-120-04', targetType: 'comment', reportCount: 1, reasons: ['harassment'], reasonCounts: { harassment: 1 }, state: 'open' },
+    { targetId: 'p-109', targetType: 'post', reportCount: 5, reasons: ['spam', 'inappropriate'], reasonCounts: { spam: 3, inappropriate: 2 }, state: 'auto-hidden' },
+    { targetId: 'p-110', targetType: 'post', reportCount: 1, reasons: ['personal-info'], reasonCounts: { 'personal-info': 1 }, state: 'hidden-by-admin' },
+    { targetId: 'p-108', targetType: 'post', reportCount: 3, reasons: ['spam', 'other'], reasonCounts: { spam: 2, other: 1 }, state: 'appealed' },
+    { targetId: 'p-103', targetType: 'post', reportCount: 2, reasons: ['spam'], reasonCounts: { spam: 2 }, state: 'restored' },
+    { targetId: 'c-120-03', targetType: 'comment', reportCount: 4, reasons: ['harassment', 'personal-info'], reasonCounts: { harassment: 3, 'personal-info': 1 }, state: 'removed' },
   ];
 
   /** @type {Record<Exclude<AuthState, 'guest'>, string>} */

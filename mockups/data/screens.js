@@ -189,8 +189,21 @@
     )),
     screen('report', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),
     screen('appeal', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),
-    screen('admin', 'admin', ALL_AUTH, ['empty'], guestBandReview(
-      '反映（8.1）：未ログインのとき、ヘッダーの直下の全幅の帯に案内を出す。権限がない旨の案内は本文に残した（ログイン中の会員には帯を出さず、権限の案内だけ）',
+    screen('admin', 'admin', ALL_AUTH, ['empty'], review(
+      Object.freeze({
+        // 2026-11-19 の画面ごとの指摘をタスク 8.1 で反映し、再レビュー待ちのままにした
+        status: 'in-review',
+        reviewedAt: '2026-11-19',
+        notes: Object.freeze([
+          GUEST_BAND_NOTE,
+          '反映（8.1）：未ログインのとき、ヘッダーの直下の全幅の帯に案内を出す。権限がない旨の案内は本文に残した（ログイン中の会員には帯を出さず、権限の案内だけ）',
+          '表示をKANBAN形式にしたい',
+          '反映（8.1）：通報キューを、状態ごとの 4 列のボード（未対応／一時非表示／異議申し立ての審査／対応済み）にした。列は既存の状態から作り、新しい状態は足していない（未対応＝open、一時非表示＝auto-hidden と hidden-by-admin、異議申し立ての審査＝appealed、対応済み＝restored と removed）。カードには細かい状態の文字を残した。これまで別の一覧だった異議申し立ての審査は 3 列目にし、通報は 1 件につき 1 枚になった。各列は見出し（h3、件数つき）で名前の付いた領域。960px 以上で横に 4 列、600px 以上で 2 列 x 2 段、それより狭い幅は縦に積む（列の中の横スクロールは使わない）。ドラッグはなく、既存のボタンで対応すると、カードが新しい状態の列に移り、フォーカスはカードの状態に移る。empty のシナリオでは列を残し、列ごとに件数 0 と空の文言を出す。操作で空になった列にも同じ文言を出す（README の論点）',
+          '通報件数・理由は見やすくしたい',
+          '反映（8.1）：カードの先頭（本文の前）に、通報の件数を大きな太字の 1 行（「通報 5 件」）で出し、理由を件数つきのチップ（「スパム・宣伝 ×3」。読み上げは「通報 3 件」）にした。色ではなく文字と大きさで示す。理由ごとの件数はサンプルデータの ReportQueueItem に reasonCounts として足した（1 件の通報は理由を 1 つ選ぶので、合計が reportCount になる。多い順）。定義リストの「通報件数」「理由」の行はやめ、書いた人と状態の行を残した（README の論点）',
+        ]),
+      }),
+      DRAFT,
     )),
     screen('attribution', 'public', GUEST_MEMBER, [], guestBandReview(BAND_ADDED)),
     screen('privacy', 'public', GUEST_MEMBER, [], guestBandReview(BAND_ADDED)),

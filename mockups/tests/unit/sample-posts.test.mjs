@@ -220,6 +220,21 @@ test('reports: every state, valid reasons, and targets that exist and match the 
   assert.ok(reports.some((r) => r.reportCount === 1), 'a single-report item (moderation.report-count-one)');
 });
 
+// Task 8.1 (admin, 2026-11-19 "通報件数・理由は見やすくしたい"): each report names one reason
+// (the report screen is a radio group), so the per-reason counts add up to reportCount.
+test('reports: per-reason counts cover exactly the reasons, most frequent first, and add up to reportCount', () => {
+  for (const r of reports) {
+    const counts = r.reasonCounts;
+    assert.ok(counts && typeof counts === 'object', `${r.targetId}: reasonCounts`);
+    assert.deepEqual(Object.keys(counts).sort(), [...r.reasons].sort(), `${r.targetId}: same reasons`);
+    const values = r.reasons.map((reason) => counts[reason]);
+    for (const v of values) assert.ok(Number.isInteger(v) && v >= 1, `${r.targetId}: positive count`);
+    assert.equal(values.reduce((a, b) => a + b, 0), r.reportCount, `${r.targetId}: sum is reportCount`);
+    for (let i = 1; i < values.length; i += 1) assert.ok(values[i - 1] >= values[i], `${r.targetId}: most frequent first`);
+  }
+  assert.ok(reports.some((r) => r.reasons.some((reason) => r.reasonCounts[reason] >= 2)), 'a reason reported more than once');
+});
+
 test('every MessageKey used by posts and reports exists in both dictionaries', () => {
   const keys = [
     ...posts.flatMap((p) => (p.weather ? [p.weather.conditionKey] : [])),

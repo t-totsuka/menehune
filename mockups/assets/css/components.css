@@ -2017,21 +2017,73 @@ mk-weather {
   background-color: var(--color-surface);
 }
 
-.screen-admin-item h3,
+.screen-admin-item h4,
 .screen-admin-item p {
   margin: 0;
   overflow-wrap: anywhere;
 }
 
+/* Task 8.1 (review "表示をKANBAN形式にしたい"): the report queue as a board, one column per status
+   group. Stacked below 600px (no inner horizontal scroll), 2 x 2 from 600px, side by side from
+   960px. Columns align at the top; each column is a muted panel holding the cards. */
+.screen-admin-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-md);
+}
+
+@media (min-width: 600px) {
+  .screen-admin-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .screen-admin-board {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.screen-admin-column {
+  min-width: 0;
+  padding: var(--space-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-muted);
+}
+
+.screen-admin-column h3,
+.screen-admin-column > p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Task 8.1 (review "通報件数・理由は見やすくしたい"): the count is a large bold line at the top of
+   the card, and the reasons are chips with per-reason counts (text, not colour). */
+.screen-admin-count {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
 .screen-admin-reasons {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2xs) var(--space-sm);
+  gap: var(--space-2xs) var(--space-xs);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.screen-admin-reasons li {
+.screen-admin-reason {
+  min-width: 0;
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
   overflow-wrap: anywhere;
+}
+
+.screen-admin-reason [data-reason-times] {
+  font-weight: var(--font-weight-bold);
 }

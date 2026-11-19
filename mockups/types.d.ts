@@ -182,7 +182,10 @@ interface ReportQueueItem {
   readonly targetId: string;
   readonly targetType: 'post' | 'comment';
   readonly reportCount: number;
+  /** Distinct reasons, most frequent first */
   readonly reasons: readonly ReportReason[];
+  /** Reports per reason (each report names one reason): keys equal `reasons`, values add up to `reportCount` (task 8.1) */
+  readonly reasonCounts: Readonly<Partial<Record<ReportReason, number>>>;
   readonly state: ReportQueueState;
 }
 

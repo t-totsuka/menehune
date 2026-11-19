@@ -147,7 +147,7 @@ test.describe('admin (3.4, 3.6, 8.6)', () => {
       // the immediate-hide action is offered for open items only
       await expect(item.locator('button[data-hide-now]')).toHaveCount(report.state === 'open' ? 1 : 0);
     }
-    await expect(page.locator('main [data-queue-empty]')).toBeHidden();
+    await expect(page.locator('main [data-column-empty]:visible')).toHaveCount(0);
     expect(problems).toEqual([]);
   });
 
@@ -172,10 +172,12 @@ test.describe('admin (3.4, 3.6, 8.6)', () => {
     const problems = collectProblems(page);
     await page.goto(urlOf('admin', '?lang=ja&auth=admin'));
     const review = page.locator('main [data-appeal-review]');
-    await expect(review.getByRole('heading', { level: 2, name: ja['screen.admin.appeals'], exact: true })).toBeVisible();
+    // task 8.1: the appeal review is the appealed column of the board (h3 with its count)
+    await expect(review.getByRole('heading', { level: 3, name: new RegExp(`^${ja['screen.admin.column.appealed']}`) })).toBeVisible();
     const items = review.locator('[data-appeal-item]');
     await expect(items).toHaveCount(appealed.length);
-    const first = items.first();
+    // located by id: the decision moves the card to the done column
+    const first = page.locator(`main [data-appeal-item][data-target-id="${appealed[0].targetId}"]`);
     const post = sample.posts.find((/** @type {any} */ p) => p.id === appealed[0].targetId);
     await expect(first.locator('[data-target-body]')).toHaveText(post.body);
     await expect(first.locator('[data-appeal-text]')).not.toBeEmpty();
@@ -185,13 +187,12 @@ test.describe('admin (3.4, 3.6, 8.6)', () => {
     await expect(first.locator('[data-report-state]')).toHaveText(ja['moderation.state.restored']);
     await expect(first.locator('button[data-decision]')).toHaveCount(0);
     await expect(page.locator('main [data-admin-content]')).toContainText(ja['screen.admin.mock-note']);
-    await expect(page.locator('main [data-appeals-empty]')).toBeHidden();
     expect(problems).toEqual([]);
   });
 
   test('admin: the remove decision', async ({ page }) => {
     await page.goto(urlOf('admin', '?lang=en&auth=admin'));
-    const first = page.locator('main [data-appeal-item]').first();
+    const first = page.locator(`main [data-appeal-item][data-target-id="${appealed[0].targetId}"]`);
     await first.locator('button[data-decision="remove"]').click();
     await expect(first.locator('[data-report-state]')).toHaveText(en['moderation.state.removed']);
   });
@@ -201,8 +202,9 @@ test.describe('admin (3.4, 3.6, 8.6)', () => {
     await page.goto(urlOf('admin', '?lang=ja&auth=admin&scenario=empty'));
     await expect(page.locator('main [data-queue-item]:visible')).toHaveCount(0);
     await expect(page.locator('main [data-appeal-item]:visible')).toHaveCount(0);
-    await expect(page.locator('main [data-queue-empty]')).toHaveText(ja['screen.admin.queue-empty']);
-    await expect(page.locator('main [data-appeals-empty]')).toHaveText(ja['screen.admin.appeals-empty']);
+    // task 8.1: one empty message per board column
+    await expect(page.locator('main [data-column="open"] [data-column-empty]')).toHaveText(ja['screen.admin.column.open.empty']);
+    await expect(page.locator('main [data-appeal-review] [data-column-empty]')).toHaveText(ja['screen.admin.column.appealed.empty']);
     expect(problems).toEqual([]);
   });
 
