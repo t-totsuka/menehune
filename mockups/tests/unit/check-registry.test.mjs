@@ -73,7 +73,7 @@ test('hifi not draft while wireframe not approved is a violation at the entry li
   const dir = fixture(({ read, write }) => {
     const src = read('data/screens.js');
     const next = src.replace(
-      "screen('settings', 'member', GUEST_MEMBER),",
+      "screen('settings', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),",
       "{ ...screen('settings', 'member', GUEST_MEMBER), review: review({ status: 'in-review' }, { status: 'approved' }) },",
     );
     assert.notEqual(next, src);
@@ -90,10 +90,13 @@ test('hifi not draft while wireframe not approved is a violation at the entry li
 
 test('hifi not draft with wireframe approved is allowed', () => {
   const dir = fixture(({ read, write }) => {
-    write('data/screens.js', read('data/screens.js').replace(
-      "screen('settings', 'member', GUEST_MEMBER),",
+    const src = read('data/screens.js');
+    const next = src.replace(
+      "screen('settings', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),",
       "{ ...screen('settings', 'member', GUEST_MEMBER), review: review({ status: 'approved' }, { status: 'in-review' }) },",
-    ));
+    );
+    assert.notEqual(next, src);
+    write('data/screens.js', next);
   });
   try {
     const r = run([dir]);
@@ -156,8 +159,8 @@ test('scenarios not starting with default is a violation', () => {
   const dir = fixture(({ read, write }) => {
     const src = read('data/screens.js');
     const next = src.replace(
-      "screen('admin', 'admin', ALL_AUTH, ['empty']),",
-      "{ ...screen('admin', 'admin', ALL_AUTH), scenarios: ['empty', 'default'] },",
+      /screen\('admin', 'admin', ALL_AUTH, \['empty'\][\s\S]*?\)\),\n/,
+      "{ ...screen('admin', 'admin', ALL_AUTH), scenarios: ['empty', 'default'] },\n",
     );
     assert.notEqual(next, src);
     write('data/screens.js', next);
@@ -174,8 +177,8 @@ test('scenarios not starting with default is a violation', () => {
 test('duplicate and unknown ids are violations', () => {
   const dir = fixture(({ read, write }) => {
     write('data/screens.js', read('data/screens.js').replace(
-      "screen('privacy', 'public', GUEST_MEMBER),",
-      "screen('privacy', 'public', GUEST_MEMBER),\n    screen('privacy', 'public', GUEST_MEMBER),\n    screen('extra', 'public', GUEST_MEMBER),",
+      "screen('privacy', 'public', GUEST_MEMBER, [], guestBandReview(BAND_ADDED)),",
+      "screen('privacy', 'public', GUEST_MEMBER, [], guestBandReview(BAND_ADDED)),\n    screen('privacy', 'public', GUEST_MEMBER),\n    screen('extra', 'public', GUEST_MEMBER),",
     ));
   });
   try {

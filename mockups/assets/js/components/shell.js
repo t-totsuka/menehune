@@ -10,7 +10,9 @@
 //   Escape closes it.
 // - mk-site-footer: links to the attribution and privacy pages.
 // - mk-guest-notice (6.5, 6.8): variant read-only (default) / private-post, with a login link.
-//   Showing it only to guests is the page's job ([data-when-auth="guest"]).
+//   Showing it only to guests is the page's job ([data-when-auth="guest"]). With the boolean
+//   `band` attribute (task 8.1) it renders the full-width band that every screen but login places
+//   right after mk-site-header: a region named by guest-notice.band-label.
 // - mk-status-badge (6.6, 13.3): PostStatus as color + symbol + text.
 // - mk-admin-band (3.6): band that marks a screen as admin-only.
 //
@@ -258,7 +260,7 @@
   const NOTICE_VARIANTS = ['read-only', 'private-post'];
 
   class GuestNotice extends MockElement {
-    static observedAttributes = ['variant'];
+    static observedAttributes = ['variant', 'band'];
 
     /** @param {MockStateSnapshot} state */
     render(state) {
@@ -268,9 +270,15 @@
       if (isOneOf(NOTICE_VARIANTS, attr)) variant = attr;
       else if (attr !== null) console.warn(`[mk-guest-notice] unknown variant="${attr}"; using read-only`);
       const message = variant === 'private-post' ? this.t('guest-notice.private-post') : this.t('guest-notice.read-only');
-      this.replaceChildren(this.el('div', { class: 'mk-guest-notice', 'data-variant': variant },
-        this.el('p', { class: 'mk-guest-notice__text' }, message),
-        this.el('a', { class: 'mk-guest-notice__login', href: screenHref('login', state) }, this.t('guest-notice.login'))));
+      const text = this.el('p', { class: 'mk-guest-notice__text' }, message);
+      const login = this.el('a', { class: 'mk-guest-notice__login', href: screenHref('login', state) }, this.t('guest-notice.login'));
+      if (this.hasAttribute('band')) {
+        // Task 8.1: the full-width band below the site header (one per screen, the same on all).
+        this.replaceChildren(this.el('section', { class: 'mk-guest-band', 'data-variant': variant, 'aria-label': this.t('guest-notice.band-label') },
+          this.el('div', { class: 'mk-guest-band__inner' }, text, login)));
+        return;
+      }
+      this.replaceChildren(this.el('div', { class: 'mk-guest-notice', 'data-variant': variant }, text, login));
     }
   }
 

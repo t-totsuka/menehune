@@ -101,7 +101,7 @@
           <tbody>
             <tr data-element="mk-site-header"><th scope="row"><a href="#sec-shell-header"><code>mk-site-header</code></a></th><td>shell.js</td><td><ul><li>属性なし</li><li><code>current="star-chart"</code></li><li>スマートフォン幅（メニューの折りたたみ）</li></ul></td><td>ログイン状態（ログイン・表示名・管理）、言語、テーマ</td></tr>
             <tr data-element="mk-site-footer"><th scope="row"><a href="#sec-shell-footer"><code>mk-site-footer</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
-            <tr data-element="mk-guest-notice"><th scope="row"><a href="#sec-shell-notice"><code>mk-guest-notice</code></a></th><td>shell.js</td><td><ul><li><code>variant="read-only"</code>（既定）</li><li><code>variant="private-post"</code></li></ul></td><td>常に表示（出し分けは画面側の <code>data-when-auth</code>）</td></tr>
+            <tr data-element="mk-guest-notice"><th scope="row"><a href="#sec-shell-notice"><code>mk-guest-notice</code></a></th><td>shell.js</td><td><ul><li><code>variant="read-only"</code>（既定）</li><li><code>variant="private-post"</code></li><li><code>band</code>（ヘッダーの直下に置く全幅の帯。ログイン以外の全画面で使う）</li></ul></td><td>常に表示（出し分けは画面側の <code>data-when-auth</code>）</td></tr>
             <tr data-element="mk-status-badge"><th scope="row"><a href="#sec-shell-badge"><code>mk-status-badge</code></a></th><td>shell.js</td><td><code>status</code>：public、members-only、hidden、deleted</td><td>言語</td></tr>
             <tr data-element="mk-admin-band"><th scope="row"><a href="#sec-shell-admin"><code>mk-admin-band</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
             <tr data-element="mk-month-calendar"><th scope="row"><a href="#sec-almanac-2026-11"><code>mk-month-calendar</code></a></th><td>almanac.js</td><td><ul><li><code>month="2026-11"</code></li><li><code>month="2027-03"</code>（予定の祝日）</li><li>スマートフォン幅（小さな格子と要約パネル）</li></ul></td><td>言語（曜日・祝日名）</td></tr>
@@ -253,6 +253,8 @@
       <mk-guest-notice id="notice-read-only"></mk-guest-notice>
       <p class="text-muted"><code>variant="private-post"</code></p>
       <mk-guest-notice id="notice-private-post" variant="private-post"></mk-guest-notice>
+      <p class="text-muted"><code>band</code>（画面では <code>mk-site-header</code> の直下、<code>&lt;main&gt;</code> の前に置く）</p>
+      <mk-guest-notice id="notice-band" band></mk-guest-notice>
 
       <h3 id="sec-shell-badge"><code>mk-status-badge</code></h3>
       <div class="l-cluster">

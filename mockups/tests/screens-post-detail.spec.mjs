@@ -3,7 +3,8 @@
 //   scenario or auth is switched at run time through MockState.update / the review shell.
 // - Content view: body, author, target date, status badge, like (mk-like-button), report link
 //   (mk-report-link, not for the viewer's own post), location panel under an h2, comment tree.
-//   Guests get the read-only notice instead of the actions; members get a mock comment form.
+//   Guests get no actions (the read-only notice is the band above <main>, task 8.1); members get
+//   a mock comment form.
 // - guest + a post that guests cannot see (private-blocked): the private-post notice replaces it.
 // - hidden posts: the author (member, hidden-own) sees the post with its hidden status and a link
 //   to the appeal screen; everybody else (hidden-other, and guest + hidden-own) sees a notice.
@@ -132,11 +133,12 @@ test.describe('post-detail: default post (6.1, 6.7, 6.8, 7.2〜7.4, 8.3)', () =>
     await expect(content.locator('mk-map-sample')).toHaveCount(1);
     await expect(content.locator('mk-weather')).toContainText('11.8');
 
-    // likes: count only; no report link; the read-only notice stands in for the actions
+    // likes: count only; no report link; the read-only notice is the band above <main> (task 8.1)
     await expect(content.locator('mk-like-button button')).toHaveCount(0);
     await expect(content.locator('mk-like-button')).toContainText(ja['like.count'].replace('{count}', '12'));
     await expect(content.locator('a.mk-report-link')).toHaveCount(0);
-    const notice = content.locator('mk-guest-notice:visible');
+    await expect(content.locator('mk-guest-notice')).toHaveCount(0);
+    const notice = page.locator('body > mk-guest-notice[band]:visible');
     await expect(notice).toHaveCount(1);
     await expect(notice).toContainText(ja['guest-notice.read-only']);
     await expect(notice.getByRole('link', { name: ja['guest-notice.login'] })).toHaveAttribute('href', /login\.html/);
@@ -159,7 +161,7 @@ test.describe('post-detail: default post (6.1, 6.7, 6.8, 7.2〜7.4, 8.3)', () =>
     await expect(report).toHaveCount(1);
     await expect(report).toHaveAttribute('href', /report\.html\?.*target=p-101/);
     await expect(report).toHaveAttribute('href', /auth=member/);
-    await expect(content.locator('mk-guest-notice:visible')).toHaveCount(0);
+    await expect(page.locator('mk-guest-notice:visible')).toHaveCount(0);
     const form = content.locator('[data-comment-form]');
     await expect(form).toBeVisible();
     await expect(form.getByLabel(ja['screen.post-detail.comment-label'])).toBeVisible();

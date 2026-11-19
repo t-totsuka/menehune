@@ -3,7 +3,8 @@
 // - calendar-month: 2026-11 by default, 2027-03 in the provisional-holiday scenario.
 // - day-detail: ?date=YYYY-MM-DD (default: the sample "today"); full almanac incl. the day's
 //   events, rise / set, and the posts tied to that day (members-only ones for members only).
-// - all three: guest notice for guests and create-post entry points for members only,
+// - all three: create-post entry points for members only (the guest notice is the band above
+//   <main> since task 8.1, see screens-guest-band.spec),
 //   decoration marked with data-decor, a valid heading hierarchy, and no console errors or
 //   warnings in wireframe / hifi x ja / en x guest / member.
 import { test, expect } from '@playwright/test';
@@ -77,8 +78,9 @@ test.describe('task 5.1 screens: switching without console problems', () => {
             await expect(page.locator('main h2').first()).toBeVisible();
             await expect(page.locator('main')).not.toContainText('⟦');
             await expect(page.locator('main [data-missing-sample]')).toHaveCount(0);
-            // guest notice for guests, create-post entry points for members only
-            await expect(page.locator('main mk-guest-notice:visible')).toHaveCount(auth === 'guest' && id !== 'calendar-month' ? 1 : 0);
+            // the guest notice is the band above <main> (task 8.1); create-post entry points for members only
+            await expect(page.locator('main mk-guest-notice')).toHaveCount(0);
+            await expect(page.locator('body > mk-guest-notice[band]:visible')).toHaveCount(auth === 'guest' ? 1 : 0);
             const create = page.locator('main a[href*="post-edit.html"]:visible');
             if (auth === 'member') {
               await expect(create).toHaveCount(1);

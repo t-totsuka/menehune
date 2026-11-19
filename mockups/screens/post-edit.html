@@ -13,13 +13,16 @@
 </head>
 <body data-screen-id="post-edit">
   <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.post-edit.title">投稿の作成・編集</h1>
-    <!-- Guests get the read-only notice with the login link instead of the form. The page script at
+    <!-- Guests get a one-line reason instead of the form; the read-only notice with the login link is
+         the band above <main> (task 8.1). The page script at
          the end fills the form (?post= of the viewer's own post, ?date= from day-detail) and follows
          the scenario: validation-error puts a past date into the date field with its error. -->
     <div data-when-auth="guest" data-guest-prompt>
-      <mk-guest-notice></mk-guest-notice>
+      <p data-i18n="screen.post-edit.login-required">投稿を作成・編集するには、ログインしてください。</p>
     </div>
 
     <form class="screen-form l-stack" data-when-auth="member" data-member-content novalidate>

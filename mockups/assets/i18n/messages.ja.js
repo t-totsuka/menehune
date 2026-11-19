@@ -27,6 +27,7 @@
     'guest-notice.read-only': 'ログインしていないため、閲覧のみできます。投稿・コメント・いいね・通報をするにはログインしてください。',
     'guest-notice.private-post': 'この投稿は、ログインしたユーザだけが見られる設定になっています。',
     'guest-notice.login': 'ログインする',
+    'guest-notice.band-label': 'ログインの案内',
     'admin-band.label': '管理者専用',
     'admin-band.description': 'この画面は管理者だけが表示できます。',
 
@@ -182,6 +183,7 @@
     'screen.post-edit.location-on': '投稿に位置情報を付ける',
     'screen.post-edit.location-hint': 'ほかの人には、下で選んだ精度でだけ位置が公開されます。',
     'screen.post-edit.mock-note': 'このモックアップでは、投稿しても保存されません。',
+    'screen.post-edit.login-required': '投稿を作成・編集するには、ログインしてください。',
     'screen.my-posts.login-required': '自分の投稿の一覧を見るには、ログインしてください。',
     'screen.my-posts.new-post': '新しく投稿する',
     'screen.my-posts.empty': 'まだ投稿していません。',

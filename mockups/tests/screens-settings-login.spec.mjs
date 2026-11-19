@@ -112,8 +112,10 @@ test.describe('settings (8.2)', () => {
     await page.goto(urlOf('settings', '?lang=en'));
     const prompt = page.locator('main [data-guest-prompt]');
     await expect(prompt).toBeVisible();
-    await expect(prompt).toContainText(en['screen.settings.login-required']);
-    await expect(prompt.locator('a[href*="login.html"]')).toHaveText(en['guest-notice.login']);
+    await expect(prompt).toHaveText(en['screen.settings.login-required']);
+    // task 8.1: the login link is in the band above <main>, not in the prompt
+    await expect(prompt.locator('a')).toHaveCount(0);
+    await expect(page.locator('body > mk-guest-notice[band]').locator('a[href*="login.html"]')).toHaveText(en['guest-notice.login']);
     await expect(page.locator('main #settings-display-name')).toBeHidden();
   });
 

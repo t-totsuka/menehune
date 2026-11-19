@@ -27,6 +27,7 @@
     'guest-notice.read-only': "You're browsing as a guest, so you can only read. Log in to post, comment, like or report.",
     'guest-notice.private-post': 'This post is visible only to logged-in users.',
     'guest-notice.login': 'Log in',
+    'guest-notice.band-label': 'Login notice',
     'admin-band.label': 'Administrators only',
     'admin-band.description': 'Only administrators can view this screen.',
 
@@ -182,6 +183,7 @@
     'screen.post-edit.location-on': 'Attach a location to the post',
     'screen.post-edit.location-hint': 'Other people see the location only at the precision chosen below.',
     'screen.post-edit.mock-note': 'In this mockup, posting does not save anything.',
+    'screen.post-edit.login-required': 'Log in to write or edit a post.',
     'screen.my-posts.login-required': 'Log in to see the list of your posts.',
     'screen.my-posts.new-post': 'Write a new post',
     'screen.my-posts.empty': 'You have not posted anything yet.',

@@ -13,13 +13,14 @@
 </head>
 <body data-screen-id="top">
   <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
   <!-- Task 8.1 (wireframe review of 2026-11-19): posts are the main content. From 960px the
-       page has two columns 1:3; the narrow one holds the guest notice, today's almanac and the
-       upcoming events, the wide one the posts. Reading order (and the phone layout) is notice,
-       today, posts, events. -->
+       page has two columns 1:3; the narrow one holds today's almanac and the upcoming events, the
+       wide one the posts. Reading order (and the phone layout) is today, posts, events. The guest
+       notice is the band above <main> (cross-screen note of the same day). -->
   <main class="l-container screen-top">
     <h1 class="visually-hidden" data-i18n="screen.top.title">トップ</h1>
-    <mk-guest-notice class="screen-top-side screen-top-notice" data-when-auth="guest"></mk-guest-notice>
 
     <section class="screen-section screen-top-side screen-top-today l-stack" aria-labelledby="top-today">
       <h2 id="top-today"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.top.today">今日の暦</span></h2>

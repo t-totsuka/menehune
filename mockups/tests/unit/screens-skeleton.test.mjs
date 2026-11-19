@@ -104,6 +104,22 @@ for (const id of SCREEN_IDS) {
   });
 }
 
+// Task 8.1 (cross-screen review note of 2026-11-19): one guest band, the same markup right after
+// the site header, on every screen but login; no other read-only notice is left on the screens
+// (post-detail keeps its private-post notice, which replaces a post guests cannot see).
+// Only whitespace and comments may sit between the header, the band and <main>.
+const GUEST_BAND = /<mk-site-header><\/mk-site-header>\s*(?:<!--[\s\S]*?-->\s*)*<mk-guest-notice band data-when-auth="guest"><\/mk-guest-notice>\s*(?:<!--[\s\S]*?-->\s*)*<main[\s>]/;
+for (const id of SCREEN_IDS) {
+  test(`screens/${id}.html: ${id === 'login' ? 'no guest band (login screen)' : 'the guest band right after the header'}`, () => {
+    const html = readFileSync(join(root, `screens/${id}.html`), 'utf8');
+    const notices = html.match(/<mk-guest-notice\b[^>]*>/g) ?? [];
+    const expected = id === 'login' ? [] : ['<mk-guest-notice band data-when-auth="guest">'];
+    if (id === 'post-detail') expected.push('<mk-guest-notice variant="private-post">');
+    assert.deepEqual(notices, expected);
+    if (id !== 'login') assert.match(html, GUEST_BAND, 'band between mk-site-header and main');
+  });
+}
+
 test('components.html loads the same assets in the same order', () => {
   assertOrderedAssets('components.html', '');
 });

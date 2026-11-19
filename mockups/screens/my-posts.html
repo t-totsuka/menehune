@@ -13,16 +13,16 @@
 </head>
 <body data-screen-id="my-posts">
   <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.my-posts.title">自分の投稿</h1>
-    <!-- Guests get a login prompt instead of the list. For members the page script at the end lists
+    <!-- Guests get a one-line reason (the notice with the login link is the band above <main>,
+         task 8.1) instead of the list. For members the page script at the end lists
          the viewer's own posts (SampleDataSet.viewerIds.member, every status including deleted,
          newest first) with the visibility setting; empty and fetch-error replace the list. -->
     <div data-when-auth="guest" data-guest-prompt>
-      <div class="screen-notice l-stack" role="note">
-        <p data-i18n="screen.my-posts.login-required">自分の投稿の一覧を見るには、ログインしてください。</p>
-        <p><a href="login.html" data-i18n="guest-notice.login">ログインする</a></p>
-      </div>
+      <p data-i18n="screen.my-posts.login-required">自分の投稿の一覧を見るには、ログインしてください。</p>
     </div>
 
     <div class="l-stack" data-when-auth="member" data-member-content>

@@ -340,7 +340,8 @@ type BooleanAttr = string;
 
 interface SiteHeaderAttrs { readonly current?: 'calendar' | 'astro-events' | 'star-chart' | 'my-posts' | 'settings' | 'admin'; }
 type SiteFooterAttrs = Readonly<Record<string, never>>;
-interface GuestNoticeAttrs { readonly variant?: 'read-only' | 'private-post'; }
+/** `band` (boolean, task 8.1) renders the full-width band placed right after mk-site-header on every screen but login */
+interface GuestNoticeAttrs { readonly variant?: 'read-only' | 'private-post'; readonly band?: ''; }
 interface StatusBadgeAttrs { readonly status: PostStatus; }
 type AdminBandAttrs = Readonly<Record<string, never>>;
 

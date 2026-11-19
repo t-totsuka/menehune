@@ -13,6 +13,8 @@
 </head>
 <body data-screen-id="admin">
   <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.admin.title">管理</h1>
     <!-- Admin only (3.6): guests and members get the no-permission notice; the admin gets the band,

@@ -152,7 +152,9 @@ test('changing a registry review status changes the index display', async ({ pag
   await expect(login.locator('td').nth(1).locator('[data-review-state]')).toHaveText(/修正依頼/);
   await expect(login.locator('td').nth(2).locator('[data-provisional]')).toHaveText(/未確定/);
   // Other rows keep the registry values.
-  await expect(row(page, 'admin').locator('td').nth(1).locator('[data-review-state]')).toHaveText(/下書き/);
+  // (admin: in-review since the cross-screen note of task 8.1)
+  await expect(row(page, 'admin').locator('td').nth(1).locator('[data-review-state]')).toHaveText(/レビュー中/);
+  await expect(row(page, 'admin').locator('td').nth(1).locator('[data-review-state]')).toHaveAttribute('data-review-state', screens.find((s) => s.id === 'admin')?.review.wireframe.status ?? '');
   expect(problems).toEqual([]);
 });
 

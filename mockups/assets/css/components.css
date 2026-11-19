@@ -241,6 +241,36 @@ mk-status-badge {
   font-weight: var(--font-weight-medium);
 }
 
+/* Band variant (task 8.1): full width right below the site header, the content aligned with the
+   header and the page container. Same colors as the boxed notice (text and link on surface-muted). */
+.mk-guest-band {
+  border-block-end: var(--border-default);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.mk-guest-band__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-md);
+  max-width: var(--bp-lg);
+  margin-inline: auto;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+}
+
+.mk-guest-band__inner .mk-guest-notice__text {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 600px) {
+  .mk-guest-band__inner {
+    padding-inline: var(--space-lg);
+  }
+}
+
 /* ---- mk-status-badge: color + symbol + text (13.3) ---- */
 .mk-status-badge {
   display: inline-flex;
@@ -1550,7 +1580,7 @@ mk-weather {
 @media (min-width: 960px) {
   .screen-top {
     grid-template-columns: minmax(min(100%, calc(var(--space-2xl) * 5)), 1fr) minmax(0, 3fr);
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto 1fr;
     align-items: start;
   }
 
@@ -1560,17 +1590,13 @@ mk-weather {
 
   .screen-top-posts {
     grid-column: 2;
-    grid-row: 1 / span 3;
+    grid-row: 1 / span 2;
   }
 
-  /* Rows of the side column hug their content; the last one takes the rest. */
-  .screen-top-notice { grid-row: 1; }
-  .screen-top-today { grid-row: 2; }
-  .screen-top-events { grid-row: 3; }
-
-  /* Without the guest notice (logged in) the side column starts with today's almanac. */
-  .screen-top-notice[hidden] + .screen-top-today { grid-row: 1; }
-  .screen-top-notice[hidden] ~ .screen-top-events { grid-row: 2 / span 2; }
+  /* Rows of the side column: today's almanac hugs its content, the events take the rest. The
+     guest notice is the band above <main> (task 8.1), not a row of this grid. */
+  .screen-top-today { grid-row: 1; }
+  .screen-top-events { grid-row: 2; }
 
   /* The narrow column is phone-sized: event rows and filters use one column there. */
   .screen-top-side .mk-event,

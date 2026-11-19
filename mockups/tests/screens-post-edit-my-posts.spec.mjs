@@ -105,11 +105,14 @@ for (const id of ['post-edit', 'my-posts']) {
 }
 
 test.describe('post-edit (6.2, 6.3)', () => {
+  // Task 8.1: the login link is in the band above <main>; the prompt only says why the form is missing.
   test('guest: a login prompt instead of the form', async ({ page }) => {
     await page.goto(urlOf('post-edit', '?lang=ja'));
     const prompt = page.locator('main [data-guest-prompt]');
     await expect(prompt).toBeVisible();
-    await expect(prompt.locator('a[href*="login.html"]')).toBeVisible();
+    await expect(prompt).toHaveText(ja['screen.post-edit.login-required']);
+    await expect(prompt.locator('a, mk-guest-notice')).toHaveCount(0);
+    await expect(page.locator('body > mk-guest-notice[band]').locator('a[href*="login.html"]')).toBeVisible();
     await expect(page.locator('main #post-target-date')).toBeHidden();
   });
 
@@ -229,8 +232,9 @@ test.describe('my-posts (6.6, 3.4, 3.5)', () => {
     await page.goto(urlOf('my-posts', '?lang=en'));
     const prompt = page.locator('main [data-guest-prompt]');
     await expect(prompt).toBeVisible();
-    await expect(prompt).toContainText(en['screen.my-posts.login-required']);
-    await expect(prompt.locator('a[href*="login.html"]')).toHaveText(en['guest-notice.login']);
+    await expect(prompt).toHaveText(en['screen.my-posts.login-required']);
+    await expect(prompt.locator('a')).toHaveCount(0);
+    await expect(page.locator('body > mk-guest-notice[band]').locator('a[href*="login.html"]')).toHaveText(en['guest-notice.login']);
     await expect(page.locator('main mk-post-card:visible')).toHaveCount(0);
   });
 

@@ -647,7 +647,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 |------|----------|----------|------------------|
 | mk-site-header | shell.js | `current` | ロゴ、ナビ（カレンダー、天文現象、星図、マイ投稿）、言語切替、テーマ切替、ログイン状態の表示（3.2、9.4、11.2）。スマートフォン幅ではメニューを折りたたむ |
 | mk-site-footer | shell.js | — | 出典表示とプライバシーポリシーへのリンク |
-| mk-guest-notice | shell.js | `variant` | 閲覧のみであることと、ログインへの導線（6.8）。非公開投稿を開いたときの案内（6.5） |
+| mk-guest-notice | shell.js | `variant`、`band` | 閲覧のみであることと、ログインへの導線（6.8）。非公開投稿を開いたときの案内（6.5）。`band` では、ヘッダーの直下に置く全幅の帯（名前付きの region）として描く（全画面共通の指摘、8.1） |
 | mk-status-badge | shell.js | `status` | 公開中、ログインユーザのみ、一時非表示、削除済みを、色と記号と文字で表示する（6.6、13.3） |
 | mk-admin-band | shell.js | — | 管理者専用であることを示す帯（3.6） |
 | mk-month-calendar | almanac.js | `month` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3） |
@@ -672,7 +672,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 ### Pages
 
 #### Screens
-- 骨格：`<body data-screen-id="{id}">` の中に、mk-site-header、`<main>`、mk-site-footer を置く。CSS は tokens、base、components、wireframe、review の順に、JS は theme-boot（head）、data、i18n 辞書、mock-state、i18n、components/base、各部品、review-shell の順に読み込む（すべて `defer` なしの classic script を body の末尾に置く。theme-boot だけ head）
+- 骨格：`<body data-screen-id="{id}">` の中に、mk-site-header、`<main>`、mk-site-footer を置く。ログイン以外の画面では、mk-site-header と `<main>` の間に、未ログインの案内の帯（`<mk-guest-notice band data-when-auth="guest">`）を置く（ワイヤーフレームのレビューの指摘、8.1）。CSS は tokens、base、components、wireframe、review の順に、JS は theme-boot（head）、data、i18n 辞書、mock-state、i18n、components/base、各部品、review-shell の順に読み込む（すべて `defer` なしの classic script を body の末尾に置く。theme-boot だけ head）
 - 装飾要素には `data-decor` を付ける。状態で出し分ける要素には `data-when-auth` と `data-when-scenario` を付ける
 - 管理画面（admin.html）は mk-admin-band を持ち、guest と member では「権限がありません」の表示に切り替わる（3.6）
 - 出典表示とプライバシーポリシーは章立てと例文のみとする。プライバシーポリシーには取得項目（Google のアカウント識別子、表示名、任意の位置情報）の例を記載する

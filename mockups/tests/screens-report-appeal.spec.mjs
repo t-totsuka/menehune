@@ -101,8 +101,10 @@ for (const id of ['report', 'appeal']) {
             await expect(page.locator('main [data-member-content]:visible')).toHaveCount(auth === 'guest' ? 0 : 1);
             if (auth === 'guest') {
               const prompt = page.locator('main [data-guest-prompt]');
-              await expect(prompt).toContainText(dict[`screen.${id}.login-required`]);
-              await expect(prompt.locator('a[href*="login.html"]')).toHaveText(dict['guest-notice.login']);
+              await expect(prompt).toHaveText(dict[`screen.${id}.login-required`]);
+              // task 8.1: the login link is in the band above <main>, not in the prompt
+              await expect(prompt.locator('a')).toHaveCount(0);
+              await expect(page.locator('body > mk-guest-notice[band]').locator('a[href*="login.html"]')).toHaveText(dict['guest-notice.login']);
             } else {
               await expect(page.locator('main form textarea:visible')).toHaveCount(1);
               expect(await unlabelledIn(page)).toEqual([]);

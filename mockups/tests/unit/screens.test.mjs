@@ -96,7 +96,8 @@ test('authStates are valid, unique, include the default guest, and admin can swi
 });
 
 // Screens whose wireframe review has been recorded by a person (see data/screens.js).
-const REVIEWED_WIREFRAMES = new Map([['top', 'in-review']]);
+// Task 8.1: every screen got the cross-screen note of 2026-11-19 and is back to in-review.
+const REVIEWED_WIREFRAMES = new Map(SCREEN_IDS.map((id) => [id, 'in-review']));
 
 test('review statuses are valid, unreviewed stages are draft and the hifi/wireframe invariant holds', () => {
   for (const s of registry()) {
@@ -127,9 +128,29 @@ test('top: the 2026-11-19 review notes are kept and each outcome is recorded', (
   const notes = [...(top.notes ?? [])];
   const original = notes.filter((n) => !/^(反映|見送り)（8\.1）：/.test(n));
   const outcomes = notes.filter((n) => /^(反映|見送り)（8\.1）：/.test(n));
-  assert.equal(original.length, 5);
+  assert.equal(original.length, 6);
   assert.ok(outcomes.length >= original.length, 'every note has an applied / deferred entry');
   assert.ok(outcomes.some((n) => n.startsWith('見送り')), 'the deferred member location basis is recorded');
+  assert.ok(original.includes(GUEST_BAND_NOTE), 'the cross-screen note is recorded for top too');
+});
+
+// Task 8.1 (cross-screen note of 2026-11-19): the guest notice is one band right below the header
+// on every screen. Every screen records the note (in the user's words) and its outcome; login is
+// the only screen where it is deferred (no band on the login screen itself).
+const GUEST_BAND_NOTE = '「ログインしていないため、閲覧のみ・・・」は全画面通して一番上にエリアを作って表示に統一';
+
+test('every screen records the 2026-11-19 guest band note and its outcome', () => {
+  for (const s of registry()) {
+    const wf = s.review.wireframe;
+    assert.equal(wf.status, 'in-review', `${s.id} back to in-review (only a person approves)`);
+    assert.equal(wf.reviewedAt, '2026-11-19', `${s.id} reviewedAt`);
+    const notes = [...(wf.notes ?? [])];
+    const at = notes.indexOf(GUEST_BAND_NOTE);
+    assert.ok(at >= 0, `${s.id} records the note`);
+    const outcome = notes[at + 1] ?? '';
+    const expected = s.id === 'login' ? /^見送り（8\.1）：/ : /^反映（8\.1）：/;
+    assert.match(outcome, expected, `${s.id} outcome right after the note`);
+  }
 });
 
 test('registry and every nested object is frozen', () => {

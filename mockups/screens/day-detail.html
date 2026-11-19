@@ -13,6 +13,8 @@
 </head>
 <body data-screen-id="day-detail">
   <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
   <main class="l-container l-stack">
     <h1 data-i18n="screen.day-detail.title">日の詳細</h1>
     <!-- The date comes from ?date=YYYY-MM-DD (the page script at the end sets every [data-day-date]). -->
@@ -34,7 +36,6 @@
 
     <section class="screen-section l-stack" aria-labelledby="day-posts">
       <h2 id="day-posts"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.day-detail.posts">この日の投稿</span></h2>
-      <mk-guest-notice data-when-auth="guest"></mk-guest-notice>
       <p data-when-auth="member" data-day-new-post>
         <a class="button" href="post-edit.html?auth=member" data-i18n="screen.day-detail.new-post">この日について投稿する</a>
       </p>

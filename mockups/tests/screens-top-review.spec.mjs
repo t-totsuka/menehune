@@ -2,7 +2,9 @@
 // (Requirements 1.3, 1.4, 4.7, 12.1, 12.2, 13.3, 13.4).
 //   1. no visible "トップ" heading: the h1 stays for assistive technology (visually hidden)
 //   2. posts are the main content: from 960px (--bp-md) two columns 1:3, posts in the wide one
-//   3. the narrow column holds the guest notice, today's almanac and the upcoming events
+//   3. the narrow column holds today's almanac and the upcoming events (the guest notice was
+//      there until the cross-screen note of the same day moved it to the band above <main>,
+//      see screens-guest-band.spec)
 //   4. the period / kind filters of the event list are folded into an accordion (<details>)
 //   5. today's almanac shows a moon figure drawn from the moon age and a rise / set chart
 //      (sun and moon above the horizon over 0-24h), with the basis place (Tokyo) labelled;
@@ -50,7 +52,7 @@ test.describe('top: review note 1 (no visible title heading)', () => {
 
 test.describe('top: review notes 2 and 3 (1:3 columns, posts in the wide one)', () => {
   for (const auth of ['guest', 'member']) {
-    test(`PC width (${auth}): side column 1, posts column 3; side holds notice, today, events`, async ({ page }) => {
+    test(`PC width (${auth}): side column 1, posts column 3; side holds today, events`, async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(urlOf('top', `?lang=ja&auth=${auth}`));
       const side = page.locator('main .screen-top-side');
@@ -63,7 +65,7 @@ test.describe('top: review notes 2 and 3 (1:3 columns, posts in the wide one)', 
           return el ? el.getBoundingClientRect() : null;
         };
         return {
-          notice: rect('main mk-guest-notice'),
+          band: rect('body > mk-guest-notice[band]'),
           today: rect('main [aria-labelledby="top-today"]'),
           events: rect('main [aria-labelledby="top-events"]'),
           posts: rect('main [aria-labelledby="top-posts"]'),
@@ -81,21 +83,23 @@ test.describe('top: review notes 2 and 3 (1:3 columns, posts in the wide one)', 
       expect(ratio).toBeGreaterThan(2.6);
       expect(ratio).toBeLessThan(3.4);
       if (auth === 'guest') {
-        const n = /** @type {DOMRect} */ (layout.notice);
-        expect(Math.abs(n.left - t.left)).toBeLessThanOrEqual(1);
+        // the guest notice is the full-width band above both columns
+        const n = /** @type {DOMRect} */ (layout.band);
         expect(n.bottom).toBeLessThanOrEqual(t.top + 1);
+        expect(n.bottom).toBeLessThanOrEqual(p.top + 1);
       }
-      await expect(page.locator('main .screen-top-side:visible')).toHaveCount(auth === 'guest' ? 3 : 2);
-      await expect(side).toHaveCount(3);
+      await expect(page.locator('main mk-guest-notice')).toHaveCount(0);
+      await expect(page.locator('main .screen-top-side:visible')).toHaveCount(2);
+      await expect(side).toHaveCount(2);
     });
   }
 
-  test('phone width: one column in reading order notice, today, posts, events', async ({ page }) => {
+  test('phone width: one column in reading order band, today, posts, events', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto(urlOf('top', '?lang=ja'));
     const order = await page.evaluate(() => {
       const items = [
-        ['notice', 'main mk-guest-notice'],
+        ['band', 'body > mk-guest-notice[band]'],
         ['today', 'main [aria-labelledby="top-today"]'],
         ['posts', 'main [aria-labelledby="top-posts"]'],
         ['events', 'main [aria-labelledby="top-events"]'],
@@ -107,12 +111,13 @@ test.describe('top: review notes 2 and 3 (1:3 columns, posts in the wide one)', 
     });
     const tops = order.map((o) => o.top);
     expect([...tops].sort((a, b) => a - b)).toEqual(tops);
-    const lefts = new Set(order.map((o) => Math.round(o.left)));
+    // the band spans the page; the main items share one column
+    const lefts = new Set(order.filter((o) => o.name !== 'band').map((o) => Math.round(o.left)));
     expect(lefts.size).toBe(1);
     // DOM order equals the visual order of the phone layout (reading and focus order)
     const domOrder = await page.evaluate(() => [...document.querySelectorAll('main > *')]
       .map((el) => el.getAttribute('aria-labelledby') ?? el.localName));
-    expect(domOrder).toEqual(['h1', 'mk-guest-notice', 'top-today', 'top-posts', 'top-events']);
+    expect(domOrder).toEqual(['h1', 'top-today', 'top-posts', 'top-events']);
   });
 });
 

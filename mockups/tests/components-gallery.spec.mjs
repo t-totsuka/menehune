@@ -123,7 +123,9 @@ test.describe('main variants', () => {
     await open(page, 1440);
     for (const p of PRECISIONS) await expect(page.locator(`main mk-map-sample[precision="${p}"]`).first(), p).toBeVisible();
     for (const s of ['public', 'members-only', 'hidden', 'deleted']) await expect(page.locator(`main mk-status-badge[status="${s}"]`).first(), s).toBeVisible();
-    await expect(page.locator('main mk-guest-notice:not([variant])')).toHaveCount(1);
+    await expect(page.locator('main mk-guest-notice:not([variant]):not([band])')).toHaveCount(1);
+    await expect(page.locator('main mk-guest-notice[band]')).toHaveCount(1);
+    await expect(page.locator('main mk-guest-notice[band]').getByRole('region', { name: 'ログインの案内' })).toHaveCount(1);
     await expect(page.locator('main mk-guest-notice[variant="private-post"]')).toHaveCount(1);
     await expect(page.locator('main mk-day-cell[compact]')).not.toHaveCount(0);
     await expect(page.locator('main mk-post-card[variant="compact"]')).not.toHaveCount(0);

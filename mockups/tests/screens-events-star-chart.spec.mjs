@@ -73,8 +73,10 @@ test.describe('task 5.2 screens: switching without console problems', () => {
             await expect(page.locator('main h2').first()).toBeVisible();
             await expect(page.locator('main')).not.toContainText('⟦');
             await expect(page.locator('main [data-missing-sample]')).toHaveCount(0);
-            // no posting / commenting on these screens: no guest notice, no create-post entry point
+            // no posting / commenting on these screens: no notice in <main>, no create-post entry
+            // point; the read-only notice is the band above <main> on every screen (task 8.1)
             await expect(page.locator('main mk-guest-notice')).toHaveCount(0);
+            await expect(page.locator('body > mk-guest-notice[band]:visible')).toHaveCount(auth === 'guest' ? 1 : 0);
             await expect(page.locator('main a[href*="post-edit.html"]')).toHaveCount(0);
             // decoration is marked and hidden on the wireframe stage
             const decor = page.locator('main [data-decor]');
