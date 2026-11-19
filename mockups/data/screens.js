@@ -149,8 +149,21 @@
       }),
       DRAFT,
     )),
-    screen('post-edit', 'member', GUEST_MEMBER, ['validation-error'], guestBandReview(
-      '反映（8.1）：フォームの代わりに出していた案内を、ヘッダーの直下の全幅の帯に移した。フォームを出さない理由は、本文に 1 行の文として残した（ログインの導線は帯だけ。README の論点）',
+    screen('post-edit', 'member', GUEST_MEMBER, ['validation-error'], review(
+      Object.freeze({
+        // 2026-11-19 の画面ごとの指摘をタスク 8.1 で反映し、再レビュー待ちのままにした
+        status: 'in-review',
+        reviewedAt: '2026-11-19',
+        notes: Object.freeze([
+          GUEST_BAND_NOTE,
+          '反映（8.1）：フォームの代わりに出していた案内を、ヘッダーの直下の全幅の帯に移した。フォームを出さない理由は、本文に 1 行の文として残した（ログインの導線は帯だけ。README の論点）',
+          '位置の公開精度はアコーディオンで',
+          '反映（8.1）：位置の公開精度の選択を、閉じたアコーディオン（details と summary）にした（mk-precision-picker collapsed。opt-in で、設定画面と部品ギャラリーの既定は開いたラジオグループのまま）。見出しに今の選択を「位置の公開精度：市区町村」のように出し、選び直すと追従する。中のラジオグループは凡例（legend）、ラベル、見え方の説明を保つ。入力エラーの例（validation-error）の誤りは対象日だけで、閉じたアコーディオンの中に誤りは隠れない。位置情報を付けないときは、アコーディオンごと隠す（README の論点）',
+          '編集エリアは大きめに取りたい',
+          '反映（8.1）：本文の入力欄を 12 行にし、最小の高さを 15rem（960px 以上は 24rem）にした。幅はフォームの全幅（最大 1280px のページ幅）で、375px でも横にスクロールしない（README の論点）',
+        ]),
+      }),
+      DRAFT,
     )),
     screen('my-posts', 'member', GUEST_MEMBER, ['empty', 'fetch-error'], guestBandReview(PROMPT_KEPT)),
     screen('settings', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),

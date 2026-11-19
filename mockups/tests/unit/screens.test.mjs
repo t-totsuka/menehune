@@ -217,6 +217,24 @@ test('post-detail: the 2026-11-19 review note is kept and its outcome follows it
   assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
 });
 
+// Task 8.1 (post-edit, 2026-11-19): two notes in the user's words, each followed right after by
+// its outcome; the guest band note and its outcome recorded earlier stay first.
+const POST_EDIT_NOTES = ['位置の公開精度はアコーディオンで', '編集エリアは大きめに取りたい'];
+
+test('post-edit: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
+  const wf = byId().get('post-edit').review.wireframe;
+  assert.equal(wf.status, 'in-review');
+  assert.equal(wf.reviewedAt, '2026-11-19');
+  const notes = [...(wf.notes ?? [])];
+  assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
+  assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');
+  for (const note of POST_EDIT_NOTES) {
+    const at = notes.indexOf(note);
+    assert.ok(at >= 2, `records "${note}" verbatim after the guest band outcome`);
+    assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, `outcome right after "${note}"`);
+  }
+});
+
 test('registry and every nested object is frozen', () => {
   const screens = registry();
   assert.ok(Object.isFrozen(screens));

@@ -1379,6 +1379,20 @@ mk-precision-picker {
   font-size: var(--font-size-sm);
 }
 
+/* `collapsed` (task 8.1, post-edit): the radio group folds into a <details>; the summary shows the
+   control's name and the current choice. */
+.mk-precision-picker__toggle {
+  display: grid;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.mk-precision-picker__summary {
+  font-weight: var(--font-weight-medium);
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
 /* ---- mk-map-sample (task 4.6; 7.2, 13.4): schematic SVG map, colors via token classes ---- */
 mk-map-sample {
   display: block;
@@ -1794,6 +1808,19 @@ mk-weather {
 .screen-form .field p {
   margin: 0;
   overflow-wrap: anywhere;
+}
+
+/* The post body (task 8.1, wireframe review): a large editing area across the full form width
+   (at least 15rem tall, 24rem from 960px). */
+.screen-post-body {
+  inline-size: 100%;
+  min-block-size: calc(var(--space-2xl) * 5);
+}
+
+@media (min-width: 960px) {
+  .screen-post-body {
+    min-block-size: calc(var(--space-2xl) * 8);
+  }
 }
 
 /* Error summary at the top of the form and the screen-level fetch error (my posts). */

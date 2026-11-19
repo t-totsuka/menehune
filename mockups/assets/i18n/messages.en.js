@@ -600,6 +600,8 @@
     // Location precision (LocationPrecision) and how other people see it
     'location.label': 'Location Precision',
     'location.none': 'No location',
+    'location.summary': '{label}: {precision}',
+    'location.unselected': 'Not chosen',
     'location.panel.title': 'Posted Location',
     'location.panel.rise-set': 'Sun and Moon Rise/Set Times',
     'location.precision.exact': 'Exact location',

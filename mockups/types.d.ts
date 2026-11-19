@@ -366,7 +366,8 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 interface LikeButtonAttrs { readonly 'post-id': string; }
 interface ReportLinkAttrs { readonly 'target-id': string; }
 
-interface PrecisionPickerAttrs { readonly value?: LocationPrecision; }
+/** `collapsed` (boolean, task 8.1) folds the radio group into a closed accordion whose summary shows the current choice */
+interface PrecisionPickerAttrs { readonly value?: LocationPrecision; readonly collapsed?: ''; }
 interface LocationPanelAttrs { readonly 'post-id': string; }
 /** `region` overrides the region name (Japanese free text); omitted means the first sample post with that precision */
 interface MapSampleAttrs { readonly precision: LocationPrecision; readonly region?: string; }

@@ -42,7 +42,8 @@
 
       <div class="field">
         <label for="post-body" data-i18n="screen.post-edit.body">本文</label>
-        <textarea id="post-body" name="body" rows="6"></textarea>
+        <!-- Task 8.1: a larger editing area (12 rows, a minimum height, full width). -->
+        <textarea class="screen-post-body" id="post-body" name="body" rows="12"></textarea>
       </div>
 
       <div class="screen-check">
@@ -57,7 +58,8 @@
         <p class="field-hint" id="post-location-hint" data-i18n="screen.post-edit.location-hint">ほかの人には、下で選んだ精度でだけ位置が公開されます。</p>
       </div>
       <div id="post-precision">
-        <mk-precision-picker value="municipality"></mk-precision-picker>
+        <!-- Task 8.1: folded into a closed accordion whose summary shows the current choice. -->
+        <mk-precision-picker value="municipality" collapsed></mk-precision-picker>
       </div>
 
       <div class="l-stack">

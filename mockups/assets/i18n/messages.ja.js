@@ -600,6 +600,8 @@
     // Location precision (LocationPrecision) and how other people see it
     'location.label': '位置の公開精度',
     'location.none': '位置情報なし',
+    'location.summary': '{label}：{precision}',
+    'location.unselected': '未選択',
     'location.panel.title': '投稿地点',
     'location.panel.rise-set': '投稿地点の日月の出没',
     'location.precision.exact': '正確な位置',

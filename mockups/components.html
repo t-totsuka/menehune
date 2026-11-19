@@ -114,7 +114,7 @@
             <tr data-element="mk-comment-tree"><th scope="row"><a href="#sec-comment-tree"><code>mk-comment-tree</code></a></th><td>posts.js</td><td><code>post-id</code>（深さ 7 と削除済み、コメントなし、サンプルなし）、スマートフォン幅（字下げ 3 段）</td><td>ログイン状態（コメントごとの通報の導線）、言語</td></tr>
             <tr data-element="mk-like-button"><th scope="row"><a href="#sec-like-button"><code>mk-like-button</code></a></th><td>posts.js</td><td><code>post-id</code>（サンプルなしを含む）</td><td>ログイン状態（未ログインは件数だけ）</td></tr>
             <tr data-element="mk-report-link"><th scope="row"><a href="#sec-report-link"><code>mk-report-link</code></a></th><td>posts.js</td><td><code>target-id</code>（投稿・コメント・サンプルなし）</td><td>ログイン状態（未ログインは表示しない）</td></tr>
-            <tr data-element="mk-precision-picker"><th scope="row"><a href="#sec-precision-picker"><code>mk-precision-picker</code></a></th><td>location.js</td><td>属性なし（未選択）、<code>value</code>：5 段階それぞれ</td><td>言語</td></tr>
+            <tr data-element="mk-precision-picker"><th scope="row"><a href="#sec-precision-picker"><code>mk-precision-picker</code></a></th><td>location.js</td><td>属性なし（未選択）、<code>value</code>：5 段階それぞれ、<code>collapsed</code>（閉じたアコーディオンにし、見出しに今の選択を出す）</td><td>言語</td></tr>
             <tr data-element="mk-map-sample"><th scope="row"><a href="#sec-map-sample"><code>mk-map-sample</code></a></th><td>location.js</td><td><code>precision</code>：5 段階、<code>region</code>、サンプルなし</td><td>段階（占位表示）、テーマ</td></tr>
             <tr data-element="mk-weather"><th scope="row"><a href="#sec-weather"><code>mk-weather</code></a></th><td>location.js</td><td><code>post-id</code>（晴れ・風あり・取得失敗・位置情報なし・サンプルなし）</td><td>言語</td></tr>
             <tr data-element="mk-location-panel"><th scope="row"><a href="#sec-location-panel"><code>mk-location-panel</code></a></th><td>location.js</td><td><code>post-id</code>（天気あり・取得失敗・位置情報なし・サンプルなし）</td><td>シナリオに追従する例（weather-failed、no-location）</td></tr>
@@ -483,6 +483,8 @@
           <mk-precision-picker id="precision-country" value="country"></mk-precision-picker>
         </div>
       </div>
+      <p class="text-muted"><code>value="municipality" collapsed</code>（投稿作成・編集用：閉じたアコーディオンにし、見出しに今の選択を出す）</p>
+      <mk-precision-picker id="precision-collapsed" value="municipality" collapsed></mk-precision-picker>
 
       <h3 id="sec-map-sample"><code>mk-map-sample</code></h3>
       <p class="text-muted">厳密はピン、約 1 km の範囲は半径 1 km の円（ピンなし）、市区町村・都道府県・国は範囲の塗りと縮尺の違いで示します。地域名は、その精度を持つ最初のサンプル投稿から取ります。</p>

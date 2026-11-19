@@ -11,6 +11,10 @@
 //   the component, so it survives re-renders (language / theme switches); changing the `value`
 //   attribute resets it. The native `change` event bubbles out of the element.
 // - Radio names and ids are unique per instance (several pickers can share a page).
+// - `collapsed` (boolean, task 8.1, post-edit only) folds the fieldset into a closed <details>.
+//   Its <summary> names the control and the current choice (location.summary, e.g.
+//   「位置の公開精度：市区町村」; location.unselected when nothing is chosen) and follows the choice.
+//   The fieldset keeps its legend inside; the open state survives re-renders.
 //
 // mk-map-sample (`precision`, optional `region`):
 // - Schematic inline SVG map (no real geography). The MapFrame and the default region name come
@@ -71,11 +75,13 @@
   let pickerCount = 0;
 
   class PrecisionPicker extends MockElement {
-    static observedAttributes = ['value'];
+    static observedAttributes = ['value', 'collapsed'];
 
     constructor() {
       super();
       pickerCount += 1;
+      /** Whether the collapsed picker (`collapsed`) is open; kept across re-renders. */
+      this.open = false;
       /** Prefix for the radio name and the element ids of this instance. */
       this.uid = `mk-precision-${pickerCount}`;
       /** @type {LocationPrecision | null} */
@@ -98,6 +104,10 @@
         this.valueAttr = valueAttr;
         this.selected = this.initialValue();
       }
+      const collapsed = this.hasAttribute('collapsed');
+      const summary = collapsed
+        ? this.el('summary', { class: 'mk-precision-picker__summary', 'data-mk-focus': 'toggle' }, this.summaryText())
+        : null;
       const options = this.el('div', { class: 'mk-precision-picker__options' });
       for (const level of LEVELS) {
         const id = `${this.uid}-${level.precision}`;
@@ -108,15 +118,35 @@
         });
         radio.checked = this.selected === level.precision;
         radio.addEventListener('change', () => {
-          if (radio.checked) this.selected = level.precision;
+          if (!radio.checked) return;
+          this.selected = level.precision;
+          if (summary !== null) summary.textContent = this.summaryText();
         });
         options.append(this.el('div', { class: 'mk-precision-picker__option', 'data-precision': level.precision },
           radio,
           this.el('label', { class: 'mk-precision-picker__label', for: id }, this.t(level.labelKey)),
           this.el('p', { class: 'mk-precision-picker__description', id: descriptionId }, this.t(level.descriptionKey))));
       }
-      this.replaceChildren(this.el('fieldset', { class: 'mk-precision-picker', lang: state.lang },
-        this.el('legend', null, this.t('location.label')), options));
+      const fieldset = this.el('fieldset', { class: 'mk-precision-picker', lang: state.lang },
+        this.el('legend', null, this.t('location.label')), options);
+      if (summary === null) {
+        this.replaceChildren(fieldset);
+        return;
+      }
+      // Post-edit form: the radio group stays out of the way in a closed accordion (task 8.1).
+      const details = this.el('details', { class: 'mk-precision-picker__toggle', lang: state.lang }, summary, fieldset);
+      details.open = this.open;
+      details.addEventListener('toggle', () => { this.open = details.open; });
+      this.replaceChildren(details);
+    }
+
+    /** The summary of the collapsed picker: the control's name and the current choice. */
+    summaryText() {
+      const level = levelOf(this.selected);
+      return this.t('location.summary', {
+        label: this.t('location.label'),
+        precision: level ? this.t(level.labelKey) : this.t('location.unselected'),
+      });
     }
   }
 

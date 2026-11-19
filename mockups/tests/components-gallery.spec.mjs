@@ -112,8 +112,9 @@ test.describe('main variants', () => {
   test('mk-precision-picker: none selected and each precision selected', async ({ page }) => {
     await open(page, 1440);
     await expect(page.locator('#precision-default input[type="radio"]:checked')).toHaveCount(0);
+    // The collapsed sample (task 8.1, `collapsed`) is checked in screens-post-edit-review.spec.
     for (const p of PRECISIONS) {
-      const picker = page.locator(`main mk-precision-picker[value="${p}"]`);
+      const picker = page.locator(`main mk-precision-picker[value="${p}"]:not([collapsed])`);
       await expect(picker, p).toHaveCount(1);
       await expect(picker.locator('input[type="radio"]:checked')).toHaveValue(p);
     }
