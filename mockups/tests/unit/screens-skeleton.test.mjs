@@ -95,7 +95,14 @@ for (const id of SCREEN_IDS) {
     assert.match(html, /^<!doctype html>/i);
     assert.match(html, new RegExp(`<body data-screen-id="${id}">`));
     assert.match(html, new RegExp(`<title data-i18n="screen\\.${id}\\.title">`));
-    assert.match(html, new RegExp(`<h1[^>]*data-i18n="screen\\.${id}\\.title"`));
+    if (id === 'day-detail') {
+      // Task 8.1 (day-detail review): the heading is the shown date itself (date-long, set from
+      // ?date= by the page script); the registry title stays in <title> and in the screen list.
+      assert.match(html, /<h1[^>]*data-i18n-date="\d{4}-\d{2}-\d{2}"[^>]*data-date-style="date-long"/);
+      assert.doesNotMatch(html, /<h1[^>]*data-i18n=/);
+    } else {
+      assert.match(html, new RegExp(`<h1[^>]*data-i18n="screen\\.${id}\\.title"`));
+    }
     const h = html.indexOf('<mk-site-header');
     const m = html.indexOf('<main');
     const f = html.indexOf('<mk-site-footer');

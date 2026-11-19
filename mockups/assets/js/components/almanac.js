@@ -32,6 +32,12 @@
 //   full (default, day detail): date, rokuyo, lunar date (leap label), moon phase / age, sekki,
 //                               kou, zassetsu, holiday (+ provisional label), the day's events;
 //                               items without a value show almanac.none as text.
+//   Opt-ins (task 8.1, day-detail only; the gallery samples without them are unchanged):
+//   `kou="period"` shows the 候 the day falls in on every day, as "{name}（n日目）" /
+//   "{name} (day n)" (day 1 = the first day of the 候, from SampleDataSet.kouStarts; the 節気 is a
+//   point in time and keeps its form). `hide-empty` leaves out the items without a value
+//   instead of showing almanac.none. `hide-date` leaves out the date line (the page heading
+//   shows the date).
 //   brief (top page)          : date, rokuyo, lunar date, moon, plus sekki / holiday when present,
 //                               next to a moon figure drawn from the moon age (task 8.1: the lit
 //                               part is bounded by the limb and the terminator ellipse; waxing is
@@ -661,8 +667,26 @@
 
   /** @typedef {'rokuyo' | 'lunar' | 'moon' | 'sekki' | 'kou' | 'zassetsu' | 'holiday' | 'events'} SummaryItem */
 
+  /** Days between two IsoDates (b - a). @param {IsoDate} a @param {IsoDate} b */
+  const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+
+  /**
+   * The 候 a day falls in and its day count (1 = first day), from SampleDataSet.kouStarts.
+   * undefined when no listed 候 started within the 6 days up to the date.
+   * @param {IsoDate} date
+   * @returns {{ key: MessageKey, day: number } | undefined}
+   */
+  const kouPeriodOf = (date) => {
+    /** @type {KouStart | undefined} */
+    let current;
+    for (const s of window.MockSample.kouStarts) if (s.start <= date) current = s;
+    if (current === undefined) return undefined;
+    const day = daysBetween(current.start, date) + 1;
+    return day >= 1 && day <= 6 ? { key: current.key, day } : undefined;
+  };
+
   class AlmanacSummary extends MockElement {
-    static observedAttributes = ['date', 'variant'];
+    static observedAttributes = ['date', 'variant', 'kou', 'hide-empty', 'hide-date'];
 
     /** @param {MockStateSnapshot} state */
     render(state) {
@@ -673,6 +697,7 @@
         return;
       }
       const brief = this.getAttribute('variant') === 'brief';
+      const hideEmpty = this.hasAttribute('hide-empty');
       const none = () => this.el('span', { class: 'mk-almanac-summary__none' }, this.t('almanac.none'));
       const list = this.el('dl', { class: 'mk-almanac-summary__items' });
       /** @param {SummaryItem} item @param {MessageKey} labelKey @param {readonly (Node | string)[]} value @param {Record<string, string>} [extra] */
@@ -698,13 +723,25 @@
         if (day.sekkiKey) add('sekki', 'sekki.label', [this.t(day.sekkiKey)]);
         if (day.holiday) add('holiday', 'almanac.holiday', holidayNodes(day.holiday, this));
       } else {
-        // Day detail: every item, "none" as text when the day has no value.
-        add('sekki', 'sekki.label', [day.sekkiKey ? this.t(day.sekkiKey) : none()]);
-        add('kou', 'kou.label', [day.kouKey ? this.t(day.kouKey) : none()]);
-        add('zassetsu', 'zassetsu.label', day.zassetsuKeys.length > 0
+        // Day detail: every item, "none" as text when the day has no value (hide-empty: left out).
+        /** @param {SummaryItem} item @param {MessageKey} labelKey @param {readonly (Node | string)[] | null} value */
+        const addOrNone = (item, labelKey, value) => {
+          if (value !== null) add(item, labelKey, value);
+          else if (!hideEmpty) add(item, labelKey, [none()]);
+        };
+        addOrNone('sekki', 'sekki.label', day.sekkiKey ? [this.t(day.sekkiKey)] : null);
+        if (this.getAttribute('kou') === 'period') {
+          const kou = kouPeriodOf(day.date);
+          addOrNone('kou', 'kou.label', kou
+            ? [this.t('almanac.kou-period-day', { name: this.t(kou.key), day: kou.day })]
+            : null);
+        } else {
+          addOrNone('kou', 'kou.label', day.kouKey ? [this.t(day.kouKey)] : null);
+        }
+        addOrNone('zassetsu', 'zassetsu.label', day.zassetsuKeys.length > 0
           ? [day.zassetsuKeys.map((key) => this.t(key)).join(state.lang === 'ja' ? '、' : ', ')]
-          : [none()]);
-        add('holiday', 'almanac.holiday', day.holiday ? holidayNodes(day.holiday, this) : [none()]);
+          : null);
+        addOrNone('holiday', 'almanac.holiday', day.holiday ? holidayNodes(day.holiday, this) : null);
         const events = day.eventIds
           .map((id) => this.sample().events.find((e) => e.id === id))
           .filter(/** @returns {e is AstroEvent} */ (e) => e !== undefined);
@@ -717,13 +754,14 @@
           }
           add('events', 'almanac.events', [ul]);
         } else {
-          add('events', 'almanac.events', [none()]);
+          addOrNone('events', 'almanac.events', null);
         }
       }
 
+      const dateLine = this.hasAttribute('hide-date') ? null : this.el('p', { class: 'mk-almanac-summary__date' },
+        this.el('time', { datetime: day.date }, window.MockI18n.formatDate(day.date, 'date-long')));
       this.replaceChildren(this.el('div', { class: 'mk-almanac-summary', 'data-variant': brief ? 'brief' : 'full' },
-        this.el('p', { class: 'mk-almanac-summary__date' },
-          this.el('time', { datetime: day.date }, window.MockI18n.formatDate(day.date, 'date-long'))),
+        ...(dateLine ? [dateLine] : []),
         brief ? this.el('div', { class: 'mk-almanac-summary__body' }, this.moonFigure(day), list) : list));
     }
 

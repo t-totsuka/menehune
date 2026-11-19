@@ -109,6 +109,8 @@ interface AlmanacDay {
   /** Rise/set times of that day at the fictional sample point near Tokyo (mk-rise-set with `date`) */
   readonly riseSet: RiseSet;
 }
+/** A kou (72 microseasons) and its first day */
+interface KouStart { readonly key: MessageKey; readonly start: IsoDate; }
 type AstroEventKind =
   | 'moon-phase' | 'moon-apsis' | 'moon-declination' | 'planet-conjunction'
   | 'planet-opposition' | 'planet-elongation' | 'close-approach';
@@ -220,6 +222,11 @@ interface SampleDataSet {
   readonly postDetailScenarios: Readonly<Record<PostDetailScenarioId, string>>;
   /** Every day of 2026-11 and 2027-03 (provisional holidays), plus one leap-month example day */
   readonly almanac: readonly AlmanacDay[];
+  /**
+   * First day of every kou covering a sample day, ascending (task 8.1, day-detail `kou="period"`):
+   * the kouKey days plus the kou that started before the first day of a sample run
+   */
+  readonly kouStarts: readonly KouStart[];
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];
@@ -356,7 +363,15 @@ type AdminBandAttrs = Readonly<Record<string, never>>;
  */
 interface MonthCalendarAttrs { readonly month: string; readonly 'week-start'?: 'sun' | 'mon'; readonly nav?: ''; readonly caption?: 'hidden'; }
 interface DayCellAttrs { readonly date: IsoDate; readonly compact?: BooleanAttr; }
-interface AlmanacSummaryAttrs { readonly date: IsoDate; readonly variant?: 'full' | 'brief'; }
+/**
+ * Opt-ins of task 8.1 (day-detail): `kou="period"` shows the current kou on every day with its day
+ * count; `hide-empty` leaves out the items without a value instead of showing almanac.none;
+ * `hide-date` leaves out the date line (the page heading shows it)
+ */
+interface AlmanacSummaryAttrs {
+  readonly date: IsoDate; readonly variant?: 'full' | 'brief';
+  readonly kou?: 'period'; readonly 'hide-empty'?: ''; readonly 'hide-date'?: '';
+}
 /** `chart` (boolean, task 8.1) adds the 0-24h chart of when the sun and the moon are up */
 interface RiseSetAttrs { readonly date?: IsoDate; readonly 'post-id'?: string; readonly chart?: ''; }
 /** `kinds` is a space-separated list of AstroEventKind; `filters="collapsed"` (task 8.1) folds the filters into a closed accordion */

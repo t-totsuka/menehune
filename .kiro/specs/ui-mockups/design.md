@@ -479,6 +479,7 @@ interface SampleDataSet {
   readonly today: IsoDate;                       // 2026-11-16 に固定
   readonly users: readonly SampleUser[];
   readonly almanac: readonly AlmanacDay[];        // 2026-11 と 2027-03 の全日、閏月の例 1 日
+  readonly kouStarts: readonly { readonly key: MessageKey; readonly start: IsoDate }[]; // サンプルの日を含む各候の始まりの日（昇順。日詳細の七十二候の日数、8.1）
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];
@@ -652,7 +653,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 | mk-admin-band | shell.js | — | 管理者専用であることを示す帯（3.6） |
 | mk-month-calendar | almanac.js | `month`、`week-start`、`nav`、`caption` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3）。`week-start="mon"` では月曜始まり（既定は日曜始まり）。`nav` では前の月・今月・次の月のボタンを置き、`month` を変えて `mk-month-change` を出す。サンプルデータのない日は日付と曜日だけを出し、その旨を注記する。`caption="hidden"` では PC の表の caption を読み上げ専用にする（見出しが年月を出す画面で、年月を 2 回見せないため）（月のカレンダーの画面用、ワイヤーフレームのレビューの指摘、8.1） |
 | mk-day-cell | almanac.js | `date`、`compact` | 日付、曜日、祝日（予定の表記つき）、六曜、旧暦、月齢。節気・候・雑節・天文現象の印は、記号と文字を併用する（4.1、4.2、4.6、13.3） |
-| mk-almanac-summary | almanac.js | `date`、`variant` | 日詳細用は全項目（4.3）、トップ用は要約（4.7）。トップ用は月齢から描いた月の満ち欠けの図（`role="img"` と `aria-label`）を添える（ワイヤーフレームのレビューの指摘、8.1） |
+| mk-almanac-summary | almanac.js | `date`、`variant`、`kou`、`hide-empty`、`hide-date` | 日詳細用は全項目（4.3）、トップ用は要約（4.7）。トップ用は月齢から描いた月の満ち欠けの図（`role="img"` と `aria-label`）を添える（ワイヤーフレームのレビューの指摘、8.1）。日詳細の画面だけに付ける opt-in（8.1）：`kou="period"` は七十二候を期間として毎日「候の名前（n日目）」で示し（`SampleDataSet.kouStarts`）、`hide-empty` は値のない項目を出さず、`hide-date` は見出しが日付なので要約の日付の行を出さない |
 | mk-rise-set | almanac.js | `date`、`post-id`、`chart` | 日の出・日の入り・月の出・月の入り（4.3、7.3）。`chart` では、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示す（トップ用、8.1） |
 | mk-event-list | almanac.js | `from`、`to`、`kinds`、`filters`、`mark-past` | 天文現象の日時と種類の一覧、期間と種類の絞り込み UI、空状態、取得エラー（4.4、4.5、3.4、3.5）。`filters="collapsed"` では絞り込みを閉じたアコーディオンにする（トップ用、8.1）。`mark-past` では、サンプルの今日より前の日付の現象に、日時の前に文字の印（「過去」／Past）と `data-past` を付ける（色だけに頼らない。天文現象一覧用、8.1） |
 | mk-star-chart | sky.js | `sample` | 天頂中心の円形の全天図（立体射影）と方位。恒星の大きさは等級に応じる。星座線、星座名、太陽・月・惑星。入力欄は画面側に置く。`viewBox` で幅に追従させる（5.1〜5.5、13.4） |

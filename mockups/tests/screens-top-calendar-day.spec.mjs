@@ -182,7 +182,8 @@ test.describe('day-detail', () => {
     ]);
     await expect(page.locator('main mk-almanac-summary')).toHaveAttribute('date', sample.today);
     await expect(page.locator('main mk-almanac-summary')).toHaveAttribute('variant', 'full');
-    await expect(page.locator('main .mk-almanac-summary__date')).toHaveText('2026年11月16日(月)');
+    // Task 8.1 (day-detail review): the date is the h1; the summary does not repeat it (hide-date)
+    await expect(page.locator('main h1')).toHaveText('2026年11月16日(月)');
     await expect(page.locator('main mk-rise-set')).toHaveAttribute('date', sample.today);
     const ids = await page.locator('main mk-post-card:visible').evaluateAll((els) => els.map((el) => el.getAttribute('post-id')));
     expect(ids).toEqual(postsOn(sample.today).map((/** @type {any} */ p) => p.id));
@@ -193,9 +194,14 @@ test.describe('day-detail', () => {
     const problems = collectProblems(page);
     await page.goto(urlOf('day-detail', '?lang=ja&date=2026-11-20'));
     const summary = page.locator('main .mk-almanac-summary[data-variant="full"]');
-    await expect(summary.locator('.mk-almanac-summary__date')).toHaveText('2026年11月20日(金)');
-    for (const item of ['rokuyo', 'lunar', 'moon', 'sekki', 'kou', 'zassetsu', 'holiday', 'events']) {
+    await expect(page.locator('main h1')).toHaveText('2026年11月20日(金)');
+    // Task 8.1 (day-detail review): items without a value are left out (hide-empty); the 候 is
+    // shown on every day with its day count (kou="period")
+    for (const item of ['rokuyo', 'lunar', 'moon', 'kou', 'events']) {
       await expect(summary.locator(`[data-item="${item}"]`)).toHaveCount(1);
+    }
+    for (const item of ['sekki', 'zassetsu', 'holiday']) {
+      await expect(summary.locator(`[data-item="${item}"]`)).toHaveCount(0);
     }
     const events = summary.locator('.mk-almanac-summary__events li');
     await expect(events).toHaveCount(2);
@@ -250,7 +256,7 @@ test.describe('day-detail', () => {
     await page.goto(urlOf('calendar-month', '?lang=ja&auth=member'));
     await page.locator('main [data-layout="full"] mk-day-cell[date="2026-11-20"] a').first().click();
     await expect(page).toHaveURL(/day-detail\.html\?date=2026-11-20/);
-    await expect(page.locator('main .mk-almanac-summary__date')).toHaveText('2026年11月20日(金)');
+    await expect(page.locator('main h1')).toHaveText('2026年11月20日(金)');
     await expect(page.locator('html')).toHaveAttribute('data-auth', 'member');
   });
 });

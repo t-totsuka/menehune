@@ -239,18 +239,23 @@ for (const screen of screens) {
       expect(problems).toEqual([]);
     });
 
+    // Task 8.1 (day-detail review): the day-detail h1 is the shown date (the sample today without
+    // ?date=); the <title> keeps the screen title.
+    const h1 = id === 'day-detail'
+      ? { ja: '2026年11月16日(月)', en: 'Mon, Nov 16, 2026' }
+      : { ja: ja[`screen.${id}.title`], en: en[`screen.${id}.title`] };
     test('language: the header switch shows the same screen in English', async ({ page }) => {
       const problems = watchConsole(page);
       await open(page, id);
       const path = new URL(page.url()).pathname;
       await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
-      await expect(page.locator('main h1')).toHaveText(ja[`screen.${id}.title`]);
+      await expect(page.locator('main h1')).toHaveText(h1.ja);
       await page.evaluate(() => { /** @type {any} */ (window).__noReload = true; });
 
       const group = header(page).getByRole('group', { name: ja['toggle.lang.label'] });
       await group.getByRole('button', { name: en['toggle.lang.en'], exact: true }).click();
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-      await expect(page.locator('main h1')).toHaveText(en[`screen.${id}.title`]);
+      await expect(page.locator('main h1')).toHaveText(h1.en);
       await expect(page).toHaveTitle(en[`screen.${id}.title`]);
       await expect(page.locator('body')).toHaveAttribute('data-screen-id', id);
       expect(new URL(page.url()).pathname).toBe(path);

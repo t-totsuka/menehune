@@ -147,6 +147,26 @@ test.describe('mk-rise-set', () => {
   });
 });
 
+// Task 8.1 (day-detail review): the opt-ins used by the day-detail screen only. The samples above
+// (no opt-in) keep the date line, the 候 on its first day only and the 「なし」 rows.
+test.describe('day-detail opt-ins of mk-almanac-summary (kou="period", hide-empty, hide-date)', () => {
+  test('mk-almanac-summary: the 候 with its day count, no empty items, no date line', async ({ page }) => {
+    const problems = collectProblems(page);
+    await open(page, 1440);
+    const id = 'summary-full-day-detail';
+    await expect(page.locator(`#${id}`)).toHaveAttribute('kou', 'period');
+    expect(await page.locator(`#${id} [data-item]`).evaluateAll((els) => els.map((el) => el.getAttribute('data-item'))))
+      .toEqual(['rokuyo', 'lunar', 'moon', 'kou']);
+    await expect(summaryItem(page, id, 'kou').locator('dd')).toHaveText(fill(ja, 'almanac.kou-period-day', { name: ja['kou.k56'], day: 5 }));
+    await expect(page.locator(`#${id} .mk-almanac-summary__none`)).toHaveCount(0);
+    await expect(page.locator(`#${id} .mk-almanac-summary__date`)).toHaveCount(0);
+    // without the opt-ins a day off the first day of a 候 still shows 「なし」 and the date line
+    await expect(summaryItem(page, 'summary-full-leap', 'kou').locator('dd')).toHaveText(ja['almanac.none']);
+    await expect(page.locator('#summary-full-leap .mk-almanac-summary__date')).toHaveCount(1);
+    expect(problems).toEqual([]);
+  });
+});
+
 test.describe('mk-event-list', () => {
   /** @param {import('@playwright/test').Page} page @param {string} id */
   const items = (page, id) => page.locator(`#${id} .mk-event-list__items > li`);
@@ -286,8 +306,9 @@ test.describe('layout', () => {
         return r.right <= document.documentElement.clientWidth + 0.5;
       }));
       // Task 6.4 added the full summary of 2026-11-20 (a day with events); task 8.1 the two
-      // rise / set charts, the collapsed event list and the mark-past event list.
-      expect(fits.length).toBe(17);
+      // rise / set charts, the collapsed event list and the mark-past event list, then the
+      // day-detail opt-in sample of the summary.
+      expect(fits.length).toBe(18);
       expect(fits.every(Boolean)).toBe(true);
     });
   }

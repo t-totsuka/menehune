@@ -203,6 +203,38 @@ test('day-detail: the 2026-11-19 review note is kept and its outcome follows it'
   assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
 });
 
+// Task 8.1 (day-detail, second round of 2026-11-19): four notes in the user's words, each
+// followed right after by its outcome. The fourth (二十四節気) clarifies the second (七十二候):
+// only the 候 gets the day count. The earlier notes and outcomes stay before them.
+const DAY_DETAIL_WORDING_NOTES = [
+  '日の詳細で「この日」が多用されている。日付が1つしかないのは自明なので「年月日」を表示すること、「この日の投稿」も投稿は自明なので不要。',
+  '日の詳細の七十二候は期間なので「ＸＸＸＸ（ｎ日目）」が良い',
+  '日の詳細で「なし」の項目は非表示が良い',
+  '二十四節気は太陽の位置から決められたポイントなので同じ形にする必要はない。',
+  // follow-up (2026-11-19): the moonrise / moonset rows were not plain 「なし」 and must stay
+  '月の出・月の入りは「なし」ではなかったが消えてしまった。',
+];
+
+test('day-detail: the second-round notes are recorded in order, each followed by its outcome', () => {
+  const wf = byId().get('day-detail').review.wireframe;
+  assert.equal(wf.status, 'in-review');
+  assert.equal(wf.reviewedAt, '2026-11-19');
+  const notes = [...(wf.notes ?? [])];
+  let previous = notes.indexOf(DAY_DETAIL_NOTE);
+  assert.ok(previous >= 2, 'the 1:2 note stays');
+  for (const note of DAY_DETAIL_WORDING_NOTES) {
+    const at = notes.indexOf(note);
+    assert.ok(at > previous + 1, `records "${note}" verbatim after the previous outcome`);
+    assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, `outcome right after "${note}"`);
+    previous = at;
+  }
+  // the 二十四節気 outcome says the 節気 keeps its form (only the 候 gets the day count)
+  const sekki = notes.indexOf(DAY_DETAIL_WORDING_NOTES[3]);
+  assert.match(notes[sekki + 1] ?? '', /二十四節気/);
+  // the moonrise / moonset outcome says the rows are back
+  assert.match(notes[previous + 1] ?? '', /月の出・月の入りの行/);
+});
+
 // Task 8.1 (astro-events, 2026-11-19): one note in the user's words, followed right after by its
 // outcome; the guest band note and its outcome recorded earlier stay first.
 const ASTRO_EVENTS_NOTE = '過去の日付のものはわかるようにしたい';

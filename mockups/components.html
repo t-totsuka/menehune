@@ -313,7 +313,7 @@
 
     <section class="l-surface l-stack" aria-labelledby="sec-almanac-summary">
       <h2 id="sec-almanac-summary">暦の要約と日月の出没</h2>
-      <p class="text-muted">暦の要約は 2 種類あります。日詳細用（<code>variant="full"</code>、既定）は全項目（閏月の表記を含む）、トップ用（<code>variant="brief"</code>）は日付・六曜・旧暦・月齢と、その日にある節気・祝日だけを、月齢から描いた月の満ち欠けの図と並べて表示します（ワイヤーフレームでは図は占位表示）。<code>chart</code> を付けた日月の出没は、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示します。日月の出没は、日付の指定（サンプル地点）と投稿の指定（投稿地点）の両方に対応します。出没がない日は「なし」と表示し、位置情報のない投稿では何も表示しません。</p>
+      <p class="text-muted">暦の要約は 2 種類あります。日詳細用（<code>variant="full"</code>、既定）は全項目（閏月の表記を含む）、トップ用（<code>variant="brief"</code>）は日付・六曜・旧暦・月齢と、その日にある節気・祝日だけを、月齢から描いた月の満ち欠けの図と並べて表示します（ワイヤーフレームでは図は占位表示）。<code>chart</code> を付けた日月の出没は、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示します。日月の出没は、日付の指定（サンプル地点）と投稿の指定（投稿地点）の両方に対応します。出没がない日は「なし」と表示し、位置情報のない投稿では何も表示しません。暦の要約には、日詳細の画面だけに付ける opt-in の属性として、<code>kou="period"</code>（七十二候を期間として、その日が候の何日目かを添える）、<code>hide-empty</code>（値のない項目を出さない）、<code>hide-date</code>（見出しが日付なので、要約の日付の行を出さない）があります。日月の出没の「なし（この日は起こりません）」は、日詳細でも出したままです。</p>
 
       <h3 id="sec-summary-full"><code>mk-almanac-summary variant="full"</code></h3>
       <div class="mk-cell-samples">
@@ -332,6 +332,10 @@
         <div class="l-stack">
           <p class="text-muted"><code>date="2025-07-25"</code>（閏月）</p>
           <mk-almanac-summary id="summary-full-leap" date="2025-07-25"></mk-almanac-summary>
+        </div>
+        <div class="l-stack">
+          <p class="text-muted"><code>date="2026-11-16" kou="period" hide-empty hide-date</code>（日詳細用：七十二候を「〜（n日目）」で、値のない項目と日付の行を出さない）</p>
+          <mk-almanac-summary id="summary-full-day-detail" date="2026-11-16" variant="full" kou="period" hide-empty hide-date></mk-almanac-summary>
         </div>
       </div>
 

@@ -269,3 +269,36 @@ test('the sample data is frozen', () => {
   assert.ok(Object.isFrozen(almanac[0]) && Object.isFrozen(almanac[0].lunar) && Object.isFrozen(almanac[0].riseSet));
   assert.ok(events.length === 0 || Object.isFrozen(events[0].bodies));
 });
+
+// Task 8.1 (day-detail review: "七十二候は期間"): kouStarts lists the first day of every 候 that
+// covers a sample day, so any sample day can show its 候 with the day count. The 候 that start
+// inside the sample come from AlmanacDay.kouKey; the two that start before it (2025-07-22 for the
+// leap-month example, 2026-10-28 for 2026-11-01) are listed explicitly.
+test('kouStarts: ascending, consistent with kouKey, and every sample day is in a 候 of 5 or 6 days', () => {
+  const starts = sample.kouStarts;
+  assert.ok(Array.isArray(starts) && starts.length > 0, 'kouStarts exists');
+  const dates = [...starts.map((s) => s.start)];
+  assert.deepEqual([...dates].sort(), dates, 'ascending');
+  assert.equal(new Set(dates).size, dates.length, 'no duplicates');
+  for (const s of starts) {
+    assert.match(s.key, /^kou\.k\d{2}$/);
+    assert.ok(s.key in ja && s.key in en, `${s.key} in both dictionaries`);
+    const d = day(s.start);
+    if (d) assert.equal(d.kouKey, s.key, `${s.start}: kouKey matches the start`);
+  }
+  for (const d of almanac) {
+    if (d.kouKey) assert.ok(starts.some((s) => s.start === d.date && s.key === d.kouKey), `${d.date} is listed`);
+    const current = starts.filter((s) => s.start <= d.date).at(-1);
+    assert.ok(current, `${d.date} has a 候`);
+    const n = (Date.parse(d.date) - Date.parse(current.start)) / 86400000 + 1;
+    assert.ok(n >= 1 && n <= 6, `${d.date}: day ${n} of ${current.key}`);
+  }
+  // consecutive starts are 5 or 6 days apart (one 候 is about 5 days)
+  for (let i = 1; i < starts.length; i += 1) {
+    const gap = (Date.parse(starts[i].start) - Date.parse(starts[i - 1].start)) / 86400000;
+    if (gap < 30) assert.ok(gap === 5 || gap === 6, `${starts[i].start}: gap ${gap}`);
+  }
+  // the 候 before the sample: k53 before k54 (2026-11-02), k34 (大暑の初候) for the leap-month example
+  assert.equal(starts.find((s) => s.start === '2026-10-28')?.key, 'kou.k53');
+  assert.equal(starts.find((s) => s.start === '2025-07-22')?.key, 'kou.k34');
+});

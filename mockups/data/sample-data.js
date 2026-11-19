@@ -10,6 +10,7 @@
 //   -> 大安, 赤口, 先勝, 友引, 先負, 仏滅 for 0..5
 // - moonAge: days since the new moon at 21:00 JST, one decimal place
 // - moonPhaseKey only on the days of 朔・上弦・望・下弦; sekkiKey / kouKey only on the first day
+//   (kouStarts lists the first day of every 候 covering a sample day, task 8.1)
 // - riseSet: a fictional point near Tokyo (sunrise/sunset interpolated; moonrise about 50 min
 //   later each day, so some days have no moonrise or moonset)
 // - leap month: no 閏月 falls in 2026-11 or 2027-03, so the single extra row 2025-07-25
@@ -138,6 +139,20 @@
     { date: '2027-03-29', rokuyoKey: 'rokuyo.taian', lunar: { month: 2, day: 22, leap: false }, moonAge: 21.1, zassetsuKeys: [], eventIds: EV('2027-03-29'), riseSet: { sunrise: '2027-03-29T05:33+09:00', sunset: '2027-03-29T18:01+09:00', moonrise: '2027-03-29T23:40+09:00', moonset: '2027-03-29T11:06+09:00' } },
     { date: '2027-03-30', rokuyoKey: 'rokuyo.shakko', lunar: { month: 2, day: 23, leap: false }, moonAge: 22.1, moonPhaseKey: 'moon-phase.last-quarter', zassetsuKeys: [], eventIds: EV('2027-03-30'), riseSet: { sunrise: '2027-03-30T05:31+09:00', sunset: '2027-03-30T18:01+09:00', moonset: '2027-03-30T11:51+09:00' } },
     { date: '2027-03-31', rokuyoKey: 'rokuyo.sensho', lunar: { month: 2, day: 24, leap: false }, moonAge: 23.1, kouKey: 'kou.k12', zassetsuKeys: [], eventIds: EV('2027-03-31'), riseSet: { sunrise: '2027-03-31T05:30+09:00', sunset: '2027-03-31T18:02+09:00', moonrise: '2027-03-31T00:30+09:00', moonset: '2027-03-31T12:40+09:00' } },
+  ];
+
+  /**
+   * First day of every 七十二候 that covers a sample day, ascending (task 8.1, day-detail: a 候 is
+   * a period, so the day detail shows the current 候 with its day count). The 候 that start inside
+   * the sample come from AlmanacDay.kouKey; two start before the first sample day of their run:
+   * 桐始結花 (大暑の初候, 2025-07-22) for the leap-month example and 霎時施 (霜降の次候,
+   * 2026-10-28) for 2026-11-01. Illustrative dates, like the rest of the almanac.
+   * @type {KouStart[]}
+   */
+  const kouStarts = [
+    { key: 'kou.k34', start: '2025-07-22' },
+    { key: 'kou.k53', start: '2026-10-28' },
+    ...almanac.flatMap((d) => (d.kouKey ? [{ key: d.kouKey, start: d.date }] : [])),
   ];
 
   // ---------------------------------------------------------------------------------------------
@@ -529,6 +544,7 @@
     viewerIds,
     postDetailScenarios,
     almanac,
+    kouStarts,
     events,
     posts,
     reports,

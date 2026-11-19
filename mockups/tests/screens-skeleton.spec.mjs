@@ -23,6 +23,13 @@ const screens = w.MockScreens;
 const ja = w.MockMessages.ja;
 const en = w.MockMessages.en;
 
+// Task 8.1 (day-detail review): the day-detail heading is the shown date (date-long of the sample
+// today, 2026-11-16, when there is no ?date=); its <title> keeps the registry title.
+/** @type {Record<string, { ja: string, en: string }>} */
+const H1_OVERRIDES = { 'day-detail': { ja: '2026年11月16日(月)', en: 'Mon, Nov 16, 2026' } };
+/** @param {string} id @param {'ja' | 'en'} lang @param {string} titleKey @returns {string} */
+const h1Of = (id, lang, titleKey) => H1_OVERRIDES[id]?.[lang] ?? (lang === 'ja' ? ja : en)[titleKey];
+
 const urlOf = (/** @type {string} */ id, query = '') =>
   pathToFileURL(join(root, 'screens', `${id}.html`)).href + query;
 
@@ -50,7 +57,7 @@ for (const { id, titleKey, review } of screens) {
 
       await page.goto(urlOf(id, '?lang=ja&stage=wireframe'));
       await expect(page.locator('body')).toHaveAttribute('data-screen-id', id);
-      await expect(page.locator('main h1')).toHaveText(ja[titleKey]);
+      await expect(page.locator('main h1')).toHaveText(h1Of(id, 'ja', titleKey));
       await expect(page).toHaveTitle(ja[titleKey]);
       await expect(page.getByRole('region', { name: 'レビュー用ツールバー' })).toBeVisible();
 
@@ -76,7 +83,7 @@ for (const { id, titleKey, review } of screens) {
 
     test('title switches to English with ?lang=en', async ({ page }) => {
       await page.goto(urlOf(id, '?lang=en'));
-      await expect(page.locator('main h1')).toHaveText(en[titleKey]);
+      await expect(page.locator('main h1')).toHaveText(h1Of(id, 'en', titleKey));
       await expect(page).toHaveTitle(en[titleKey]);
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     });
