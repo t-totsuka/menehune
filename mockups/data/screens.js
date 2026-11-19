@@ -87,7 +87,22 @@
       }),
       DRAFT,
     )),
-    screen('calendar-month', 'public', GUEST_MEMBER, ['provisional-holiday'], guestBandReview(BAND_ADDED)),
+    screen('calendar-month', 'public', GUEST_MEMBER, ['provisional-holiday'], review(
+      Object.freeze({
+        // 2026-11-19 の画面ごとの指摘をタスク 8.1 で反映し、再レビュー待ちのままにした
+        status: 'in-review',
+        reviewedAt: '2026-11-19',
+        notes: Object.freeze([
+          GUEST_BAND_NOTE,
+          BAND_ADDED,
+          '月曜始まりが望ましい',
+          '反映（8.1）：週を月曜始まり（月〜日）にした（mk-month-calendar week-start="mon"。部品の既定は日曜始まりのままで、月のカレンダーを出す製品の画面はこの画面だけ）。土日・祝日の印は列ではなく実際の曜日で付け、小さな格子の Home・End も月曜・日曜に移る',
+          '月の移動ができない',
+          '反映（8.1）：カレンダーの上に「前の月」「今月」「次の月」のボタンを置いた（mk-month-calendar nav。読み上げ名は移動先の月を含む）。見出しと ?month=YYYY-MM が追従し、ほかの URL パラメータは残る。サンプルデータは 2026年11月と 2027年3月だけなので、ほかの月は日付と曜日だけを出し、その旨を注記した（祝日・六曜・月齢などは計算しない。README の論点）',
+        ]),
+      }),
+      DRAFT,
+    )),
     screen('day-detail', 'public', GUEST_MEMBER, [], guestBandReview(
       '反映（8.1）：「この日の投稿」の中にあった案内を、ヘッダーの直下の全幅の帯に移した',
     )),

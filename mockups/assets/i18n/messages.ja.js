@@ -41,6 +41,15 @@
     'calendar.legend.holiday': '祝日',
     'calendar.legend.provisional': '予定の祝日（まだ確定していない）',
     'calendar.legend.event': '天文現象',
+    // Month navigation and days without sample rows (task 8.1, calendar-month)
+    'calendar.nav.label': '月の移動',
+    'calendar.nav.prev': '前の月',
+    'calendar.nav.next': '次の月',
+    'calendar.nav.this-month': '今月',
+    'calendar.nav.target': '（{month}）',
+    'calendar.nav.shown': '{month}を表示しています',
+    'calendar.no-sample-days': 'サンプルデータのない日は、日付と曜日だけを表示しています（祝日・六曜・旧暦・月齢・印は出しません）。',
+    'calendar.no-sample-day': 'この日のサンプルデータはありません',
 
     // Almanac summary, rise/set and event list (task 4.3)
     'almanac.moon': '月齢',

@@ -21,14 +21,12 @@
       <a class="button" href="post-edit.html?auth=member" data-i18n="button.post">投稿する</a>
     </p>
 
-    <!-- 2026-11 by default; 2027-03 (provisional equinox holidays) in the provisional-holiday scenario. -->
-    <section class="screen-section l-stack" aria-labelledby="calendar-2026-11" data-when-scenario="default">
-      <h2 id="calendar-2026-11"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n-date="2026-11-01" data-date-style="month-year">2026年11月</span></h2>
-      <mk-month-calendar month="2026-11"></mk-month-calendar>
-    </section>
-    <section class="screen-section l-stack" aria-labelledby="calendar-2027-03" data-when-scenario="provisional-holiday">
-      <h2 id="calendar-2027-03"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n-date="2027-03-01" data-date-style="month-year">2027年3月</span></h2>
-      <mk-month-calendar month="2027-03"></mk-month-calendar>
+    <!-- Task 8.1: one calendar, Monday first, with month navigation. The month comes from
+         ?month=YYYY-MM, else 2026-11 (2027-03, provisional equinox holidays, in the
+         provisional-holiday scenario); the page script at the end keeps the h2 and ?month in sync. -->
+    <section class="screen-section l-stack" aria-labelledby="calendar-month-heading">
+      <h2 id="calendar-month-heading"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-calendar-heading data-i18n-date="2026-11-01" data-date-style="month-year">2026年11月</span></h2>
+      <mk-month-calendar data-calendar month="2026-11" week-start="mon" nav></mk-month-calendar>
     </section>
   </main>
   <mk-site-footer></mk-site-footer>
@@ -46,5 +44,60 @@
   <script src="../assets/js/components/posts.js"></script>
   <script src="../assets/js/components/location.js"></script>
   <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Month calendar page script (task 8.1). Runs before DOMContentLoaded, so the i18n runtime
+    // formats the heading it sets.
+    // - ?month=YYYY-MM picks the month; an invalid value falls back with a warning. Without it the
+    //   month is the sample today's (2026-11), or 2027-03 in the provisional-holiday scenario.
+    // - The calendar's month buttons fire mk-month-change: the h2 follows, and ?month is written
+    //   with replaceState, so the other parameters (stage, lang, theme, auth, scenario) stay.
+    // - A scenario switch goes back to that scenario's month and drops ?month.
+    (function () {
+      const calendar = document.querySelector('[data-calendar]');
+      const heading = document.querySelector('[data-calendar-heading]');
+      if (calendar === null || heading === null) return;
+      /** @param {string} scenario */
+      const initialMonth = (scenario) => (scenario === 'provisional-holiday' ? '2027-03' : window.MockSample.today.slice(0, 7));
+      /** @param {string} month */
+      const show = (month) => {
+        if (calendar.getAttribute('month') !== month) calendar.setAttribute('month', month);
+        heading.setAttribute('data-i18n-date', `${month}-01`);
+        heading.textContent = window.MockI18n.formatDate(`${month}-01`, 'month-year');
+      };
+      /** @param {string | null} month */
+      const writeUrl = (month) => {
+        try {
+          const url = new URL(window.location.href);
+          if (month === null) url.searchParams.delete('month');
+          else url.searchParams.set('month', month);
+          window.history.replaceState(window.history.state, '', url.href);
+        } catch {
+          // replaceState can be refused in unusual embeddings; the calendar still moves.
+        }
+      };
+
+      let scenario = window.MockState.get().scenario;
+      let month = initialMonth(scenario);
+      const requested = new URLSearchParams(window.location.search).get('month');
+      if (requested !== null) {
+        if (/^\d{4}-(0[1-9]|1[0-2])$/.test(requested)) month = requested;
+        else console.warn(`[calendar-month] invalid month=${requested}; showing ${month}`);
+      }
+      show(month);
+
+      calendar.addEventListener('mk-month-change', (event) => {
+        const detail = /** @type {CustomEvent<{ month: string }>} */ (event).detail;
+        show(detail.month);
+        writeUrl(detail.month);
+      });
+      document.addEventListener('mock:change', (event) => {
+        const next = /** @type {CustomEvent<MockStateSnapshot>} */ (event).detail.scenario;
+        if (next === scenario) return;
+        scenario = next;
+        show(initialMonth(scenario));
+        writeUrl(null);
+      });
+    })();
+  </script>
 </body>
 </html>

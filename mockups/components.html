@@ -104,7 +104,7 @@
             <tr data-element="mk-guest-notice"><th scope="row"><a href="#sec-shell-notice"><code>mk-guest-notice</code></a></th><td>shell.js</td><td><ul><li><code>variant="read-only"</code>（既定）</li><li><code>variant="private-post"</code></li><li><code>band</code>（ヘッダーの直下に置く全幅の帯。ログイン以外の全画面で使う）</li></ul></td><td>常に表示（出し分けは画面側の <code>data-when-auth</code>）</td></tr>
             <tr data-element="mk-status-badge"><th scope="row"><a href="#sec-shell-badge"><code>mk-status-badge</code></a></th><td>shell.js</td><td><code>status</code>：public、members-only、hidden、deleted</td><td>言語</td></tr>
             <tr data-element="mk-admin-band"><th scope="row"><a href="#sec-shell-admin"><code>mk-admin-band</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
-            <tr data-element="mk-month-calendar"><th scope="row"><a href="#sec-almanac-2026-11"><code>mk-month-calendar</code></a></th><td>almanac.js</td><td><ul><li><code>month="2026-11"</code></li><li><code>month="2027-03"</code>（予定の祝日）</li><li>スマートフォン幅（小さな格子と要約パネル）</li></ul></td><td>言語（曜日・祝日名）</td></tr>
+            <tr data-element="mk-month-calendar"><th scope="row"><a href="#sec-almanac-2026-11"><code>mk-month-calendar</code></a></th><td>almanac.js</td><td><ul><li><code>month="2026-11"</code></li><li><code>month="2027-03"</code>（予定の祝日）</li><li><code>week-start="mon" nav</code>（月曜始まりと月の移動）</li><li>スマートフォン幅（小さな格子と要約パネル）</li></ul></td><td>言語（曜日・祝日名）</td></tr>
             <tr data-element="mk-day-cell"><th scope="row"><a href="#sec-almanac-cells"><code>mk-day-cell</code></a></th><td>almanac.js</td><td><code>date</code>（節気・予定の祝日・天文現象・閏月・サンプルなし）、<code>compact</code></td><td>言語</td></tr>
             <tr data-element="mk-almanac-summary"><th scope="row"><a href="#sec-summary-full"><code>mk-almanac-summary</code></a></th><td>almanac.js</td><td><code>variant="full"</code>（天文現象・予定の祝日・閏月）、<code>variant="brief"</code>（月齢から描いた月の図つき）、サンプルなし</td><td>言語</td></tr>
             <tr data-element="mk-rise-set"><th scope="row"><a href="#sec-rise-set"><code>mk-rise-set</code></a></th><td>almanac.js</td><td><code>date</code>（月の入りなしを含む）、<code>post-id</code>（位置情報なしは何も出さない）、<code>chart</code>（日月が地平線の上にある時間の図）</td><td>言語</td></tr>
@@ -277,6 +277,10 @@
 
       <h3 id="sec-almanac-2027-03"><code>mk-month-calendar month="2027-03"</code>（予定の祝日を含む）</h3>
       <mk-month-calendar id="cal-2027-03" month="2027-03"></mk-month-calendar>
+
+      <h3 id="sec-almanac-week-nav"><code>mk-month-calendar month="2026-11" week-start="mon" nav</code>（月曜始まりと月の移動。月のカレンダーの画面）</h3>
+      <p class="text-muted">「前の月」「今月」「次の月」で、この見本の中だけ月が変わります（画面では見出しと <code>?month</code> も追従します）。サンプルデータのない月は、日付と曜日だけを出します。</p>
+      <mk-month-calendar id="cal-week-nav" month="2026-11" week-start="mon" nav></mk-month-calendar>
 
       <h3 id="sec-almanac-cells"><code>mk-day-cell</code></h3>
       <div class="mk-cell-samples">

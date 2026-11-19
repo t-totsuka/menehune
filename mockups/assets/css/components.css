@@ -329,6 +329,20 @@ mk-day-cell {
   display: block;
 }
 
+/* Month navigation (task 8.1, `nav`) and the note about days without sample rows. */
+.mk-calendar__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-block-end: var(--space-md);
+}
+
+.mk-calendar__note {
+  margin-block: 0 var(--space-sm);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 .mk-calendar__grid {
   width: 100%;
   table-layout: fixed;

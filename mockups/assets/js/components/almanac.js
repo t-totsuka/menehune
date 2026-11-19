@@ -8,14 +8,23 @@
 //             marks of sekki / kou / zassetsu / astronomical events as symbol + text.
 //   compact : date, holiday mark, moon phase symbol and mark symbols only; role="img" with the
 //             full information as aria-label (the calendar's button takes its name from it).
-// - mk-month-calendar (4.1, 4.2, 12.3) `month` (YYYY-MM): renders both layouts and CSS picks one.
-//   PC (>= 600px)   : <table> with 7 columns, Sunday first, cells are full mk-day-cell.
+// - mk-month-calendar (4.1, 4.2, 12.3) `month` (YYYY-MM), `week-start`, `nav`: renders both
+//   layouts and CSS picks one.
+//   PC (>= 600px)   : <table> with 7 columns, Sunday first (`week-start="mon"`, task 8.1: Monday
+//                     first; weekday marks follow the real weekday), cells are full mk-day-cell.
 //   phone (< 600px) : role="grid" of compact cells (one button per day, roving tabindex,
 //                     aria-selected) plus the summary panel of the selected day (aria-live).
 //                     Click / tap, arrow keys (+-1 day, +-1 week), Home / End (start / end of
 //                     the week) select a day. The first selection is today if the month holds
 //                     it, otherwise the 1st.
 //   Today (SampleDataSet.today) is marked with aria-current="date" and a text label.
+//   A day without a sample row (task 8.1: months reached with `nav`) shows its date and weekday
+//   only (no link, no computed holiday / rokuyo / lunar date / moon / marks), and the calendar
+//   says so in a note (calendar.no-sample-days). A `month` that is not YYYY-MM is a missing sample.
+//   `nav` (task 8.1, calendar-month screen): a <nav> with previous / this / next month buttons
+//   (aria-label = visible label + target month). A button sets `month` on the
+//   element, announces the shown month (visually hidden aria-live) and dispatches a bubbling
+//   CustomEvent<{ month: string }>('mk-month-change') so the page can sync its heading and URL.
 // - mk-almanac-summary (4.3, 4.6, 4.7) `date`, `variant`:
 //   full (default, day detail): date, rokuyo, lunar date (leap label), moon phase / age, sekki,
 //                               kou, zassetsu, holiday (+ provisional label), the day's events;
@@ -138,6 +147,12 @@
 
   /** @param {number} y @param {number} m */
   const daysInMonth = (y, m) => new Date(Date.UTC(y, m, 0)).getUTCDate();
+
+  /** YYYY-MM of the month `delta` months away. @param {number} y @param {number} m @param {number} delta */
+  const shiftMonth = (y, m, delta) => {
+    const index = y * 12 + (m - 1) + delta;
+    return `${String(Math.floor(index / 12)).padStart(4, '0')}-${pad2((index % 12) + 1)}`;
+  };
 
   /** @param {IsoDate} date @param {MockStateSnapshot} state @returns {string} */
   const dayDetailHref = (date, state) => {
@@ -343,16 +358,18 @@
   const KEY_OFFSETS = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
 
   class MonthCalendar extends MockElement {
-    static observedAttributes = ['month'];
+    static observedAttributes = ['month', 'week-start', 'nav'];
 
     constructor() {
       super();
       /** @type {IsoDate | null} */
       this.selected = null;
       /**
-       * Persistent skeleton: the summary panel (aria-live) stays the same element across
-       * renders and only its contents are replaced, so selections are announced politely.
-       * @type {{ root: HTMLDivElement, compact: HTMLDivElement, summary: HTMLElement } | null}
+       * Persistent skeleton: the summary panel and the month status (aria-live) stay the same
+       * elements across renders and only their contents are replaced, so changes are announced.
+       * The month nav and the no-sample note are attached only when used.
+       * @type {{ root: HTMLDivElement, nav: HTMLElement, note: HTMLParagraphElement, full: HTMLElement,
+       *   compact: HTMLDivElement, summary: HTMLElement, status: HTMLParagraphElement } | null}
        */
       this.layout = null;
     }
@@ -362,10 +379,73 @@
         const summary = this.el('section', { class: 'mk-calendar__summary', 'aria-live': 'polite' });
         const compact = this.el('div', { class: 'mk-calendar__compact', 'data-layout': 'compact' },
           this.el('table'), this.el('div'), summary);
-        this.layout = { root: this.el('div', { class: 'mk-calendar' }, this.el('table'), compact), compact, summary };
+        const full = this.el('table');
+        const status = this.el('p', { class: 'visually-hidden', 'aria-live': 'polite', 'data-calendar-status': '' });
+        this.layout = {
+          root: this.el('div', { class: 'mk-calendar' }, full, compact, status),
+          nav: this.el('nav', { class: 'mk-calendar__nav' }),
+          note: this.el('p', { class: 'mk-calendar__note', 'data-calendar-no-sample': '' }),
+          full, compact, summary, status,
+        };
       }
       if (this.childElementCount !== 1 || this.firstElementChild !== this.layout.root) this.replaceChildren(this.layout.root);
       return this.layout;
+    }
+
+    /** WEEKDAYS index of the first column: 1 with week-start="mon" (task 8.1), else 0 (Sunday). */
+    weekStart() {
+      return this.getAttribute('week-start') === 'mon' ? 1 : 0;
+    }
+
+    /** Column of a day (0 = first column). @param {number} y @param {number} m @param {number} d */
+    columnOf(y, m, d) {
+      return (weekdayOf(y, m, d) - this.weekStart() + 7) % 7;
+    }
+
+    /**
+     * Previous / this / next month buttons (task 8.1). The accessible name (aria-label) is the
+     * visible label followed by the target month (e.g. 前の月（2026年10月）), so it contains the
+     * visible text.
+     * @param {{ y: number, m: number }} month
+     */
+    navButtons(month) {
+      /**
+       * @param {string} name
+       * @param {string} target YYYY-MM
+       * @param {MessageKey} labelKey
+       * @param {string} before arrow shown before the label ('' for none)
+       * @param {string} after arrow shown after the label ('' for none)
+       */
+      const button = (name, target, labelKey, before, after) => {
+        const label = this.t(labelKey);
+        const node = this.el('button', {
+          type: 'button',
+          class: 'mk-calendar__nav-button',
+          'aria-label': label + this.t('calendar.nav.target', { month: window.MockI18n.formatDate(`${target}-01`, 'month-year') }),
+          'data-month-target': target,
+          'data-mk-focus': `month-${name}`,
+        });
+        if (before !== '') node.append(this.el('span', { 'aria-hidden': 'true' }, before));
+        node.append(label);
+        if (after !== '') node.append(this.el('span', { 'aria-hidden': 'true' }, after));
+        node.addEventListener('click', () => this.moveTo(target));
+        return node;
+      };
+      return [
+        button('prev', shiftMonth(month.y, month.m, -1), 'calendar.nav.prev', '‹ ', ''),
+        button('this', this.sample().today.slice(0, 7), 'calendar.nav.this-month', '', ''),
+        button('next', shiftMonth(month.y, month.m, 1), 'calendar.nav.next', '', ' ›'),
+      ];
+    }
+
+    /** Shows another month (nav buttons), announces it and tells the page. @param {string} target YYYY-MM */
+    moveTo(target) {
+      this.setAttribute('month', target);
+      if (this.layout !== null) {
+        this.layout.status.textContent = this.t('calendar.nav.shown',
+          { month: window.MockI18n.formatDate(`${target}-01`, 'month-year') });
+      }
+      this.dispatchEvent(new CustomEvent('mk-month-change', { bubbles: true, detail: { month: target } }));
     }
 
     /** Legend of the compact grid: holiday marks and symbols as text (12.3, 13.3). */
@@ -411,7 +491,7 @@
       const month = this.month();
       const attr = this.getAttribute('month') ?? '';
       const sample = this.sample();
-      if (!month || !sample.almanac.some((d) => d.date.startsWith(`${attr}-`))) {
+      if (!month) {
         this.layout = null;
         this.replaceChildren(this.missingSample(attr));
         return;
@@ -427,7 +507,7 @@
       /** @type {(number | null)[][]} weeks of day numbers, null outside the month */
       const weeks = [];
       /** @type {(number | null)[]} */
-      let week = Array.from({ length: weekdayOf(month.y, month.m, 1) }, () => null);
+      let week = Array.from({ length: this.columnOf(month.y, month.m, 1) }, () => null);
       for (let d = 1; d <= total; d += 1) {
         week.push(d);
         if (week.length === 7) { weeks.push(week); week = []; }
@@ -438,8 +518,34 @@
       }
 
       const monthYear = window.MockI18n.formatDate(dateOf(1), 'month-year');
-      const headerRow = () => this.el('tr', null, ...HEADER_WEEK.map((date, i) =>
-        this.el('th', { scope: 'col', 'data-weekday': WEEKDAYS[i] }, window.MockI18n.formatDate(date, 'weekday'))));
+      const start = this.weekStart();
+      /** WEEKDAYS indexes in column order. */
+      const columns = Array.from({ length: 7 }, (_, i) => (i + start) % 7);
+      const headerRow = () => this.el('tr', null, ...columns.map((i) =>
+        this.el('th', { scope: 'col', 'data-weekday': WEEKDAYS[i] ?? 'sun' },
+          window.MockI18n.formatDate(HEADER_WEEK[i] ?? HEADER_WEEK[0] ?? '', 'weekday'))));
+
+      /** @param {IsoDate} date */
+      const hasSample = (date) => findDay(date) !== undefined;
+      /**
+       * A day without a sample row: its date and weekday only (no link, no almanac).
+       * @param {number} d
+       * @param {boolean} compact
+       */
+      const plainDay = (d, compact) => {
+        const date = dateOf(d);
+        /** @type {Record<string, string>} */
+        const attrs = { class: 'mk-day-cell', 'data-weekday': WEEKDAYS[weekdayOf(month.y, month.m, d)] ?? 'sun', 'data-no-sample-day': '' };
+        if (compact) {
+          const label = [window.MockI18n.formatDate(date, 'date-long'), this.t('calendar.no-sample-day')]
+            .join(state.lang === 'ja' ? '、' : ', ');
+          return this.el('span', { ...attrs, 'data-compact': '', role: 'img', 'aria-label': label },
+            this.el('span', { class: 'mk-day-cell__num' }, String(d)));
+        }
+        return this.el('div', attrs, this.el('div', { class: 'mk-day-cell__head' },
+          this.el('span', { class: 'mk-day-cell__num' }, String(d)),
+          this.el('span', { class: 'mk-day-cell__weekday' }, window.MockI18n.formatDate(date, 'weekday'))));
+      };
 
       // PC: full cells in a 7-column table.
       const fullBody = this.el('tbody');
@@ -451,7 +557,7 @@
           /** @type {Record<string, string>} */
           const tdAttrs = {};
           if (date === sample.today) tdAttrs['aria-current'] = 'date';
-          row.append(this.el('td', tdAttrs, dayCellElement(date, false)));
+          row.append(this.el('td', tdAttrs, hasSample(date) ? dayCellElement(date, false) : plainDay(d, false)));
         }
         fullBody.append(row);
       }
@@ -477,7 +583,7 @@
             tabindex: isSelected ? '0' : '-1',
             'data-date': date,
             'data-mk-focus': `day-${date}`,
-          }, dayCellElement(date, true));
+          }, hasSample(date) ? dayCellElement(date, true) : plainDay(d, true));
           button.addEventListener('click', () => this.select(date, true));
           row.append(this.el('td', tdAttrs, button));
         }
@@ -495,8 +601,8 @@
         let next = current.d;
         const offset = KEY_OFFSETS[event.key];
         if (offset !== undefined) next += offset;
-        else if (event.key === 'Home') next -= weekdayOf(current.y, current.m, current.d);
-        else if (event.key === 'End') next += 6 - weekdayOf(current.y, current.m, current.d);
+        else if (event.key === 'Home') next -= this.columnOf(current.y, current.m, current.d);
+        else if (event.key === 'End') next += 6 - this.columnOf(current.y, current.m, current.d);
         else return;
         event.preventDefault();
         next = Math.min(Math.max(next, 1), total);
@@ -504,15 +610,35 @@
       });
 
       const layout = this.ensureLayout();
-      layout.root.firstElementChild?.replaceWith(full);
+      layout.full.replaceWith(full);
+      layout.full = full;
+      if (this.hasAttribute('nav')) {
+        layout.nav.setAttribute('aria-label', this.t('calendar.nav.label'));
+        layout.nav.replaceChildren(...this.navButtons(month));
+        if (!layout.nav.isConnected) layout.root.prepend(layout.nav);
+      } else {
+        layout.nav.remove();
+      }
+      let allSampled = true;
+      for (let d = 1; d <= total; d += 1) if (!hasSample(dateOf(d))) allSampled = false;
+      if (allSampled) {
+        layout.note.remove();
+      } else {
+        layout.note.textContent = this.t('calendar.no-sample-days');
+        if (layout.note.parentNode !== layout.root) full.before(layout.note);
+      }
+      layout.status.textContent = '';
       const [gridSlot, legendSlot] = Array.from(layout.compact.children);
       gridSlot?.replaceWith(compactGrid);
       legendSlot?.replaceWith(this.legend());
       layout.summary.setAttribute('aria-label', this.t('calendar.summary-label'));
-      layout.summary.replaceChildren(
-        this.el('h3', { class: 'mk-calendar__summary-title' }, window.MockI18n.formatDate(selected, 'date-long')),
-        dayCellElement(selected, false),
-        this.el('a', { class: 'mk-calendar__detail-link', href: dayDetailHref(selected, state) }, this.t('calendar.open-day-detail')));
+      const title = this.el('h3', { class: 'mk-calendar__summary-title' }, window.MockI18n.formatDate(selected, 'date-long'));
+      if (hasSample(selected)) {
+        layout.summary.replaceChildren(title, dayCellElement(selected, false),
+          this.el('a', { class: 'mk-calendar__detail-link', href: dayDetailHref(selected, state) }, this.t('calendar.open-day-detail')));
+      } else {
+        layout.summary.replaceChildren(title, this.el('p', null, this.t('calendar.no-sample-day')));
+      }
     }
   }
 

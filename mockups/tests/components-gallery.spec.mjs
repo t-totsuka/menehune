@@ -128,6 +128,7 @@ test.describe('main variants', () => {
     await expect(page.locator('main mk-guest-notice[band]').getByRole('region', { name: 'ログインの案内' })).toHaveCount(1);
     await expect(page.locator('main mk-guest-notice[variant="private-post"]')).toHaveCount(1);
     await expect(page.locator('main mk-day-cell[compact]')).not.toHaveCount(0);
+    await expect(page.locator('main mk-month-calendar[week-start="mon"][nav]')).toHaveCount(1);
     await expect(page.locator('main mk-post-card[variant="compact"]')).not.toHaveCount(0);
     await expect(page.locator('main mk-rise-set[date]')).not.toHaveCount(0);
     await expect(page.locator('main mk-rise-set[post-id]')).not.toHaveCount(0);

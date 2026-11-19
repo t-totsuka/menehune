@@ -345,8 +345,12 @@ interface GuestNoticeAttrs { readonly variant?: 'read-only' | 'private-post'; re
 interface StatusBadgeAttrs { readonly status: PostStatus; }
 type AdminBandAttrs = Readonly<Record<string, never>>;
 
-/** YYYY-MM */
-interface MonthCalendarAttrs { readonly month: string; }
+/**
+ * `month` is YYYY-MM. `week-start="mon"` (task 8.1) starts the week on Monday (default Sunday).
+ * `nav` (boolean, task 8.1) adds previous / this / next month buttons that change `month` and
+ * fire a bubbling CustomEvent<{ month: string }>('mk-month-change').
+ */
+interface MonthCalendarAttrs { readonly month: string; readonly 'week-start'?: 'sun' | 'mon'; readonly nav?: ''; }
 interface DayCellAttrs { readonly date: IsoDate; readonly compact?: BooleanAttr; }
 interface AlmanacSummaryAttrs { readonly date: IsoDate; readonly variant?: 'full' | 'brief'; }
 /** `chart` (boolean, task 8.1) adds the 0-24h chart of when the sun and the moon are up */

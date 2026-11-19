@@ -41,6 +41,15 @@
     'calendar.legend.holiday': 'Holiday',
     'calendar.legend.provisional': 'Provisional holiday (not yet confirmed)',
     'calendar.legend.event': 'Astronomical event',
+    // Month navigation and days without sample rows (task 8.1, calendar-month)
+    'calendar.nav.label': 'Change month',
+    'calendar.nav.prev': 'Previous month',
+    'calendar.nav.next': 'Next month',
+    'calendar.nav.this-month': 'This month',
+    'calendar.nav.target': ' ({month})',
+    'calendar.nav.shown': 'Showing {month}',
+    'calendar.no-sample-days': 'Days without sample data show only the date and weekday (no holiday, rokuyo, lunar date, moon age or marks).',
+    'calendar.no-sample-day': 'No sample data for this day',
 
     // Almanac summary, rise/set and event list (task 4.3)
     'almanac.moon': 'Moon age',
