@@ -173,7 +173,8 @@ test.describe('post-detail: default post (6.1, 6.7, 6.8, 7.2〜7.4, 8.3)', () =>
     await page.goto(urlOf('?lang=en'));
     const content = view(page, 'content');
     await expect(page.locator('main h2 > [data-i18n]')).toHaveText([
-      en['screen.post-detail.post'], en['screen.post-detail.location'], en['screen.post-detail.comments'],
+      // task 8.1 (review): the comments follow the post, the location comes last
+      en['screen.post-detail.post'], en['screen.post-detail.comments'], en['screen.post-detail.location'],
     ]);
     await expect(content.locator('[data-post-target-date]')).toHaveText('Tue, Nov 17, 2026');
     await expect(content.locator('[data-post-posted-at]')).toHaveText('Mon, Nov 16, 2026, 18:42');

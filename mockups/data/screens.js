@@ -135,8 +135,19 @@
     screen('post-detail', 'public', GUEST_MEMBER, [
       'private-blocked', 'hidden-own', 'hidden-other',
       'deleted-comment', 'no-location', 'weather-failed',
-    ], guestBandReview(
-      '反映（8.1）：投稿の操作の代わりに出していた案内を、ヘッダーの直下の全幅の帯に移した。ログインしたユーザだけが見られる投稿の案内（private-blocked）は、投稿の代わりに出す状態の説明なので本文に残した（README の論点）',
+    ], review(
+      Object.freeze({
+        // 2026-11-19 の画面ごとの指摘をタスク 8.1 で反映し、再レビュー待ちのままにした
+        status: 'in-review',
+        reviewedAt: '2026-11-19',
+        notes: Object.freeze([
+          GUEST_BAND_NOTE,
+          '反映（8.1）：投稿の操作の代わりに出していた案内を、ヘッダーの直下の全幅の帯に移した。ログインしたユーザだけが見られる投稿の案内（private-blocked）は、投稿の代わりに出す状態の説明なので本文に残した（README の論点）',
+          '左右１：１で「投稿」と「コメント」は近くに寄せたい',
+          '反映（8.1）：960px 以上（トップ、日詳細と同じ幅）で、見出しの下を 1:1 の 2 列にし、左に「投稿の内容」、右に「コメント」（会員の入力欄を含む）を上端をそろえて並べた。「場所と空のようす」（地図、日月の出没、天気）は 2 列の下に全幅で置いた（地図と出没・天気を横に並べる部品の配置を保ち、読む順と見た目の順をそろえるため）。狭い幅では 1 列で、投稿、コメント、場所の順にした（コメントを場所より前に移した）。投稿の代わりに案内を出す表示（private-blocked、非表示）は列に分けず全幅のまま（README の論点）',
+        ]),
+      }),
+      DRAFT,
     )),
     screen('post-edit', 'member', GUEST_MEMBER, ['validation-error'], guestBandReview(
       '反映（8.1）：フォームの代わりに出していた案内を、ヘッダーの直下の全幅の帯に移した。フォームを出さない理由は、本文に 1 行の文として残した（ログインの導線は帯だけ。README の論点）',

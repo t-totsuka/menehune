@@ -39,7 +39,11 @@
     </div>
 
     <div data-post-view="content">
-      <div class="l-stack">
+      <!-- Task 8.1 (wireframe review of 2026-11-19): the post and its comments sit side by side.
+           From 960px the post (left) and the comments (right) are two equal columns at the top,
+           and the location panel (region, map, rise / set, weather) follows below both at full
+           width. Reading order (and the phone layout) is post, comments, location. -->
+      <div class="screen-post-detail">
         <article class="screen-section l-stack" aria-labelledby="post-heading">
           <h2 id="post-heading"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.post-detail.post">投稿の内容</span></h2>
           <div class="screen-post-head">
@@ -72,13 +76,6 @@
           </div>
         </article>
 
-        <div data-location-section>
-          <section class="screen-section l-stack" aria-labelledby="post-location">
-            <h2 id="post-location"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.post-detail.location">場所と空のようす</span></h2>
-            <mk-location-panel data-post-ref post-id="p-101"></mk-location-panel>
-          </section>
-        </div>
-
         <section class="screen-section l-stack" aria-labelledby="post-comments">
           <h2 id="post-comments"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.post-detail.comments">コメント</span></h2>
           <div data-when-auth="member">
@@ -94,6 +91,13 @@
           </div>
           <mk-comment-tree data-post-ref post-id="p-101"></mk-comment-tree>
         </section>
+
+        <div data-location-section>
+          <section class="screen-section l-stack" aria-labelledby="post-location">
+            <h2 id="post-location"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.post-detail.location">場所と空のようす</span></h2>
+            <mk-location-panel data-post-ref post-id="p-101"></mk-location-panel>
+          </section>
+        </div>
       </div>
     </div>
   </main>

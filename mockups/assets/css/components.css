@@ -1693,6 +1693,31 @@ mk-weather {
 }
 
 /* Post detail screen (task 5.3). */
+
+/* Post detail content (task 8.1, wireframe review): one column in DOM order (post, comments,
+   location) on narrow screens; from 960px the post and its comments are two equal columns side by
+   side, and the location panel (region, map, rise / set, weather) spans both below them. The
+   wrappers the page script toggles (`[data-post-view]`, `[data-location-section]`) set no
+   display, so `hidden` still applies; a hidden location simply leaves the second row empty. */
+.screen-post-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-content: start;
+}
+
+@media (min-width: 960px) {
+  .screen-post-detail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .screen-post-detail > [data-location-section] {
+    grid-column: 1 / -1;
+  }
+}
+
 .screen-post-head {
   display: flex;
   flex-wrap: wrap;
