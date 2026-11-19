@@ -964,7 +964,7 @@ mk-rise-set[chart] {
   font-weight: var(--font-weight-medium);
 }
 
-/* mark-past (task 8.1, astro-events): a text label before the datetime; the item is muted on
+/* mark-past (task 8.1, astro-events and top): a text label before the datetime; the item is muted on
    top of that, never by colour alone. */
 .mk-event[data-past] {
   border-inline-start-style: dashed;
@@ -983,6 +983,16 @@ mk-rise-set[chart] {
   color: var(--color-text);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
+}
+
+/* relative-days (task 8.1, astro-events and top): the distance from today, as text after the datetime.
+   It keeps the body colour on past rows too, and does not break inside "in 5 days". */
+.mk-event__relative {
+  display: inline-block;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
 }
 
 .mk-event-list__empty {

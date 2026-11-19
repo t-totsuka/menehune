@@ -69,6 +69,9 @@
     'event-list.result-count-one': '1 astronomical event',
     'event-list.filters': 'Filter by period and type',
     'event-list.past': 'Past',
+    'event-list.days-later': 'in {count} days',
+    'event-list.days-later-one': 'in 1 day',
+    'event-list.today': 'today',
 
     // Star chart (task 4.4)
     'sky.direction.n': 'N',

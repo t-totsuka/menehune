@@ -108,7 +108,7 @@
             <tr data-element="mk-day-cell"><th scope="row"><a href="#sec-almanac-cells"><code>mk-day-cell</code></a></th><td>almanac.js</td><td><code>date</code>（節気・予定の祝日・天文現象・閏月・サンプルなし）、<code>compact</code></td><td>言語</td></tr>
             <tr data-element="mk-almanac-summary"><th scope="row"><a href="#sec-summary-full"><code>mk-almanac-summary</code></a></th><td>almanac.js</td><td><code>variant="full"</code>（天文現象・予定の祝日・閏月）、<code>variant="brief"</code>（月齢から描いた月の図つき）、サンプルなし</td><td>言語</td></tr>
             <tr data-element="mk-rise-set"><th scope="row"><a href="#sec-rise-set"><code>mk-rise-set</code></a></th><td>almanac.js</td><td><code>date</code>（月の入りなしを含む）、<code>post-id</code>（位置情報なしは何も出さない）、<code>chart</code>（日月が地平線の上にある時間の図）</td><td>言語</td></tr>
-            <tr data-element="mk-event-list"><th scope="row"><a href="#sec-event-list-month"><code>mk-event-list</code></a></th><td>almanac.js</td><td><code>from</code> と <code>to</code>、<code>kinds</code>、<code>filters="collapsed"</code>（絞り込みを閉じたアコーディオンにする）、<code>mark-past</code>（サンプルの今日より前の日付の現象に「過去」の文字を付ける）</td><td>シナリオ：empty（空状態）、fetch-error（取得エラー）</td></tr>
+            <tr data-element="mk-event-list"><th scope="row"><a href="#sec-event-list-month"><code>mk-event-list</code></a></th><td>almanac.js</td><td><code>from</code> と <code>to</code>、<code>kinds</code>、<code>filters="collapsed"</code>（絞り込みを閉じたアコーディオンにする）、<code>mark-past</code>（サンプルの今日より前の日付の現象に「過去」の文字を付ける）、<code>relative-days</code>（日時の後ろに、サンプルの今日から何日後か、または「今日」を出す。過去の現象には出さない）</td><td>シナリオ：empty（空状態）、fetch-error（取得エラー）</td></tr>
             <tr data-element="mk-star-chart"><th scope="row"><a href="#sec-star-chart-default"><code>mk-star-chart</code></a></th><td>sky.js</td><td>属性なし、<code>sample="unknown"</code>（サンプルなし）</td><td>段階（ワイヤーフレームでは占位表示）、言語、テーマ</td></tr>
             <tr data-element="mk-post-card"><th scope="row"><a href="#sec-post-card"><code>mk-post-card</code></a></th><td>posts.js</td><td><code>post-id</code>（公開・ログインユーザのみ・一時非表示・削除済み・サンプルなし）、<code>variant="compact"</code>、<code>meta="icons"</code>（公開範囲のアイコンと記号だけの状態）</td><td>言語</td></tr>
             <tr data-element="mk-comment-tree"><th scope="row"><a href="#sec-comment-tree"><code>mk-comment-tree</code></a></th><td>posts.js</td><td><code>post-id</code>（深さ 7 と削除済み、コメントなし、サンプルなし）、スマートフォン幅（字下げ 3 段）</td><td>ログイン状態（コメントごとの通報の導線）、言語</td></tr>
@@ -401,8 +401,8 @@
       <h3 id="sec-event-list-collapsed"><code>mk-event-list filters="collapsed"</code>（トップ用：絞り込みは閉じたアコーディオン）</h3>
       <mk-event-list id="events-collapsed" from="2026-11-16" to="2026-11-30" filters="collapsed"></mk-event-list>
 
-      <h3 id="sec-event-list-past"><code>mk-event-list from="2026-11-01" to="2026-11-20" mark-past</code>（天文現象一覧用：サンプルの今日 2026-11-16 より前の日付の現象に「過去」の文字を付ける）</h3>
-      <mk-event-list id="events-past" from="2026-11-01" to="2026-11-20" mark-past></mk-event-list>
+      <h3 id="sec-event-list-past"><code>mk-event-list from="2026-11-01" to="2026-11-20" mark-past relative-days</code>（天文現象一覧用：サンプルの今日 2026-11-16 より前の日付の現象に「過去」の文字を付け、今日以降の現象の日時の後ろに今日から何日後かを出す）</h3>
+      <mk-event-list id="events-past" from="2026-11-01" to="2026-11-20" mark-past relative-days></mk-event-list>
     </section>
 
     <section class="l-surface l-stack" aria-labelledby="sec-star-chart">

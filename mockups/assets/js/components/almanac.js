@@ -58,6 +58,11 @@
 //   (SampleDataSet.today, not the real clock): the item gets data-past and a visible text label
 //   (event-list.past) before its datetime, so the state is not shown by colour alone and is read
 //   out with the item. Events on or after today are unchanged.
+//   `relative-days` (task 8.1, astro-events and top) adds, after each datetime and in the same
+//   cell, the distance of the event's date from the sample's today, counted by calendar dates
+//   (not times): event-list.days-later(-one) / event-list.today, with data-days. Events dated
+//   before today get no distance (review: past events need no 「n日前」; mark-past labels them).
+//   It is plain text in the item, so it is read out together with the datetime.
 //
 // Days are looked up by date in SampleDataSet.almanac (its first row is the leap-month example
 // 2025-07-25, so the calendar filters by month); events by AlmanacDay.eventIds.
@@ -966,7 +971,7 @@
    */
 
   class EventList extends MockElement {
-    static observedAttributes = ['from', 'to', 'kinds', 'filters', 'mark-past'];
+    static observedAttributes = ['from', 'to', 'kinds', 'filters', 'mark-past', 'relative-days'];
 
     constructor() {
       super();
@@ -1085,15 +1090,22 @@
         return;
       }
       const markPast = this.hasAttribute('mark-past');
+      const relativeDays = this.hasAttribute('relative-days');
       const today = this.sample().today;
       const list = this.el('ol', { class: 'mk-event-list__items' });
       for (const event of shown) {
         const past = markPast && eventDate(event) < today;
         const time = this.el('time', { class: 'mk-event__at', datetime: event.at }, window.MockI18n.formatDate(event.at, 'datetime'));
-        // A past event keeps three grid cells: the label and the datetime share the first one.
-        const when = past
-          ? this.el('span', { class: 'mk-event__when' }, this.el('span', { class: 'mk-event__past' }, this.t('event-list.past')), ' ', time)
-          : time;
+        // The item keeps three grid cells: the past label, the datetime and the distance from
+        // today share the first one.
+        /** @type {(Node | string)[]} */
+        const whenParts = [time];
+        if (past) whenParts.unshift(this.el('span', { class: 'mk-event__past' }, this.t('event-list.past')), ' ');
+        const days = daysBetween(today, eventDate(event));
+        if (relativeDays && days >= 0) {
+          whenParts.push(' ', this.el('span', { class: 'mk-event__relative', 'data-days': String(days) }, this.relativeDaysText(days)));
+        }
+        const when = whenParts.length === 1 ? time : this.el('span', { class: 'mk-event__when' }, ...whenParts);
         /** @type {Record<string, string>} */
         const attrs = { class: 'mk-event', 'data-kind': event.kind, 'data-tone': eventTone(event), 'data-event-id': event.id };
         if (past) attrs['data-past'] = '';
@@ -1103,6 +1115,12 @@
           this.el('span', { class: 'mk-event__title' }, eventTitle(event))));
       }
       results.replaceChildren(list);
+    }
+
+    /** Distance from the sample's today, in calendar days (0 or later only). @param {number} days */
+    relativeDaysText(days) {
+      if (days === 0) return this.t('event-list.today');
+      return days === 1 ? this.t('event-list.days-later-one') : this.t('event-list.days-later', { count: days });
     }
   }
 

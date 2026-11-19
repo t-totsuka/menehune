@@ -136,6 +136,7 @@ test.describe('main variants', () => {
     await expect(page.locator('main mk-event-list[from][to]')).not.toHaveCount(0);
     await expect(page.locator('main mk-event-list[kinds]')).not.toHaveCount(0);
     await expect(page.locator('main mk-event-list[mark-past]')).toHaveCount(1);
+    await expect(page.locator('main mk-event-list[relative-days]')).toHaveCount(1);
     await expect(page.locator('main mk-site-header[current]')).not.toHaveCount(0);
     await expect(page.locator('main mk-star-chart[sample]')).not.toHaveCount(0);
   });

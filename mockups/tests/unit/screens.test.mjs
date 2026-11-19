@@ -145,11 +145,18 @@ test('top: the 2026-11-19 review notes are kept and each outcome is recorded', (
   const notes = [...(top.notes ?? [])];
   const original = notes.filter((n) => !/^(反映|見送り)（8\.1）：/.test(n));
   const outcomes = notes.filter((n) => /^(反映|見送り)（8\.1）：/.test(n));
-  assert.equal(original.length, 6);
+  assert.equal(original.length, 7);
   assert.ok(outcomes.length >= original.length, 'every note has an applied / deferred entry');
   assert.ok(outcomes.some((n) => n.startsWith('見送り')), 'the deferred member location basis is recorded');
   assert.ok(original.includes(GUEST_BAND_NOTE), 'the cross-screen note is recorded for top too');
+  // the relative days note (2026-11-19, after astro-events got relative-days) comes last, in the
+  // user's words, right after the guest band outcome, and is followed by its own outcome
+  const at = notes.indexOf(TOP_RELATIVE_DAYS_NOTE);
+  assert.equal(at, notes.indexOf(GUEST_BAND_NOTE) + 2, `records "${TOP_RELATIVE_DAYS_NOTE}" verbatim after the guest band outcome`);
+  assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
+  assert.equal(notes.length, at + 2);
 });
+const TOP_RELATIVE_DAYS_NOTE = 'トップにも出すようにしたい。';
 
 // Task 8.1 (cross-screen note of 2026-11-19): the guest notice is one band right below the header
 // on every screen. Every screen records the note (in the user's words) and its outcome; login is
@@ -238,6 +245,8 @@ test('day-detail: the second-round notes are recorded in order, each followed by
 // Task 8.1 (astro-events, 2026-11-19): one note in the user's words, followed right after by its
 // outcome; the guest band note and its outcome recorded earlier stay first.
 const ASTRO_EVENTS_NOTE = '過去の日付のものはわかるようにしたい';
+const ASTRO_EVENTS_DAYS_NOTE = '天文現象の一覧で「何日後」なのか知りたい';
+const ASTRO_EVENTS_NO_DAYS_AGO_NOTE = '過去の現象では何日前は出さなくてOK';
 
 test('astro-events: the 2026-11-19 review note is kept and its outcome follows it', () => {
   const wf = byId().get('astro-events').review.wireframe;
@@ -249,6 +258,15 @@ test('astro-events: the 2026-11-19 review note is kept and its outcome follows i
   const at = notes.indexOf(ASTRO_EVENTS_NOTE);
   assert.ok(at >= 2, `records "${ASTRO_EVENTS_NOTE}" verbatim after the guest band outcome`);
   assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
+  // the second note (days from today) follows the first one's outcome, with its own outcome
+  const days = notes.indexOf(ASTRO_EVENTS_DAYS_NOTE);
+  assert.equal(days, at + 2, `records "${ASTRO_EVENTS_DAYS_NOTE}" verbatim after the first outcome`);
+  assert.match(notes[days + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the second note');
+  // the third note (no 「n日前」 for past events) follows the second one's outcome
+  const noAgo = notes.indexOf(ASTRO_EVENTS_NO_DAYS_AGO_NOTE);
+  assert.equal(noAgo, days + 2, `records "${ASTRO_EVENTS_NO_DAYS_AGO_NOTE}" verbatim after the second outcome`);
+  assert.match(notes[noAgo + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the third note');
+  assert.equal(notes.length, noAgo + 2);
 });
 
 // Task 8.1 (post-detail, 2026-11-19): each note in the user's words, followed right after by its

@@ -264,3 +264,82 @@ test.describe('top: review note 5 (moon figure and rise / set chart)', () => {
     await expect(page.locator('main .mk-almanac-summary__item[data-item="moon"]')).toBeVisible();
   });
 });
+
+// Task 8.1 (top, 「トップにも出すようにしたい。」 after astro-events got relative-days): top's upcoming
+// events show the distance from the sample today too (mk-event-list relative-days): 「n日後」 /
+// 「今日」 after the datetime, in the same cell. Past rows (only after the filter start is moved
+// before today) get no distance; top also has mark-past so such rows keep the 「過去」 label.
+/** @param {Record<string, string>} dict @param {number} days */
+const relativeText = (dict, days) => {
+  if (days === 0) return dict['event-list.today'];
+  return days === 1 ? dict['event-list.days-later-one'] : dict['event-list.days-later'].replace('{count}', String(days));
+};
+/** @param {string} a @param {string} b */
+const daysFrom = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+
+test.describe('top: relative days in the upcoming events', () => {
+  for (const [lang, dict] of /** @type {const} */ ([['ja', ja], ['en', en]])) {
+    test(`${lang}: each upcoming event shows 「n日後」 / 「今日」 after its datetime`, async ({ page }) => {
+      const problems = watchConsole(page);
+      await page.goto(urlOf('top', `?lang=${lang}`));
+      const list = page.locator('main mk-event-list');
+      await expect(list).toHaveAttribute('relative-days', '');
+      await expect(list).toHaveAttribute('mark-past', '');
+      const rows = await list.locator('.mk-event').evaluateAll((els) => els.map((li) => {
+        const rel = li.querySelector('.mk-event__relative');
+        const time = li.querySelector('time');
+        return {
+          date: (time?.getAttribute('datetime') ?? '').slice(0, 10),
+          text: rel?.textContent ?? null,
+          afterTime: !!(rel && time && (time.compareDocumentPosition(rel) & Node.DOCUMENT_POSITION_FOLLOWING)),
+          sameCell: !!(rel && time && rel.parentElement === time.parentElement && rel.parentElement !== li),
+          spoken: /** @type {HTMLElement} */ (li).innerText,
+        };
+      }));
+      expect(rows.length).toBeGreaterThan(0);
+      for (const r of rows) {
+        expect(r.date >= sample.today).toBe(true);
+        const expected = relativeText(dict, daysFrom(sample.today, r.date));
+        expect(r.text).toBe(expected);
+        expect(r.afterTime).toBe(true);
+        expect(r.sameCell).toBe(true);
+        expect(r.spoken).toContain(expected);
+      }
+      expect(problems).toEqual([]);
+    });
+  }
+
+  test('moving the period start before today: past rows get 「過去」 and no distance', async ({ page }) => {
+    await page.goto(urlOf('top', '?lang=ja'));
+    const list = page.locator('main mk-event-list');
+    await list.locator('details.mk-event-list__filter-toggle > summary').click();
+    await list.getByLabel(ja['event-list.from']).fill('2026-11-01');
+    const past = list.locator('.mk-event[data-past]');
+    await expect(past).not.toHaveCount(0);
+    await expect(past.locator('.mk-event__past').first()).toHaveText(ja['event-list.past']);
+    await expect(past.locator('.mk-event__relative')).toHaveCount(0);
+    const upcoming = list.locator('.mk-event:not([data-past])');
+    const n = await upcoming.count();
+    await expect(upcoming.locator('.mk-event__relative')).toHaveCount(n);
+  });
+
+  for (const [width, lang] of /** @type {const} */ ([[960, 'ja'], [960, 'en'], [1280, 'en'], [375, 'ja'], [375, 'en']])) {
+    test(`${width}px (${lang}): the datetime and the distance fit the column (wrapping, no overflow)`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(urlOf('top', `?lang=${lang}`));
+      await expect(page.locator('main .mk-event__relative').first()).toBeVisible();
+      const overflow = await page.evaluate(() => {
+        const s = /** @type {Element} */ (document.scrollingElement);
+        return s.scrollWidth - s.clientWidth;
+      });
+      expect(overflow).toBeLessThanOrEqual(0);
+      const boxes = await page.locator('main .mk-event').evaluateAll((els) => els.map((li) => {
+        const box = li.getBoundingClientRect();
+        const rel = /** @type {Element} */ (li.querySelector('.mk-event__relative')).getBoundingClientRect();
+        return { spill: li.scrollWidth - li.clientWidth, inside: rel.left >= box.left - 0.5 && rel.right <= box.right + 0.5 };
+      }));
+      for (const b of boxes) expect(b).toEqual({ spill: expect.any(Number), inside: true });
+      for (const b of boxes) expect(b.spill).toBeLessThanOrEqual(1);
+    });
+  }
+});
