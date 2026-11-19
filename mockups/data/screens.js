@@ -103,8 +103,19 @@
       }),
       DRAFT,
     )),
-    screen('day-detail', 'public', GUEST_MEMBER, [], guestBandReview(
-      '反映（8.1）：「この日の投稿」の中にあった案内を、ヘッダーの直下の全幅の帯に移した',
+    screen('day-detail', 'public', GUEST_MEMBER, [], review(
+      Object.freeze({
+        // 2026-11-19 の画面ごとの指摘をタスク 8.1 で反映し、再レビュー待ちのままにした
+        status: 'in-review',
+        reviewedAt: '2026-11-19',
+        notes: Object.freeze([
+          GUEST_BAND_NOTE,
+          '反映（8.1）：「この日の投稿」の中にあった案内を、ヘッダーの直下の全幅の帯に移した',
+          'Topに同じく、投稿がメインなので左右１：２で表示',
+          '反映（8.1）：960px 以上で、見出しと「月のカレンダーに戻る」の下を 1:2 の 2 列にし、2 の側（右）に「この日の投稿」、1 の側（左）に「この日の暦」と日の出・日の入り、月の出・月の入りを並べた（トップと同じ幅から）。狭い幅では 1 列で、暦、出没、投稿の順のまま（README の論点）',
+        ]),
+      }),
+      DRAFT,
     )),
     screen('astro-events', 'public', GUEST_MEMBER, ['empty', 'fetch-error'], guestBandReview(BAND_ADDED)),
     screen('star-chart', 'public', GUEST_MEMBER, [], guestBandReview(BAND_ADDED)),

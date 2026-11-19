@@ -170,6 +170,21 @@ test('calendar-month: the 2026-11-19 review notes are kept and each outcome foll
   }
 });
 
+// Task 8.1 (day-detail, 2026-11-19): one note in the user's words, followed right after by its
+// outcome; the guest band note and its outcome recorded earlier stay first.
+const DAY_DETAIL_NOTE = 'Topに同じく、投稿がメインなので左右１：２で表示';
+
+test('day-detail: the 2026-11-19 review note is kept and its outcome follows it', () => {
+  const wf = byId().get('day-detail').review.wireframe;
+  assert.equal(wf.status, 'in-review');
+  assert.equal(wf.reviewedAt, '2026-11-19');
+  const notes = [...(wf.notes ?? [])];
+  assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
+  const at = notes.indexOf(DAY_DETAIL_NOTE);
+  assert.ok(at >= 2, `records "${DAY_DETAIL_NOTE}" verbatim after the guest band outcome`);
+  assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
+});
+
 test('registry and every nested object is frozen', () => {
   const screens = registry();
   assert.ok(Object.isFrozen(screens));
