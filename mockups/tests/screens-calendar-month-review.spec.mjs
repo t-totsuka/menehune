@@ -6,6 +6,10 @@
 //      page keeps the shown month in ?month=YYYY-MM (replaceState; the other parameters stay),
 //      and updates the h2. Months without sample rows show the dates and weekdays only, with
 //      a note saying so (no holidays / rokuyo / lunar date / moon / marks are computed).
+//   3. カレンダーで2026年11月が2回出てくるので要修正: the month shows once, in the h2. The full
+//      grid keeps its <caption> (the table's accessible name) but visually hidden
+//      (mk-month-calendar caption="hidden"; the gallery samples keep a visible caption). The
+//      visible order is h2, month buttons, grid.
 import { test, expect } from '@playwright/test';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
@@ -237,5 +241,101 @@ test.describe('calendar-month: review note 2 (moving between months)', () => {
     await expect(calendar(page).locator('[data-calendar-status]')).toHaveText('Showing December 2026');
     await expect(calendar(page).locator('[data-calendar-no-sample]')).toHaveText(en['calendar.no-sample-days']);
     expect(problems).toEqual([]);
+  });
+});
+
+/**
+ * Visible text nodes in <main> whose trimmed text is exactly `text`. A node counts when it has a
+ * box larger than 1px and no ancestor is hidden (checkVisibility) or clipped (clip-path, as
+ * .visually-hidden does).
+ * @param {import('@playwright/test').Page} page
+ * @param {string} text
+ */
+const visibleExactCount = (page, text) => page.evaluate((want) => {
+  const main = document.querySelector('main');
+  if (main === null) return -1;
+  const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+  let count = 0;
+  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+    if ((node.textContent ?? '').trim() !== want) continue;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const rect = range.getBoundingClientRect();
+    if (rect.width <= 1 || rect.height <= 1) continue;
+    let hidden = false;
+    for (let el = node.parentElement; el !== null; el = el.parentElement) {
+      if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) { hidden = true; break; }
+      if (getComputedStyle(el).clipPath !== 'none') { hidden = true; break; }
+    }
+    if (!hidden) count += 1;
+  }
+  return count;
+}, text);
+
+test.describe('calendar-month: review note 3 (the month shows once)', () => {
+  for (const width of [1440, 375]) {
+    test(`${width}px ja: 2026年11月 is visible once, also after moving to December`, async ({ page }) => {
+      const problems = watchConsole(page);
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(urlOf('?lang=ja'));
+      await expect(page.locator('main h2 [data-i18n-date]')).toHaveText('2026年11月');
+      expect(await visibleExactCount(page, '2026年11月')).toBe(1);
+      await monthNav(page).getByRole('button', { name: '次の月（2026年12月）' }).click();
+      await expect(page.locator('main h2 [data-i18n-date]')).toHaveText('2026年12月');
+      expect(await visibleExactCount(page, '2026年12月')).toBe(1);
+      expect(await visibleExactCount(page, '2026年11月')).toBe(0);
+      expect(problems).toEqual([]);
+    });
+
+    test(`${width}px en: November 2026 is visible once, also after moving to December`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(urlOf('?lang=en'));
+      await expect(page.locator('main h2 [data-i18n-date]')).toHaveText('November 2026');
+      expect(await visibleExactCount(page, 'November 2026')).toBe(1);
+      await calendar(page).getByRole('navigation', { name: en['calendar.nav.label'] })
+        .getByRole('button', { name: 'Next month (December 2026)' }).click();
+      await expect(page.locator('main h2 [data-i18n-date]')).toHaveText('December 2026');
+      expect(await visibleExactCount(page, 'December 2026')).toBe(1);
+    });
+  }
+
+  test('the full grid keeps its caption as the accessible name, visually hidden', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(urlOf('?lang=ja'));
+    await expect(calendar(page)).toHaveAttribute('caption', 'hidden');
+    const caption = fullGrid(page).locator('caption');
+    await expect(caption).toHaveText('2026年11月');
+    await expect(caption).toHaveClass(/visually-hidden/);
+    await expect(page.getByRole('table', { name: '2026年11月', exact: true })).toHaveCount(1);
+    await monthNav(page).getByRole('button', { name: '次の月（2026年12月）' }).click();
+    await expect(page.getByRole('table', { name: '2026年12月', exact: true })).toHaveCount(1);
+    await expect(fullGrid(page).locator('caption')).toHaveClass(/visually-hidden/);
+  });
+
+  for (const width of [1440, 375]) {
+    test(`${width}px: the visible order is h2, month buttons, grid`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(urlOf('?lang=ja'));
+      const grid = width >= 600 ? fullGrid(page) : calendar(page).locator('[data-layout="compact"] [role="grid"]');
+      await expect(grid).toBeVisible();
+      const top = async (/** @type {import('@playwright/test').Locator} */ l) => (await l.boundingBox())?.y ?? NaN;
+      const h2 = await top(page.locator('#calendar-month-heading'));
+      const nav = await top(monthNav(page));
+      const g = await top(grid);
+      expect(h2).toBeLessThan(nav);
+      expect(nav).toBeLessThan(g);
+      expect(await page.evaluate(pageHorizontalOverflow)).toBeLessThanOrEqual(0);
+    });
+  }
+
+  test('the component gallery keeps a visible caption (caption="hidden" is opt-in)', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(pathToFileURL(join(MOCKUPS_ROOT, 'components.html')).href + '?lang=ja');
+    for (const id of ['cal-2026-11', 'cal-week-nav']) {
+      const caption = page.locator(`#${id} [data-layout="full"] caption`);
+      await expect(caption, id).toBeVisible();
+      await expect(caption, id).not.toHaveClass(/visually-hidden/);
+      await expect(caption, id).toHaveText('2026年11月');
+    }
   });
 });

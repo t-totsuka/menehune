@@ -8,7 +8,7 @@
 //             marks of sekki / kou / zassetsu / astronomical events as symbol + text.
 //   compact : date, holiday mark, moon phase symbol and mark symbols only; role="img" with the
 //             full information as aria-label (the calendar's button takes its name from it).
-// - mk-month-calendar (4.1, 4.2, 12.3) `month` (YYYY-MM), `week-start`, `nav`: renders both
+// - mk-month-calendar (4.1, 4.2, 12.3) `month` (YYYY-MM), `week-start`, `nav`, `caption`: renders both
 //   layouts and CSS picks one.
 //   PC (>= 600px)   : <table> with 7 columns, Sunday first (`week-start="mon"`, task 8.1: Monday
 //                     first; weekday marks follow the real weekday), cells are full mk-day-cell.
@@ -25,6 +25,9 @@
 //   (aria-label = visible label + target month). A button sets `month` on the
 //   element, announces the shown month (visually hidden aria-live) and dispatches a bubbling
 //   CustomEvent<{ month: string }>('mk-month-change') so the page can sync its heading and URL.
+//   `caption="hidden"` (task 8.1, calendar-month screen, whose h2 already shows the month): the
+//   PC table keeps its <caption> (the table's accessible name) but visually hidden, so the month
+//   is not shown twice. Without it the caption stays visible (gallery samples).
 // - mk-almanac-summary (4.3, 4.6, 4.7) `date`, `variant`:
 //   full (default, day detail): date, rokuyo, lunar date (leap label), moon phase / age, sekki,
 //                               kou, zassetsu, holiday (+ provisional label), the day's events;
@@ -362,7 +365,7 @@
   const KEY_OFFSETS = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
 
   class MonthCalendar extends MockElement {
-    static observedAttributes = ['month', 'week-start', 'nav'];
+    static observedAttributes = ['month', 'week-start', 'nav', 'caption'];
 
     constructor() {
       super();
@@ -566,7 +569,7 @@
         fullBody.append(row);
       }
       const full = this.el('table', { class: 'mk-calendar__grid', 'data-layout': 'full' },
-        this.el('caption', null, monthYear),
+        this.el('caption', this.getAttribute('caption') === 'hidden' ? { class: 'visually-hidden' } : null, monthYear),
         this.el('thead', null, headerRow()),
         fullBody);
 

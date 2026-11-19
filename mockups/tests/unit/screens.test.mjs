@@ -153,9 +153,9 @@ test('every screen records the 2026-11-19 guest band note and its outcome', () =
   }
 });
 
-// Task 8.1 (calendar-month, 2026-11-19): two notes in the user's words, each followed right
+// Task 8.1 (calendar-month, 2026-11-19): three notes in the user's words, each followed right
 // after by its outcome; the guest band note recorded earlier stays.
-const CALENDAR_MONTH_NOTES = ['月曜始まりが望ましい', '月の移動ができない'];
+const CALENDAR_MONTH_NOTES = ['月曜始まりが望ましい', '月の移動ができない', 'カレンダーで2026年11月が2回出てくるので要修正'];
 
 test('calendar-month: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
   const wf = byId().get('calendar-month').review.wireframe;

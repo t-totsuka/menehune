@@ -23,10 +23,11 @@
 
     <!-- Task 8.1: one calendar, Monday first, with month navigation. The month comes from
          ?month=YYYY-MM, else 2026-11 (2027-03, provisional equinox holidays, in the
-         provisional-holiday scenario); the page script at the end keeps the h2 and ?month in sync. -->
+         provisional-holiday scenario); the page script at the end keeps the h2 and ?month in sync.
+         caption="hidden": the h2 shows the month, so the table's caption is for screen readers only. -->
     <section class="screen-section l-stack" aria-labelledby="calendar-month-heading">
       <h2 id="calendar-month-heading"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-calendar-heading data-i18n-date="2026-11-01" data-date-style="month-year">2026年11月</span></h2>
-      <mk-month-calendar data-calendar month="2026-11" week-start="mon" nav></mk-month-calendar>
+      <mk-month-calendar data-calendar month="2026-11" week-start="mon" nav caption="hidden"></mk-month-calendar>
     </section>
   </main>
   <mk-site-footer></mk-site-footer>

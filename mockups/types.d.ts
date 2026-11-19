@@ -352,8 +352,9 @@ type AdminBandAttrs = Readonly<Record<string, never>>;
  * `month` is YYYY-MM. `week-start="mon"` (task 8.1) starts the week on Monday (default Sunday).
  * `nav` (boolean, task 8.1) adds previous / this / next month buttons that change `month` and
  * fire a bubbling CustomEvent<{ month: string }>('mk-month-change').
+ * `caption="hidden"` (task 8.1, calendar-month) keeps the PC table's caption for screen readers only.
  */
-interface MonthCalendarAttrs { readonly month: string; readonly 'week-start'?: 'sun' | 'mon'; readonly nav?: ''; }
+interface MonthCalendarAttrs { readonly month: string; readonly 'week-start'?: 'sun' | 'mon'; readonly nav?: ''; readonly caption?: 'hidden'; }
 interface DayCellAttrs { readonly date: IsoDate; readonly compact?: BooleanAttr; }
 interface AlmanacSummaryAttrs { readonly date: IsoDate; readonly variant?: 'full' | 'brief'; }
 /** `chart` (boolean, task 8.1) adds the 0-24h chart of when the sun and the moon are up */

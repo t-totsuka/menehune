@@ -650,7 +650,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 | mk-guest-notice | shell.js | `variant`、`band` | 閲覧のみであることと、ログインへの導線（6.8）。非公開投稿を開いたときの案内（6.5）。`band` では、ヘッダーの直下に置く全幅の帯（名前付きの region）として描く（全画面共通の指摘、8.1） |
 | mk-status-badge | shell.js | `status` | 公開中、ログインユーザのみ、一時非表示、削除済みを、色と記号と文字で表示する（6.6、13.3） |
 | mk-admin-band | shell.js | — | 管理者専用であることを示す帯（3.6） |
-| mk-month-calendar | almanac.js | `month`、`week-start`、`nav` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3）。`week-start="mon"` では月曜始まり（既定は日曜始まり）。`nav` では前の月・今月・次の月のボタンを置き、`month` を変えて `mk-month-change` を出す。サンプルデータのない日は日付と曜日だけを出し、その旨を注記する（月のカレンダーの画面用、ワイヤーフレームのレビューの指摘、8.1） |
+| mk-month-calendar | almanac.js | `month`、`week-start`、`nav`、`caption` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3）。`week-start="mon"` では月曜始まり（既定は日曜始まり）。`nav` では前の月・今月・次の月のボタンを置き、`month` を変えて `mk-month-change` を出す。サンプルデータのない日は日付と曜日だけを出し、その旨を注記する。`caption="hidden"` では PC の表の caption を読み上げ専用にする（見出しが年月を出す画面で、年月を 2 回見せないため）（月のカレンダーの画面用、ワイヤーフレームのレビューの指摘、8.1） |
 | mk-day-cell | almanac.js | `date`、`compact` | 日付、曜日、祝日（予定の表記つき）、六曜、旧暦、月齢。節気・候・雑節・天文現象の印は、記号と文字を併用する（4.1、4.2、4.6、13.3） |
 | mk-almanac-summary | almanac.js | `date`、`variant` | 日詳細用は全項目（4.3）、トップ用は要約（4.7）。トップ用は月齢から描いた月の満ち欠けの図（`role="img"` と `aria-label`）を添える（ワイヤーフレームのレビューの指摘、8.1） |
 | mk-rise-set | almanac.js | `date`、`post-id`、`chart` | 日の出・日の入り・月の出・月の入り（4.3、7.3）。`chart` では、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示す（トップ用、8.1） |
