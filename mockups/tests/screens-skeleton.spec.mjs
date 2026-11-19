@@ -18,7 +18,7 @@ const load = (/** @type {string[]} */ ...files) => {
   return window;
 };
 const w = load('data/screens.js', 'assets/i18n/messages.ja.js', 'assets/i18n/messages.en.js');
-/** @type {{ id: string, titleKey: string }[]} */
+/** @type {{ id: string, titleKey: string, review: { wireframe: { status: string } } }[]} */
 const screens = w.MockScreens;
 const ja = w.MockMessages.ja;
 const en = w.MockMessages.en;
@@ -37,7 +37,7 @@ test('the registry lists 15 screens', () => {
   expect(screens).toHaveLength(15);
 });
 
-for (const { id, titleKey } of screens) {
+for (const { id, titleKey, review } of screens) {
   test.describe(`screens/${id}.html`, () => {
     test('opens via file:// without console errors or failed requests; skeleton and order', async ({ page }) => {
       /** @type {string[]} */
@@ -81,11 +81,20 @@ for (const { id, titleKey } of screens) {
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     });
 
-    test('"未確定" banner on hifi', async ({ page }) => {
-      await page.goto(urlOf(id, '?stage=hifi&lang=ja'));
-      const banner = page.locator('[data-review-banner="provisional"]');
-      await expect(banner).toBeVisible();
-      await expect(banner).toContainText('未確定');
-    });
+    if (review.wireframe.status === 'approved') {
+      test('no "未確定" banner on hifi (wireframe approved)', async ({ page }) => {
+        await page.goto(urlOf(id, '?stage=hifi&lang=ja'));
+        await expect(page.locator('[data-review-shell]')).toBeVisible();
+        await expect(page.locator('[data-review-banner="provisional"]')).toBeHidden();
+        await expect(page.locator('[data-review-status]')).toContainText('ワイヤーフレーム 承認済み');
+      });
+    } else {
+      test('"未確定" banner on hifi', async ({ page }) => {
+        await page.goto(urlOf(id, '?stage=hifi&lang=ja'));
+        const banner = page.locator('[data-review-banner="provisional"]');
+        await expect(banner).toBeVisible();
+        await expect(banner).toContainText('未確定');
+      });
+    }
   });
 }

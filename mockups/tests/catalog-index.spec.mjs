@@ -87,9 +87,25 @@ test('each row links to both stages and to the width preview, with the review st
     await expect(wf.locator('[data-review-state]')).toHaveText(new RegExp(STATUS_LABELS[wfStatus]));
     await expect(wf.locator('[data-review-state]')).toHaveAttribute('data-review-state', wfStatus);
     await expect(hf.locator('[data-review-state]')).toHaveText(new RegExp(STATUS_LABELS[s.review.hifi.status]));
-    // Wireframe not approved -> the hifi cell carries the textual "未確定" mark.
-    await expect(hf.locator('[data-provisional]')).toHaveText(/未確定/);
+    // Wireframe not approved -> the hifi cell carries the textual "未確定" mark; approved -> no mark.
+    if (wfStatus === 'approved') await expect(hf.locator('[data-provisional]')).toHaveCount(0);
+    else await expect(hf.locator('[data-provisional]')).toHaveText(/未確定/);
   }
+});
+
+// Task 8.1: a person approved the star-chart wireframe (「星図OK」, 2026-11-19).
+test('star-chart: the wireframe shows 承認済み and the hifi cell has no "未確定" mark', async ({ page }) => {
+  await page.goto(indexUrl);
+  const r = row(page, 'star-chart');
+  const wf = r.locator('td').nth(1);
+  const hf = r.locator('td').nth(2);
+  await expect(wf.locator('[data-review-state]')).toHaveAttribute('data-review-state', 'approved');
+  await expect(wf.locator('[data-review-state]')).toHaveText(/承認済み/);
+  await expect(wf).toContainText('2026-11-19');
+  await expect(hf.locator('[data-review-state]')).toHaveText(/下書き/);
+  await expect(hf.locator('[data-provisional]')).toHaveCount(0);
+  // A screen whose wireframe is still in review keeps the mark.
+  await expect(row(page, 'top').locator('td').nth(2).locator('[data-provisional]')).toHaveText(/未確定/);
 });
 
 test('every screen opens in both stages from the index links', async ({ page }) => {

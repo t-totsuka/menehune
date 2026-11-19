@@ -484,3 +484,4 @@
 - 8.1（月のカレンダー、追加の指摘）：年月が h2 と PC の表の caption の 2 か所に見えていたので、mk-month-calendar に opt-in の `caption="hidden"`（caption を visually-hidden にして表の読み上げ名は残す）を足し、calendar-month だけに付けた。ギャラリーの caption は見えたまま
 - 8.1（投稿の詳細、追加の指摘）：960px 以上の列を投稿 2：コメント 1（コメントの列は最小 15rem）にした。960px で deleted-comment の入れ子が 12.4 の 200px を割るので、この画面の 960px 以上だけ返信の字下げを var(--space-sm) に詰めた（部品とギャラリーは 24px のまま）。深い段を返信先の表示に切り替える案は README の論点
 - 8.1（星図、2026-11-19）：mk-map-sample に opt-in の `subject="observer"`（説明「観測地点：…」、代替テキストの先頭「星図の観測地点を示す地図。」）を足し、星図の観測地点（東京都 三鷹市）の地図を置いた。3 回の指摘を経て、960px 以上は全天図を左端（大きさの決め方は不変）、地図を右端までの可変幅（間 24px 固定、8:5 を保つ、最小 15rem。足りないときは全天図の列が譲る）にした。配置のテストは列の箱ではなく描いた図（.mk-star-chart__figure）で測ること
+- 8.1（承認の記録、2026-11-19）：利用者の「星図OK」で star-chart の wireframe を approved にし、最後に「承認（8.1）：…」の注記を足した（hifi は draft）。次の承認は tests/unit/screens.test.mjs の APPROVED_WIREFRAMES に 1 行足し、screens.js の状態と注記を変えるだけ。index と review-shell はレジストリから「未確定」の印とバナーを出し分ける

@@ -96,8 +96,11 @@ test('authStates are valid, unique, include the default guest, and admin can swi
 });
 
 // Screens whose wireframe review has been recorded by a person (see data/screens.js).
-// Task 8.1: every screen got the cross-screen note of 2026-11-19 and is back to in-review.
-const REVIEWED_WIREFRAMES = new Map(SCREEN_IDS.map((id) => [id, 'in-review']));
+// Task 8.1: every screen got the cross-screen note of 2026-11-19 and is back to in-review, except
+// the wireframes a person has approved (add the id here when a person approves another screen).
+const APPROVED_WIREFRAMES = new Set(['star-chart']);
+const REVIEWED_WIREFRAMES = new Map(SCREEN_IDS.map((id) => [id, APPROVED_WIREFRAMES.has(id) ? 'approved' : 'in-review']));
+const APPROVAL_NOTE = /^承認（8\.1）：/;
 
 test('review statuses are valid, unreviewed stages are draft and the hifi/wireframe invariant holds', () => {
   for (const s of registry()) {
@@ -114,6 +117,20 @@ test('review statuses are valid, unreviewed stages are draft and the hifi/wirefr
     }
     if (s.review.hifi.status !== 'draft') {
       assert.equal(s.review.wireframe.status, 'approved', `${s.id} invariant`);
+    }
+  }
+});
+
+// Task 8.1: only a person approves. An approved wireframe records the approval as its last note
+// ("承認（8.1）：..."); a wireframe that is not approved has no approval note.
+test('an approved wireframe ends with the 承認（8.1） note; the others have none', () => {
+  for (const s of registry()) {
+    const notes = [...(s.review.wireframe.notes ?? [])];
+    if (s.review.wireframe.status === 'approved') {
+      assert.match(notes.at(-1) ?? '', APPROVAL_NOTE, `${s.id} last note records the approval`);
+      assert.equal(notes.filter((n) => APPROVAL_NOTE.test(n)).length, 1, `${s.id} one approval note`);
+    } else {
+      assert.ok(!notes.some((n) => APPROVAL_NOTE.test(n)), `${s.id} not approved has no approval note`);
     }
   }
 });
@@ -142,14 +159,15 @@ const GUEST_BAND_NOTE = '「ログインしていないため、閲覧のみ・�
 test('every screen records the 2026-11-19 guest band note and its outcome', () => {
   for (const s of registry()) {
     const wf = s.review.wireframe;
-    assert.equal(wf.status, 'in-review', `${s.id} back to in-review (only a person approves)`);
+    const expected = APPROVED_WIREFRAMES.has(s.id) ? 'approved' : 'in-review';
+    assert.equal(wf.status, expected, `${s.id} in-review, or approved by a person`);
     assert.equal(wf.reviewedAt, '2026-11-19', `${s.id} reviewedAt`);
     const notes = [...(wf.notes ?? [])];
     const at = notes.indexOf(GUEST_BAND_NOTE);
     assert.ok(at >= 0, `${s.id} records the note`);
     const outcome = notes[at + 1] ?? '';
-    const expected = s.id === 'login' ? /^見送り（8\.1）：/ : /^反映（8\.1）：/;
-    assert.match(outcome, expected, `${s.id} outcome right after the note`);
+    const outcomeExpected = s.id === 'login' ? /^見送り（8\.1）：/ : /^反映（8\.1）：/;
+    assert.match(outcome, outcomeExpected, `${s.id} outcome right after the note`);
   }
 });
 
@@ -285,14 +303,15 @@ test('admin: the 2026-11-19 review notes are kept and each outcome follows its n
 });
 
 // Task 8.1 (star-chart, 2026-11-19): one note in the user's words, followed right after by its
-// outcome; the guest band note and its outcome recorded earlier stay first.
+// outcome; the guest band note and its outcome recorded earlier stay first. A person then approved
+// the wireframe (「星図OK」, 2026-11-19), recorded as the last note; hifi stays draft.
 const STAR_CHART_NOTE = '星図の全天図右に４：１くらいのサイズ感で地図を表示したい';
 const STAR_CHART_ENDS_NOTE = '全天図と地図を両端において３：１から４：１の範囲に収まるようにしてみて';
 const STAR_CHART_FLEX_NOTE = '全天図の幅が固定なので、地図のほうを可変として両端に寄せた状態で互いのマージンは固定して、地図の上下の比率は保ってほしい';
 
 test('star-chart: the 2026-11-19 review note is kept and its outcome follows it', () => {
   const wf = byId().get('star-chart').review.wireframe;
-  assert.equal(wf.status, 'in-review');
+  assert.equal(wf.status, 'approved', 'a person approved it on 2026-11-19 (「星図OK」)');
   assert.equal(wf.reviewedAt, '2026-11-19');
   const notes = [...(wf.notes ?? [])];
   assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
@@ -309,6 +328,12 @@ test('star-chart: the 2026-11-19 review note is kept and its outcome follows it'
   const flex = notes.indexOf(STAR_CHART_FLEX_NOTE);
   assert.ok(flex >= next + 2, `records "${STAR_CHART_FLEX_NOTE}" verbatim after the 3:1..4:1 outcome`);
   assert.match(notes[flex + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the refinement note');
+  // approval (2026-11-19): the person wrote 「星図OK」; it is the last note, after every outcome
+  assert.equal(notes.length, flex + 3, 'the approval note follows the last outcome');
+  assert.match(notes.at(-1) ?? '', APPROVAL_NOTE, 'the last note records the approval');
+  assert.match(notes.at(-1) ?? '', /2026-11-19/);
+  assert.match(notes.at(-1) ?? '', /「星図OK」/);
+  assert.equal(byId().get('star-chart').review.hifi.status, 'draft', 'hifi stays draft');
 });
 
 test('registry and every nested object is frozen', () => {
