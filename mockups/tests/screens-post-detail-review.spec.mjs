@@ -1,11 +1,15 @@
 // Task 8.1 (post-detail only): the wireframe review note recorded for `post-detail` in
 // data/screens.js (Requirements 6.1, 6.4, 6.5, 7.2〜7.6, 12.1, 12.2, 12.4).
 //   "左右１：１で「投稿」と「コメント」は近くに寄せたい": from 960px (--bp-md, as on the top page and
-//   the day detail) the post and its comments sit side by side in two equal columns at the top of
+//   the day detail) the post and its comments sit side by side in two columns at the top of
 //   the page (post on the left, comments on the right). The location panel (region, map, rise /
 //   set, weather) follows below both columns at full width. On narrow screens one column keeps
 //   the DOM order (post, comments, location), which is also the reading and focus order at every
 //   width. Views that replace the post (private-blocked, hidden-other) keep one full-width notice.
+//   Follow-up "投稿の詳細でコメントと投稿が１：１になっているがコメントの幅を減らして": the columns are
+//   now post:comments = 2:1, with a floor on the comments column (15rem, as the narrow column of
+//   the top page and the day detail) so the deep comment tree and the member form stay usable.
+//   In that column the reply step is narrowed so the deepest indented comment stays >= 200px.
 import { test, expect } from '@playwright/test';
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
@@ -42,7 +46,7 @@ const box = (b) => {
   return /** @type {Box} */ (b);
 };
 
-/** Post and comments side by side 1:1, the location (when given) below both at full width. */
+/** Post and comments side by side 2:1, the location (when given) below both at full width. */
 const expectTwoColumns = (/** @type {Awaited<ReturnType<typeof layoutOf>>} */ l) => {
   const p = box(l.post);
   const c = box(l.comments);
@@ -51,8 +55,11 @@ const expectTwoColumns = (/** @type {Awaited<ReturnType<typeof layoutOf>>} */ l)
   expect(c.left).toBeGreaterThan(p.right);
   expect(Math.abs(c.top - p.top)).toBeLessThanOrEqual(1);
   expect(h1.bottom).toBeLessThanOrEqual(p.top + 1);
-  // 1:1
-  expect(Math.abs(c.width - p.width)).toBeLessThanOrEqual(1);
+  // 2:1 (post twice the comments, within a tolerance), comments never below 15rem (240px)
+  const ratio = p.width / c.width;
+  expect(ratio).toBeGreaterThanOrEqual(1.7);
+  expect(ratio).toBeLessThanOrEqual(2.3);
+  expect(c.width).toBeGreaterThanOrEqual(240 - 1);
   // the two columns fill the page width under the title
   expect(Math.abs(p.left - h1.left)).toBeLessThanOrEqual(1);
   expect(Math.abs(c.right - h1.right)).toBeLessThanOrEqual(1);
@@ -64,8 +71,8 @@ const expectTwoColumns = (/** @type {Awaited<ReturnType<typeof layoutOf>>} */ l)
   }
 };
 
-test.describe('post-detail: review note (post and comments side by side 1:1)', () => {
-  for (const [width, auth] of /** @type {const} */ ([[1440, 'guest'], [1440, 'member'], [960, 'guest']])) {
+test.describe('post-detail: review note (post and comments side by side 2:1)', () => {
+  for (const [width, auth] of /** @type {const} */ ([[1440, 'guest'], [1440, 'member'], [960, 'guest'], [960, 'member']])) {
     test(`${width}px (${auth}): post left, comments right, location below at full width`, async ({ page }) => {
       const problems = watchConsole(page);
       await page.setViewportSize({ width, height: 900 });
@@ -78,11 +85,21 @@ test.describe('post-detail: review note (post and comments side by side 1:1)', (
         expect(box(l.band).bottom).toBeLessThanOrEqual(box(l.h1).top + 1);
         expect(l.form).toBeNull();
       } else {
-        // the mock comment form sits in the comments column
+        // the mock comment form sits in the comments column and stays usable in it
         const f = box(l.form);
         const c = box(l.comments);
         expect(f.left).toBeGreaterThanOrEqual(c.left - 1);
         expect(f.right).toBeLessThanOrEqual(c.right + 1);
+        const parts = await page.evaluate(() => {
+          const r = (/** @type {string} */ sel) => {
+            const b = /** @type {Element} */ (document.querySelector(sel)).getBoundingClientRect();
+            return { left: b.left, right: b.right, width: b.width };
+          };
+          return { text: r('#post-comment-body'), submit: r('main [data-comment-form] button') };
+        });
+        expect(parts.text.width).toBeGreaterThanOrEqual(200);
+        expect(parts.text.right).toBeLessThanOrEqual(c.right + 1);
+        expect(parts.submit.right).toBeLessThanOrEqual(c.right + 1);
       }
       expect(problems).toEqual([]);
     });

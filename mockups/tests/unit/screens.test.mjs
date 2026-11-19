@@ -201,9 +201,11 @@ test('astro-events: the 2026-11-19 review note is kept and its outcome follows i
   assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
 });
 
-// Task 8.1 (post-detail, 2026-11-19): one note in the user's words, followed right after by its
-// outcome; the guest band note and its outcome recorded earlier stay first.
+// Task 8.1 (post-detail, 2026-11-19): each note in the user's words, followed right after by its
+// outcome (the 1:1 note, then the follow-up asking for a narrower comments column); the guest
+// band note and its outcome recorded earlier stay first.
 const POST_DETAIL_NOTE = '左右１：１で「投稿」と「コメント」は近くに寄せたい';
+const POST_DETAIL_WIDTH_NOTE = '投稿の詳細でコメントと投稿が１：１になっているがコメントの幅を減らして';
 
 test('post-detail: the 2026-11-19 review note is kept and its outcome follows it', () => {
   const wf = byId().get('post-detail').review.wireframe;
@@ -215,6 +217,10 @@ test('post-detail: the 2026-11-19 review note is kept and its outcome follows it
   const at = notes.indexOf(POST_DETAIL_NOTE);
   assert.ok(at >= 2, `records "${POST_DETAIL_NOTE}" verbatim after the guest band outcome`);
   assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
+  // follow-up (2026-11-19): the narrower comments column is a new note after the 1:1 outcome
+  const next = notes.indexOf(POST_DETAIL_WIDTH_NOTE);
+  assert.ok(next >= at + 2, `records "${POST_DETAIL_WIDTH_NOTE}" verbatim after the first outcome`);
+  assert.match(notes[next + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the follow-up note');
 });
 
 // Task 8.1 (post-edit, 2026-11-19): two notes in the user's words, each followed right after by

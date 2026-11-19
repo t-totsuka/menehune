@@ -1752,10 +1752,11 @@ mk-weather {
 /* Post detail screen (task 5.3). */
 
 /* Post detail content (task 8.1, wireframe review): one column in DOM order (post, comments,
-   location) on narrow screens; from 960px the post and its comments are two equal columns side by
-   side, and the location panel (region, map, rise / set, weather) spans both below them. The
-   wrappers the page script toggles (`[data-post-view]`, `[data-location-section]`) set no
-   display, so `hidden` still applies; a hidden location simply leaves the second row empty. */
+   location) on narrow screens; from 960px the post and its comments sit side by side at 2:1 (the
+   follow-up review asked for a narrower comments column), the comments column never below 15rem
+   so the member form and the deep tree stay usable, and the location panel (region, map, rise /
+   set, weather) spans both below them. The wrappers the page script toggles (`[data-post-view]`,
+   `[data-location-section]`) set no display, so `hidden` still applies; a hidden location simply leaves the second row empty. */
 .screen-post-detail {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1765,13 +1766,21 @@ mk-weather {
 
 @media (min-width: 960px) {
   .screen-post-detail {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 2fr) minmax(min(100%, calc(var(--space-2xl) * 5)), 1fr);
     column-gap: var(--space-lg);
     align-items: start;
   }
 
   .screen-post-detail > [data-location-section] {
     grid-column: 1 / -1;
+  }
+
+  /* In the narrower comments column (about 296px at 960px), one reply step is --space-sm instead
+     of --space-lg, so a comment at the deepest indented level (6) keeps about 236px instead of
+     140px (12.4). Deeper levels (data-flat="all") stay unindented. Screen-scoped, so the
+     gallery and other screens keep the component's own step. */
+  .screen-post-detail mk-comment-tree .mk-comment__replies:not([data-flat="all"]) {
+    padding-inline-start: var(--space-sm);
   }
 }
 
