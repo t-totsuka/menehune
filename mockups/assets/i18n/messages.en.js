@@ -67,6 +67,7 @@
     'event-list.result-count': '{count} astronomical events',
     'event-list.result-count-one': '1 astronomical event',
     'event-list.filters': 'Filter by period and type',
+    'event-list.past': 'Past',
 
     // Star chart (task 4.4)
     'sky.direction.n': 'N',

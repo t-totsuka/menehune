@@ -964,6 +964,27 @@ mk-rise-set[chart] {
   font-weight: var(--font-weight-medium);
 }
 
+/* mark-past (task 8.1, astro-events): a text label before the datetime; the item is muted on
+   top of that, never by colour alone. */
+.mk-event[data-past] {
+  border-inline-start-style: dashed;
+}
+
+.mk-event[data-past] .mk-event__at,
+.mk-event[data-past] .mk-event__title {
+  color: var(--color-text-muted);
+}
+
+.mk-event__past {
+  display: inline-block;
+  padding-inline: var(--space-xs);
+  border: var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
 .mk-event-list__empty {
   padding: var(--space-md);
   border: var(--border-width-thin) dashed var(--color-border-strong);

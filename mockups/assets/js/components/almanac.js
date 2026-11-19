@@ -45,6 +45,10 @@
 //   update only the results and the role="status" count. Scenario `empty` (or no match) shows
 //   empty.events, `fetch-error` shows error.fetch (role="alert"). `filters="collapsed"` (task
 //   8.1, top page) folds the filters into a closed <details>; its open state survives re-renders.
+//   `mark-past` (task 8.1, astro-events) marks the events dated before the sample's today
+//   (SampleDataSet.today, not the real clock): the item gets data-past and a visible text label
+//   (event-list.past) before its datetime, so the state is not shown by colour alone and is read
+//   out with the item. Events on or after today are unchanged.
 //
 // Days are looked up by date in SampleDataSet.almanac (its first row is the leap-month example
 // 2025-07-25, so the calendar filters by month); events by AlmanacDay.eventIds.
@@ -921,7 +925,7 @@
    */
 
   class EventList extends MockElement {
-    static observedAttributes = ['from', 'to', 'kinds', 'filters'];
+    static observedAttributes = ['from', 'to', 'kinds', 'filters', 'mark-past'];
 
     constructor() {
       super();
@@ -1039,10 +1043,21 @@
         results.replaceChildren(this.el('p', { class: 'mk-event-list__empty' }, this.t('empty.events')));
         return;
       }
+      const markPast = this.hasAttribute('mark-past');
+      const today = this.sample().today;
       const list = this.el('ol', { class: 'mk-event-list__items' });
       for (const event of shown) {
-        list.append(this.el('li', { class: 'mk-event', 'data-kind': event.kind, 'data-tone': eventTone(event), 'data-event-id': event.id },
-          this.el('time', { class: 'mk-event__at', datetime: event.at }, window.MockI18n.formatDate(event.at, 'datetime')),
+        const past = markPast && eventDate(event) < today;
+        const time = this.el('time', { class: 'mk-event__at', datetime: event.at }, window.MockI18n.formatDate(event.at, 'datetime'));
+        // A past event keeps three grid cells: the label and the datetime share the first one.
+        const when = past
+          ? this.el('span', { class: 'mk-event__when' }, this.el('span', { class: 'mk-event__past' }, this.t('event-list.past')), ' ', time)
+          : time;
+        /** @type {Record<string, string>} */
+        const attrs = { class: 'mk-event', 'data-kind': event.kind, 'data-tone': eventTone(event), 'data-event-id': event.id };
+        if (past) attrs['data-past'] = '';
+        list.append(this.el('li', attrs,
+          when,
           this.el('span', { class: 'mk-event__kind' }, this.t(kindKey(event.kind))),
           this.el('span', { class: 'mk-event__title' }, eventTitle(event))));
       }

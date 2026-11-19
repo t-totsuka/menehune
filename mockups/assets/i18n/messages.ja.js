@@ -67,6 +67,7 @@
     'event-list.result-count': '{count}件の天文現象',
     'event-list.result-count-one': '1件の天文現象',
     'event-list.filters': '期間と種類で絞り込む',
+    'event-list.past': '過去',
 
     // Star chart (task 4.4)
     'sky.direction.n': '北',

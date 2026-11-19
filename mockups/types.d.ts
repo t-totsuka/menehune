@@ -356,7 +356,7 @@ interface AlmanacSummaryAttrs { readonly date: IsoDate; readonly variant?: 'full
 /** `chart` (boolean, task 8.1) adds the 0-24h chart of when the sun and the moon are up */
 interface RiseSetAttrs { readonly date?: IsoDate; readonly 'post-id'?: string; readonly chart?: ''; }
 /** `kinds` is a space-separated list of AstroEventKind; `filters="collapsed"` (task 8.1) folds the filters into a closed accordion */
-interface EventListAttrs { readonly from?: IsoDate; readonly to?: IsoDate; readonly kinds?: string; readonly filters?: 'collapsed'; }
+interface EventListAttrs { readonly from?: IsoDate; readonly to?: IsoDate; readonly kinds?: string; readonly filters?: 'collapsed'; readonly 'mark-past'?: ''; }
 
 /** `sample` selects a star chart sample; omitted means SampleDataSet.starChart */
 interface StarChartAttrs { readonly sample?: string; }

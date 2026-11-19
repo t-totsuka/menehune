@@ -117,7 +117,20 @@
       }),
       DRAFT,
     )),
-    screen('astro-events', 'public', GUEST_MEMBER, ['empty', 'fetch-error'], guestBandReview(BAND_ADDED)),
+    screen('astro-events', 'public', GUEST_MEMBER, ['empty', 'fetch-error'], review(
+      Object.freeze({
+        // 2026-11-19 の画面ごとの指摘をタスク 8.1 で反映し、再レビュー待ちのままにした
+        status: 'in-review',
+        reviewedAt: '2026-11-19',
+        notes: Object.freeze([
+          GUEST_BAND_NOTE,
+          BAND_ADDED,
+          '過去の日付のものはわかるようにしたい',
+          '反映（8.1）：サンプルの今日（2026-11-16）より前の日付の現象に、日時の前に「過去」（英語は Past）の文字の印を付け、日時と現象名を淡い文字にした（色だけに頼らず、読み上げでも項目と一緒に読まれる）。mk-event-list の opt-in の属性 mark-past で、この画面だけに付けた。トップの「今日と直近の天文現象」は今日からの期間なので付けていない（README の論点）',
+        ]),
+      }),
+      DRAFT,
+    )),
     screen('star-chart', 'public', GUEST_MEMBER, [], guestBandReview(BAND_ADDED)),
     screen('post-detail', 'public', GUEST_MEMBER, [
       'private-blocked', 'hidden-own', 'hidden-other',
