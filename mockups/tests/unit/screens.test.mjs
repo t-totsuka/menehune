@@ -309,12 +309,14 @@ test('post-edit: the 2026-11-19 review notes are kept and each outcome follows i
   }
 });
 
-// Task 8.1 (my-posts, 2026-11-19): three notes in the user's words, each followed right after by
-// its outcome; the guest band note and its outcome recorded earlier stay first.
+// Task 8.1 (my-posts, 2026-11-19): four notes in the user's words, each followed right after by
+// its outcome; the guest band note and its outcome recorded earlier stay first. The fourth (the
+// comment count) came later and is recorded after the first three.
 const MY_POSTS_NOTES = [
   '投稿の時系列がわからないので1列にすること',
   '新しい日付が上に来るように',
   '公開範囲などはアイコン化する（マウスホバーで説明が出ればよい）',
+  '自分の投稿で投稿にぶら下がるコメントが何件あるか出してください',
 ];
 
 test('my-posts: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
@@ -329,6 +331,9 @@ test('my-posts: the 2026-11-19 review notes are kept and each outcome follows it
     assert.ok(at >= 2, `records "${note}" verbatim after the guest band outcome`);
     assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, `outcome right after "${note}"`);
   }
+  const countAt = notes.indexOf(MY_POSTS_NOTES[3]);
+  assert.ok(countAt > notes.indexOf(MY_POSTS_NOTES[2]), 'the comment count note follows the earlier notes');
+  assert.match(notes[countAt + 1] ?? '', /削除/, 'the outcome says how deleted comments count');
 });
 
 // Task 8.1 (admin, 2026-11-19): two notes in the user's words, each followed right after by its

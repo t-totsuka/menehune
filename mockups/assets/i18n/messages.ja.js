@@ -99,6 +99,8 @@
     'post-card.visibility.guests': '公開範囲：ログインしていない人にも公開',
     'post-card.visibility.members': '公開範囲：ログインしたユーザのみ',
     'post-card.status-label': '状態：{status}',
+    'post-card.comment-count': 'コメント {count} 件',
+    'post-card.comment-count-one': 'コメント {count} 件',
     'like.count': 'いいね {count}件',
     'like.count-one': 'いいね {count}件',
     'comment.tree-label': 'コメント',

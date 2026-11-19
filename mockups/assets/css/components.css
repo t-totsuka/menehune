@@ -1224,6 +1224,13 @@ mk-report-link {
   line-height: 0;
 }
 
+/* comment-count (task 8.1, my-posts): the number of comments as plain text in the status row. */
+.mk-post-card__comments {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
 .mk-post-card__icon-svg {
   inline-size: var(--font-size-md);
   block-size: var(--font-size-md);

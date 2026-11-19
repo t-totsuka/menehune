@@ -99,6 +99,8 @@
     'post-card.visibility.guests': 'Visibility: also shown to people who are not logged in',
     'post-card.visibility.members': 'Visibility: logged-in users only',
     'post-card.status-label': 'Status: {status}',
+    'post-card.comment-count': '{count} comments',
+    'post-card.comment-count-one': '{count} comment',
     'like.count': '{count} likes',
     'like.count-one': '{count} like',
     'comment.tree-label': 'Comments',

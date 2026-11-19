@@ -384,9 +384,14 @@ interface StarChartAttrs { readonly sample?: string; }
 
 /**
  * `meta="icons"` (task 8.1, my-posts) shows the visibility setting as an icon and the public /
- * members-only status badge as its symbol only (hidden / deleted keep their text)
+ * members-only status badge as its symbol only (hidden / deleted keep their text).
+ * `comment-count` (boolean, task 8.1, my-posts) adds the number of comments in the post's tree
+ * (replies included, deleted comments left out) to the status row; deleted posts show none
  */
-interface PostCardAttrs { readonly 'post-id': string; readonly variant?: 'list' | 'compact'; readonly meta?: 'icons'; }
+interface PostCardAttrs {
+  readonly 'post-id': string; readonly variant?: 'list' | 'compact'; readonly meta?: 'icons';
+  readonly 'comment-count'?: '';
+}
 interface CommentTreeAttrs { readonly 'post-id': string; }
 interface LikeButtonAttrs { readonly 'post-id': string; }
 interface ReportLinkAttrs { readonly 'target-id': string; }

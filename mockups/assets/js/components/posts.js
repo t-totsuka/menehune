@@ -9,6 +9,10 @@
 //   title). The status badge of public / members-only shows its symbol only (data-icon; the text
 //   stays for assistive technology, visually hidden by CSS; title on hover). Hidden and deleted
 //   keep the full text badge, since they are moderation states that must stay readable.
+//   `comment-count` (opt-in boolean, task 8.1 for my-posts) adds the number of comments in the
+//   post's tree as text ([data-comment-count]; post-card.comment-count / -one) in the same row as
+//   the status (the [data-meta-icons] row with meta="icons", else a plain row). Replies count;
+//   deleted comments (kept in the tree as deleted, 6.4) do not. A deleted post shows no count.
 // - mk-comment-tree (6.1, 6.4, 12.4) `post-id`: nested <ol> lists, one <li data-comment-id
 //   data-depth> per comment. Each reply list carries data-level (indent level of its comments,
 //   top level = 0) and, beyond the indent limit, data-flat: "phone" for levels 4..6 (no indent
@@ -152,6 +156,14 @@
     return undefined;
   };
 
+  /**
+   * Comments in a tree that are not deleted, replies included (a deleted comment's replies count).
+   * @param {readonly CommentNode[]} nodes
+   * @returns {number}
+   */
+  const liveCommentCount = (nodes) =>
+    nodes.reduce((n, node) => n + (node.deleted ? 0 : 1) + liveCommentCount(node.children), 0);
+
   /** @param {number} count @returns {string} */
   const likeText = (count) => window.MockI18n.t(count === 1 ? 'like.count-one' : 'like.count', { count });
 
@@ -163,7 +175,7 @@
   };
 
   class PostCard extends MockElement {
-    static observedAttributes = ['post-id', 'variant', 'meta'];
+    static observedAttributes = ['post-id', 'variant', 'meta', 'comment-count'];
 
     /** @param {MockStateSnapshot} state */
     render(state) {
@@ -201,6 +213,7 @@
       const articleAttrs = { class: 'mk-post-card', 'data-variant': variant, 'data-status': post.status };
       if (icons) articleAttrs['data-meta'] = 'icons';
 
+      /** @type {Element} */
       let meta = badge;
       if (icons) {
         const kind = post.guestVisible ? 'guests' : 'members';
@@ -211,6 +224,13 @@
             role: 'img', 'aria-label': label, title: label,
           }, visibilitySvg(kind)),
           badge);
+      }
+      if (this.hasAttribute('comment-count') && post.status !== 'deleted') {
+        const count = liveCommentCount(post.comments);
+        const text = this.t(count === 1 ? 'post-card.comment-count-one' : 'post-card.comment-count', { count });
+        const node = this.el('span', { class: 'mk-post-card__comments', 'data-comment-count': String(count) }, text);
+        if (icons) meta.append(node);
+        else meta = this.el('div', { class: 'mk-post-card__icons' }, badge, node);
       }
 
       this.replaceChildren(this.el('article', articleAttrs,

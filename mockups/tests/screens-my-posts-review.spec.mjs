@@ -208,3 +208,99 @@ test.describe('my-posts: review note 3 (visibility and status as icons)', () => 
 function card0(page, value) {
   return page.locator(`main [data-my-posts] [data-meta-icon="visibility"][data-value="${value}"] svg`).first();
 }
+
+// Task 8.1 (my-posts, note 4): "自分の投稿で投稿にぶら下がるコメントが何件あるか出してください".
+// mk-post-card `comment-count` (opt-in) shows the number of comments in the post's whole tree
+// (replies included) as text in the meta row with the icons. Deleted comments (6.4: kept in the
+// tree, shown as deleted) are not counted. Deleted posts show no count; hidden posts do (their
+// author still sees the post and its comments). Counts come from SamplePost.comments, the same
+// data post-detail renders.
+
+/** Comments in a tree that are not deleted, replies included. @param {readonly any[]} nodes @returns {number} */
+const liveComments = (nodes) => nodes.reduce((n, c) => n + (c.deleted ? 0 : 1) + liveComments(c.children), 0);
+/** @param {Record<string, string>} m @param {number} count */
+const commentText = (m, count) =>
+  (m[count === 1 ? 'post-card.comment-count-one' : 'post-card.comment-count'] ?? '⟦post-card.comment-count⟧')
+    .replace('{count}', String(count));
+/** @param {string} id */
+const postById = (id) => sample.posts.find((/** @type {any} */ p) => p.id === id);
+
+test.describe('my-posts: review note 4 (comment count)', () => {
+  test('the expected counts follow the sample comment trees (replies in, deleted out)', () => {
+    expect(myPosts.map((p) => [p.id, liveComments(p.comments)])).toEqual([
+      ['p-111', 0], ['p-104', 1], ['p-108', 0], ['p-102', 1],
+    ]);
+    // the gallery sample p-120: 10 comments in a deep tree, 2 of them deleted
+    expect(liveComments(postById('p-120').comments)).toBe(8);
+  });
+
+  test('each card that is not deleted shows the count as text in the meta row', async ({ page }) => {
+    const problems = watchConsole(page);
+    await page.goto(urlOf('my-posts', '?lang=ja&auth=member'));
+    for (const post of myPosts) {
+      const card = page.locator(`main [data-my-post="${post.id}"] mk-post-card`);
+      await expect(card).toHaveAttribute('comment-count', '');
+      const count = card.locator('[data-comment-count]');
+      if (post.status === 'deleted') {
+        await expect(count, `${post.id} (deleted) has no count`).toHaveCount(0);
+        continue;
+      }
+      const n = liveComments(post.comments);
+      await expect(count).toHaveCount(1);
+      await expect(count).toBeVisible();
+      await expect(count).toHaveAttribute('data-comment-count', String(n));
+      await expect(count).toHaveText(commentText(ja, n));
+      // it sits with the icons, and it is plain text (no aria-hidden on the way)
+      await expect(card.locator('[data-meta-icons] [data-comment-count]')).toHaveCount(1);
+      await expect(count.locator('xpath=ancestor-or-self::*[@aria-hidden="true"]')).toHaveCount(0);
+    }
+    expect(problems).toEqual([]);
+  });
+
+  test('English: singular and plural follow the count', async ({ page }) => {
+    await page.goto(urlOf('my-posts', '?lang=en&auth=member'));
+    await expect(page.locator('main [data-my-post="p-102"] [data-comment-count]')).toHaveText(commentText(en, 1));
+    await expect(page.locator('main [data-my-post="p-108"] [data-comment-count]')).toHaveText(commentText(en, 0));
+    expect(commentText(en, 1)).not.toEqual(commentText(en, 0).replace('0', '1'));
+  });
+
+  test('375px keeps the count in the card head without horizontal scroll', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto(urlOf('my-posts', '?lang=en&auth=member'));
+    const counts = page.locator('main .mk-post-card__head [data-comment-count]:visible');
+    await expect(counts).toHaveCount(myPosts.filter((p) => p.status !== 'deleted').length);
+    const fits = await counts.evaluateAll((els) => els.every((el) => {
+      const r = el.getBoundingClientRect();
+      const card = el.closest('.mk-post-card')?.getBoundingClientRect();
+      return card !== undefined && r.left >= card.left && r.right <= card.right;
+    }));
+    expect(fits).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test('top, day-detail and the default gallery cards show no count (opt-in)', async ({ page }) => {
+    await page.goto(urlOf('top', '?lang=ja&auth=member'));
+    await expect(page.locator('main mk-post-card').first()).toBeVisible();
+    await expect(page.locator('main [data-comment-count]')).toHaveCount(0);
+    await page.goto(urlOf('day-detail', '?lang=ja&date=2026-11-24'));
+    await expect(page.locator('main mk-post-card').first()).toBeVisible();
+    await expect(page.locator('main [data-comment-count]')).toHaveCount(0);
+    await page.goto(galleryUrl);
+    await expect(page.locator('#post-card-p-101 [data-comment-count]')).toHaveCount(0);
+  });
+
+  test('the gallery sample counts replies and leaves deleted comments out', async ({ page }) => {
+    await page.goto(galleryUrl);
+    const plain = page.locator('#post-card-comment-count');
+    await expect(plain).toHaveAttribute('post-id', 'p-120');
+    await expect(plain).toHaveAttribute('comment-count', '');
+    await expect(plain.locator('[data-comment-count]')).toHaveText(commentText(ja, 8));
+    // without meta="icons" the status badge keeps its text next to the count
+    await expect(plain.locator('mk-status-badge')).not.toHaveAttribute('data-icon', '');
+    const icons = page.locator('#post-card-icons-comments');
+    await expect(icons).toHaveAttribute('post-id', 'p-101');
+    await expect(icons).toHaveAttribute('meta', 'icons');
+    await expect(icons.locator('[data-meta-icons] [data-comment-count]'))
+      .toHaveText(commentText(ja, liveComments(postById('p-101').comments)));
+  });
+});

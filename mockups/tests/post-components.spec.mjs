@@ -273,8 +273,8 @@ test.describe('layout', () => {
         return r.right <= document.documentElement.clientWidth + 0.5;
       }));
       // 29 PC samples, plus the phone-width tree of p-120 and its 8 report links (task 6.4), plus
-      // the two meta="icons" cards (task 8.1, my-posts review).
-      expect(fits.length).toBe(40);
+      // the two meta="icons" cards and the two comment-count cards (task 8.1, my-posts review).
+      expect(fits.length).toBe(42);
       expect(fits.every(Boolean)).toBe(true);
     });
   }
