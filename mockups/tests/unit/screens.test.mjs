@@ -318,6 +318,7 @@ const MY_POSTS_NOTES = [
   '公開範囲などはアイコン化する（マウスホバーで説明が出ればよい）',
   '自分の投稿で投稿にぶら下がるコメントが何件あるか出してください',
   'コメントにコメントがついたときに知る機能が欲しい',
+  '自分の投稿は「自分の投稿」を優先とする、PC画面の場合は左右に配置して２：１から３：１のサイズで収まるように変更',
 ];
 
 test('my-posts: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
@@ -339,10 +340,19 @@ test('my-posts: the 2026-11-19 review notes are kept and each outcome follows it
   // the requirements and the header change, which applies to every screen
   const noticeAt = notes.indexOf(MY_POSTS_NOTES[4]);
   assert.ok(noticeAt > countAt, 'the reply notice note follows the comment count note');
-  assert.equal(notes.length, noticeAt + 2, 'the reply notice outcome is the last note');
   const outcome = notes[noticeAt + 1] ?? '';
   for (const req of ['6.9', '6.10', '6.11']) assert.ok(outcome.includes(req), `the outcome names ${req}`);
   assert.match(outcome, /ヘッダー/, 'the outcome mentions the header (every screen)');
+  // the layout note (2026-11-20: own posts first, side by side on PC at 2:1 to 3:1) comes last; the
+  // replaced placement in the reply notice outcome keeps its words and gets a remark appended
+  const layoutAt = notes.indexOf(MY_POSTS_NOTES[5]);
+  assert.equal(layoutAt, noticeAt + 2, 'the layout note follows the reply notice outcome');
+  assert.equal(notes.length, layoutAt + 2, 'the layout outcome is the last note');
+  assert.match(outcome, /先頭（投稿の一覧の前）/, 'the reply notice outcome keeps its original words');
+  assert.match(outcome, /のちの指摘で/, 'the reply notice outcome notes the later change of placement');
+  const layout = notes[layoutAt + 1] ?? '';
+  assert.match(layout, /960px/, 'the layout outcome names the PC breakpoint');
+  assert.match(layout, /5：2|5:2/, 'the layout outcome names the ratio used');
 });
 
 // Task 8.1 (settings, 2026-11-19): the reply notice request recorded on my-posts also adds the

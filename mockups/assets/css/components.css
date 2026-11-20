@@ -2065,6 +2065,31 @@ mk-weather {
   }
 }
 
+/* My posts layout (task 8.1, later review note "「自分の投稿」を優先", 2:1 to 3:1 on PC): one column
+   in DOM order (the posts region, then the notices #notices) on narrow screens; from 960px (the
+   PC breakpoint of the other two-column screens) the posts on the left and the notices on the
+   right at 5:2, so posts / notices is 2.5 at every PC width (main is at most --bp-lg wide). The
+   notices column has a 15rem floor (at 960px it is about 254px, above the floor, so the ratio
+   holds there too). */
+.screen-my-posts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-content: start;
+}
+
+.screen-my-posts > * {
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .screen-my-posts {
+    grid-template-columns: minmax(0, 5fr) minmax(min(100%, calc(var(--space-2xl) * 5)), 2fr);
+    column-gap: var(--space-lg);
+    align-items: start;
+  }
+}
+
 /* The icon legend of my-posts (task 8.1): a closed <details> under the create-post button. */
 .screen-my-posts-legend ul {
   display: grid;

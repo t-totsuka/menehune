@@ -304,3 +304,105 @@ test.describe('my-posts: review note 4 (comment count)', () => {
       .toHaveText(commentText(ja, liveComments(postById('p-101').comments)));
   });
 });
+
+// Task 8.1 (my-posts review note 6, 2026-11-20): "自分の投稿は「自分の投稿」を優先とする、PC画面の
+// 場合は左右に配置して２：１から３：１のサイズで収まるように変更". The posts part (heading
+// 「投稿の一覧」 through the list, its own region .screen-my-posts-posts) comes before the notices
+// section (#notices) in DOM / reading order; from 960px (the PC breakpoint of the other two-column
+// screens) they sit side by side, posts on the left, and posts width / notices width stays within
+// [2, 3] at every PC width (main is at most 1280px wide). Narrower widths stack them, posts above.
+test.describe('my-posts: review note 6 (own posts first, side by side on PC at 2:1 to 3:1)', () => {
+  /** @param {import('@playwright/test').Page} page */
+  const boxes = (page) => page.evaluate(() => {
+    const posts = document.querySelector('main [data-member-content] > section.screen-my-posts-posts');
+    const notices = document.getElementById('notices');
+    if (posts === null || notices === null) return null;
+    const p = posts.getBoundingClientRect();
+    const n = notices.getBoundingClientRect();
+    return {
+      posts: { left: p.left, right: p.right, top: p.top, bottom: p.bottom, width: p.width },
+      notices: { left: n.left, right: n.right, top: n.top, bottom: n.bottom, width: n.width },
+    };
+  });
+
+  test('the posts part is a region of its own, before the notices in DOM order', async ({ page }) => {
+    const problems = watchConsole(page);
+    await page.goto(urlOf('my-posts', '?lang=ja&auth=member'));
+    const region = page.getByRole('region', { name: ja['screen.my-posts.posts-heading'], exact: true });
+    await expect(region).toBeVisible();
+    await expect(region).toHaveClass(/\bscreen-my-posts-posts\b/);
+    await expect(region).toHaveAttribute('aria-labelledby', 'my-posts-posts-heading');
+    // the heading, the create button, the legend and the list live in the posts region
+    await expect(region.getByRole('heading', { level: 2, name: ja['screen.my-posts.posts-heading'], exact: true })).toBeVisible();
+    await expect(region.locator('[data-icon-legend]')).toHaveCount(1);
+    await expect(region.locator('ul[data-my-posts] > li')).toHaveCount(EXPECTED_ORDER.length);
+    await expect(region.getByRole('link', { name: ja['screen.my-posts.new-post'], exact: true })).toBeVisible();
+    const order = await page.evaluate(() => {
+      const container = document.querySelector('main [data-member-content]');
+      return [...(container?.children ?? [])]
+        .map((el) => el.id || (el.classList.contains('screen-my-posts-posts') ? 'screen-my-posts-posts' : el.className));
+    });
+    expect(order).toEqual(['screen-my-posts-posts', 'notices']);
+    await expect(page.locator('main [data-member-content]')).toHaveClass(/\bscreen-my-posts\b/);
+    expect(problems).toEqual([]);
+  });
+
+  for (const width of [960, 1280, 1440, 1920]) {
+    test(`at ${width}px the posts are on the left and the notices on the right, posts : notices in [2, 3]`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(urlOf('my-posts', '?lang=ja&auth=member'));
+      await expect(page.locator('main ul[data-my-posts] > li')).toHaveCount(EXPECTED_ORDER.length);
+      const b = await boxes(page);
+      expect(b).not.toBeNull();
+      if (b === null) return;
+      expect(b.posts.right).toBeLessThanOrEqual(b.notices.left);
+      expect(Math.abs(b.posts.top - b.notices.top)).toBeLessThanOrEqual(1);
+      const ratio = b.posts.width / b.notices.width;
+      expect(ratio, `ratio ${ratio}`).toBeGreaterThanOrEqual(2);
+      expect(ratio, `ratio ${ratio}`).toBeLessThanOrEqual(3);
+      // the notices content stays inside its column
+      const fits = await page.evaluate(() => {
+        const n = document.getElementById('notices');
+        if (n === null) return false;
+        const r = n.getBoundingClientRect();
+        return [...n.querySelectorAll('*')].every((el) => {
+          const e = el.getBoundingClientRect();
+          return e.width === 0 || (e.left >= r.left - 0.5 && e.right <= r.right + 0.5);
+        });
+      });
+      expect(fits).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    });
+  }
+
+  for (const lang of ['ja', 'en']) {
+    test(`375px (${lang}): stacked, posts above the notices, no horizontal scroll`, async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 800 });
+      await page.goto(urlOf('my-posts', `?lang=${lang}&auth=member`));
+      await expect(page.locator('main ul[data-my-posts] > li')).toHaveCount(EXPECTED_ORDER.length);
+      const b = await boxes(page);
+      expect(b).not.toBeNull();
+      if (b === null) return;
+      expect(b.posts.bottom).toBeLessThanOrEqual(b.notices.top);
+      expect(Math.abs(b.posts.width - b.notices.width)).toBeLessThanOrEqual(1);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    });
+  }
+
+  test('empty and fetch-error keep both parts in the same order', async ({ page }) => {
+    for (const scenario of ['empty', 'fetch-error']) {
+      await page.goto(urlOf('my-posts', `?lang=ja&auth=member&scenario=${scenario}`));
+      const region = page.locator('main section.screen-my-posts-posts');
+      await expect(region).toBeVisible();
+      if (scenario === 'empty') await expect(region.locator('[data-my-posts-empty]')).toBeVisible();
+      else await expect(region.getByRole('alert')).toHaveText(ja['error.fetch']);
+      const before = await page.evaluate(() => {
+        const posts = document.querySelector('main section.screen-my-posts-posts');
+        const notices = document.getElementById('notices');
+        return posts !== null && notices !== null
+          && Boolean(posts.compareDocumentPosition(notices) & Node.DOCUMENT_POSITION_FOLLOWING);
+      });
+      expect(before, scenario).toBe(true);
+    }
+  });
+});

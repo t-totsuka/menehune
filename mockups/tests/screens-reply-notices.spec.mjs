@@ -5,7 +5,8 @@
 //   opening the menu. It links to the notices section of my-posts (#notices), carrying ?auth like
 //   the other header links. With 0 unread it still shows "お知らせ" (no count). Guests see nothing.
 //   It is on every screen.
-// - 6.10: my-posts has a "お知らせ" section (id="notices") above the post list with mk-notice-list:
+// - 6.10: my-posts has a "お知らせ" section (id="notices") with mk-notice-list (after the post list
+//   since the later review note 6 "「自分の投稿」を優先", beside it from 960px):
 //   per notice the replier, an excerpt of my comment, the post, the datetime, unread / read as text
 //   and a link to the reply (post-detail of that post, #post-comments: comments have no anchors).
 //   The `empty` scenario empties the notices too; `fetch-error` shows a notices error.
@@ -128,20 +129,20 @@ test.describe('6.9: the header shows the unread notices on every screen', () => 
 });
 
 test.describe('6.10: the notices on my-posts', () => {
-  test('member: a "お知らせ" section above the post list with every notice', async ({ page }) => {
+  test('member: a "お知らせ" section after the post list with every notice', async ({ page }) => {
     const problems = watchConsole(page);
     await page.goto(urlOf('my-posts', '?lang=ja&auth=member'));
     const section = page.getByRole('region', { name: ja['notice.label'], exact: true });
     await expect(section).toBeVisible();
     await expect(section).toHaveAttribute('id', 'notices');
     await expect(section.getByRole('heading', { level: 2, name: ja['notice.label'], exact: true })).toBeVisible();
-    // above the post list (DOM order = reading order)
-    const before = await page.evaluate(() => {
+    // after the post list (DOM order = reading order; review note 6 puts the own posts first)
+    const after = await page.evaluate(() => {
       const s = document.getElementById('notices');
       const list = document.querySelector('main [data-my-posts]');
-      return s !== null && list !== null && Boolean(s.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return s !== null && list !== null && Boolean(s.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_PRECEDING);
     });
-    expect(before).toBe(true);
+    expect(after).toBe(true);
     // the post list keeps a heading of its own, so it is not under "お知らせ"
     await expect(page.locator('main').getByRole('heading', { level: 2, name: ja['screen.my-posts.posts-heading'], exact: true })).toBeVisible();
 

@@ -24,51 +24,55 @@
          the list. Task 8.1 (wireframe review): one column, newest target date first, visibility
          and status as icons (mk-post-card meta="icons") explained by the legend below, and the
          number of comments next to them (comment-count). Task 8.1 (6.10): the reply notices
-         (mk-notice-list) come first, in the section #notices that the header links to; the list
-         follows the scenario (empty: no notices, fetch-error: the notices error). -->
+         (mk-notice-list) are in the section #notices that the header links to; the list follows
+         the scenario (empty: no notices, fetch-error: the notices error). Task 8.1 (later review
+         note: own posts first): the posts region comes first and the notices follow it, stacked
+         on narrow screens and side by side from 960px (posts : notices = 5 : 2, .screen-my-posts). -->
     <div data-when-auth="guest" data-guest-prompt>
       <p data-i18n="screen.my-posts.login-required">自分の投稿の一覧を見るには、ログインしてください。</p>
     </div>
 
-    <div class="l-stack" data-when-auth="member" data-member-content>
+    <div class="screen-my-posts" data-when-auth="member" data-member-content>
+      <section class="l-stack screen-my-posts-posts" aria-labelledby="my-posts-posts-heading">
+        <h2 id="my-posts-posts-heading" data-i18n="screen.my-posts.posts-heading">投稿の一覧</h2>
+        <p data-when-scenario="default empty">
+          <a class="button" href="post-edit.html?auth=member" data-i18n="screen.my-posts.new-post">新しく投稿する</a>
+        </p>
+        <!-- The legend repeats the visibility icon shapes of posts.js (VISIBILITY_SHAPES); the
+             review spec checks that they stay equal. It is the explanation for keyboard and touch
+             users, since the icons' title tooltip only appears on mouse hover. -->
+        <details class="screen-my-posts-legend" data-icon-legend data-when-scenario="default">
+          <summary data-i18n="screen.my-posts.icon-legend">アイコンの見方</summary>
+          <ul>
+            <li data-legend-icon="visibility-guests">
+              <span class="mk-post-card__icon" aria-hidden="true"><svg class="mk-post-card__icon-svg" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5"/><ellipse cx="8" cy="8" rx="2.75" ry="6.5"/><path d="M1.5 8h13"/></svg></span>
+              <span data-i18n="post-card.visibility.guests">公開範囲：ログインしていない人にも公開</span>
+            </li>
+            <li data-legend-icon="visibility-members">
+              <span class="mk-post-card__icon" aria-hidden="true"><svg class="mk-post-card__icon-svg" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7.5" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg></span>
+              <span data-i18n="post-card.visibility.members">公開範囲：ログインしたユーザのみ</span>
+            </li>
+            <li data-legend-icon="status-public">
+              <span class="screen-my-posts-legend__symbol" data-legend-symbol aria-hidden="true">●</span>
+              <span data-i18n="post.status.public">公開中</span>
+            </li>
+            <li data-legend-icon="status-members-only">
+              <span class="screen-my-posts-legend__symbol" data-legend-symbol aria-hidden="true">◆</span>
+              <span data-i18n="post.status.members-only">ログインユーザのみ</span>
+            </li>
+          </ul>
+          <p data-i18n="screen.my-posts.icon-legend-note">一時非表示と削除済みは、アイコンにせず文字で示します。</p>
+        </details>
+        <p class="screen-error" role="alert" data-when-scenario="fetch-error" data-i18n="error.fetch">データを取得できませんでした。時間をおいてもう一度お試しください。</p>
+        <p class="text-muted" data-my-posts-empty data-when-scenario="empty" data-i18n="screen.my-posts.empty">まだ投稿していません。</p>
+        <ul class="screen-post-list screen-my-posts-list" data-my-posts data-when-scenario="default" data-i18n-attr="aria-label:screen.my-posts.list-label"></ul>
+      </section>
+
       <section class="l-stack" id="notices" aria-labelledby="my-posts-notices-heading">
         <h2 id="my-posts-notices-heading" data-i18n="notice.label">お知らせ</h2>
         <p class="field-hint" data-i18n="screen.my-posts.notices-hint">自分のコメントに返信がつくと、ここにお知らせします。</p>
         <mk-notice-list></mk-notice-list>
       </section>
-
-      <h2 id="my-posts-posts-heading" data-i18n="screen.my-posts.posts-heading">投稿の一覧</h2>
-      <p data-when-scenario="default empty">
-        <a class="button" href="post-edit.html?auth=member" data-i18n="screen.my-posts.new-post">新しく投稿する</a>
-      </p>
-      <!-- The legend repeats the visibility icon shapes of posts.js (VISIBILITY_SHAPES); the
-           review spec checks that they stay equal. It is the explanation for keyboard and touch
-           users, since the icons' title tooltip only appears on mouse hover. -->
-      <details class="screen-my-posts-legend" data-icon-legend data-when-scenario="default">
-        <summary data-i18n="screen.my-posts.icon-legend">アイコンの見方</summary>
-        <ul>
-          <li data-legend-icon="visibility-guests">
-            <span class="mk-post-card__icon" aria-hidden="true"><svg class="mk-post-card__icon-svg" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5"/><ellipse cx="8" cy="8" rx="2.75" ry="6.5"/><path d="M1.5 8h13"/></svg></span>
-            <span data-i18n="post-card.visibility.guests">公開範囲：ログインしていない人にも公開</span>
-          </li>
-          <li data-legend-icon="visibility-members">
-            <span class="mk-post-card__icon" aria-hidden="true"><svg class="mk-post-card__icon-svg" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7.5" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg></span>
-            <span data-i18n="post-card.visibility.members">公開範囲：ログインしたユーザのみ</span>
-          </li>
-          <li data-legend-icon="status-public">
-            <span class="screen-my-posts-legend__symbol" data-legend-symbol aria-hidden="true">●</span>
-            <span data-i18n="post.status.public">公開中</span>
-          </li>
-          <li data-legend-icon="status-members-only">
-            <span class="screen-my-posts-legend__symbol" data-legend-symbol aria-hidden="true">◆</span>
-            <span data-i18n="post.status.members-only">ログインユーザのみ</span>
-          </li>
-        </ul>
-        <p data-i18n="screen.my-posts.icon-legend-note">一時非表示と削除済みは、アイコンにせず文字で示します。</p>
-      </details>
-      <p class="screen-error" role="alert" data-when-scenario="fetch-error" data-i18n="error.fetch">データを取得できませんでした。時間をおいてもう一度お試しください。</p>
-      <p class="text-muted" data-my-posts-empty data-when-scenario="empty" data-i18n="screen.my-posts.empty">まだ投稿していません。</p>
-      <ul class="screen-post-list screen-my-posts-list" data-my-posts data-when-scenario="default" data-i18n-attr="aria-label:screen.my-posts.list-label"></ul>
     </div>
   </main>
   <mk-site-footer></mk-site-footer>
