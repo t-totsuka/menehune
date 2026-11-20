@@ -318,8 +318,8 @@
       var CATEGORIES = ['font-size', 'font-weight', 'line-height', 'palette', 'color', 'font', 'space', 'radius', 'border', 'shadow', 'bp'];
       var SIZE_ORDER = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', 'pill'];
       var ROLE_ORDER = ['bg', 'surface', 'surface-muted', 'text', 'text-muted', 'accent', 'on-accent', 'link', 'border', 'border-strong', 'focus', 'error', 'shadow'];
-      var SEMANTIC = /^--color-(holiday|sunday|saturday|rokuyo-|event-|status-|admin-band|provisional)/;
-      var SEMANTIC_ORDER = ['holiday', 'sunday', 'saturday', 'rokuyo-', 'event-', 'status-', 'admin-band', 'provisional'];
+      var SEMANTIC = /^--color-(holiday|sunday|saturday|rokuyo-|event-|moon-|status-|admin-band|provisional)/;
+      var SEMANTIC_ORDER = ['holiday', 'sunday', 'saturday', 'rokuyo-', 'event-', 'moon-', 'status-', 'admin-band', 'provisional'];
 
       // Copy of tools/contrast-pairs.json (file:// pages cannot fetch JSON). Every pair is checked
       // in both themes. tests/tokens-page.spec.mjs fails when the two lists drift apart.
@@ -348,10 +348,13 @@
         ['--color-status-deleted', ['--color-bg', '--color-surface'], 4.5],
         ['--color-admin-band', ['--color-bg', '--color-surface'], 4.5],
         ['--color-provisional', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-admin-band', ['--color-surface-muted'], 3],
+        ['--color-moon-lit', ['--color-moon-shadow'], 3],
         ['--color-accent', ['--color-bg', '--color-surface'], 3],
-        ['--color-border', ['--color-bg', '--color-surface'], 3],
+        ['--color-surface', ['--color-accent'], 3],
+        ['--color-border', ['--color-bg', '--color-surface', '--color-surface-muted'], 3],
         ['--color-border-strong', ['--color-bg', '--color-surface', '--color-surface-muted'], 3],
-        ['--color-focus', ['--color-bg', '--color-surface'], 3]
+        ['--color-focus', ['--color-bg', '--color-surface', '--color-surface-muted'], 3]
       ];
       var PAIRS = [];
       PAIR_GROUPS.forEach(function (g) {

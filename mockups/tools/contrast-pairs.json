@@ -47,13 +47,18 @@
   { "fg": "--color-admin-band", "bg": "--color-surface", "min": 4.5, "themes": ["light", "dark"] },
   { "fg": "--color-provisional", "bg": "--color-bg", "min": 4.5, "themes": ["light", "dark"] },
   { "fg": "--color-provisional", "bg": "--color-surface", "min": 4.5, "themes": ["light", "dark"] },
+  { "fg": "--color-admin-band", "bg": "--color-surface-muted", "min": 3, "themes": ["light", "dark"] },
+  { "fg": "--color-moon-lit", "bg": "--color-moon-shadow", "min": 3, "themes": ["light", "dark"] },
   { "fg": "--color-accent", "bg": "--color-bg", "min": 3, "themes": ["light", "dark"] },
   { "fg": "--color-accent", "bg": "--color-surface", "min": 3, "themes": ["light", "dark"] },
+  { "fg": "--color-surface", "bg": "--color-accent", "min": 3, "themes": ["light", "dark"] },
   { "fg": "--color-border", "bg": "--color-bg", "min": 3, "themes": ["light", "dark"] },
   { "fg": "--color-border", "bg": "--color-surface", "min": 3, "themes": ["light", "dark"] },
+  { "fg": "--color-border", "bg": "--color-surface-muted", "min": 3, "themes": ["light", "dark"] },
   { "fg": "--color-border-strong", "bg": "--color-bg", "min": 3, "themes": ["light", "dark"] },
   { "fg": "--color-border-strong", "bg": "--color-surface", "min": 3, "themes": ["light", "dark"] },
   { "fg": "--color-border-strong", "bg": "--color-surface-muted", "min": 3, "themes": ["light", "dark"] },
   { "fg": "--color-focus", "bg": "--color-bg", "min": 3, "themes": ["light", "dark"] },
-  { "fg": "--color-focus", "bg": "--color-surface", "min": 3, "themes": ["light", "dark"] }
+  { "fg": "--color-focus", "bg": "--color-surface", "min": 3, "themes": ["light", "dark"] },
+  { "fg": "--color-focus", "bg": "--color-surface-muted", "min": 3, "themes": ["light", "dark"] }
 ]

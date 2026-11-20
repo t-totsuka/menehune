@@ -402,7 +402,7 @@
   - _Depends: 7.3_
   - _Requirements: 1.3, 1.4_
 
-- [ ] 8.2 夜空・天文トーンの配色を確定する
+- [x] 8.2 夜空・天文トーンの配色を確定する
   - 着手の条件：全画面のワイヤーフレームが approved で、check-registry が通る
   - 役割の色を調整する
     - ライト：明け方の薄藍の背景に、濃紺の文字と藍のアクセント
@@ -492,3 +492,4 @@
 - 8.1（自分の投稿：配置、2026-11-20）：投稿の一覧を section（aria-labelledby=my-posts-posts-heading）にまとめてお知らせ（#notices）より前に置き、960px 以上で `.screen-my-posts` を `minmax(0, 5fr) minmax(min(100%, 15rem 相当), 2fr)` の 2 列（比 2.5、本文の最大幅まで一定）にした。3：1 だと 960px でお知らせの列が 15rem を割る。狭い幅ではヘッダーの #notices が一覧の下に移る（README の論点）
 - 8.1（自分の投稿：ページング、2026-11-20）：opt-in の新しい部品 mk-pager（名前付きの nav、範囲の文字、前へ・次へは端で disabled、ページ番号に aria-current、mk-page-change）と純粋なロジック window.MockPaging（PAGE_SIZE 30 は暫定）を shell.js に置き、my-posts の投稿の一覧と mk-notice-list の opt-in `page-size="30"` に付けた。30 件以下ではページ送りを出さない。ページを変えたら一覧の見出しにフォーカスを移す。見せるためのシナリオ many-items（my-posts だけ。MockSample.paging で投稿 75・お知らせ 40。posts と notices には混ぜないのでほかの画面と未読数は変わらない）。生成した投稿を探す処理は findPost と post-edit の両方で paging.posts も見ること（レビューで差し戻された点）。シナリオの切り替えでのページのリセットは fetch-error の早期 return より前に置く
 - 8.1（完了、2026-11-21）：利用者の「ワイヤーフレームはいずれもOK」で、星図以外の 14 画面を approved（reviewedAt 2026-11-21、最後の注記は screens.js の定数 ALL_OK_APPROVAL）にし、8.1 を完了にした。ハイフィは全画面 draft。「未確定」の出し分けは、レジストリを addInitScript で差し替えるテスト（review-shell、catalog-index）で引き続き確かめる。README の論点の各項目の「再レビュー待ち」は記録した時点の状態として残し、節の先頭に、残る論点を 8.2・8.3 か各機能の仕様に持ち越すと書いた
+- 8.2（2026-11-21）：ライトは bg を薄藍の dawn-100（#e2e6f6。以前の #eef1f9 はほぼ白に見えた）、文字 navy-900、アクセント indigo-700。ダークは初期案（濃紺と gold-300）のまま。月の図は新しい役割 --color-moon-lit / --color-moon-shadow で両テーマとも暗い側を濃紺にした（ライトで明暗が逆に見えた 8.1 の論点）。役割トークンを足したら wireframe.css のグレーと tokens.html の SEMANTIC・PAIR_GROUPS も足す。コントラストの組は、全画面・全シナリオを Playwright で描いて実際の前景と背景を集めて網羅した（62 組、両テーマ違反 0）。surface-muted の上に意味を持つ色の文字を置くなら組と palette.test.mjs の SEMANTIC_TEXT を足す。8.3 に持ち越し：375px の月のカレンダーでセルの日付ボタン（surface）と余白（bg）の 2 色が目立つ、凡例の新月 ●・満月 ○ が新しい月の図と逆の印象、ライトのフォーカスは橙のまま（README の論点）

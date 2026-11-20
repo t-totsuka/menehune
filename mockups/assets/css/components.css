@@ -811,7 +811,9 @@ mk-event-list {
   min-width: min(100%, calc(var(--space-2xl) * 3));
 }
 
-/* Moon figure: the dark part is the surface with a strong outline, the lit part the moon color. */
+/* Moon figure: the dark part is a night-navy disc with a strong outline, the lit part a bright gold
+   (--color-moon-lit on --color-moon-shadow, 3:1), so the lit side reads as the bright one in both
+   themes (task 8.2; in light the surface-colored dark side used to read as the lit side). */
 .mk-moon-figure {
   flex: none;
   inline-size: calc(var(--space-2xl) * 2);
@@ -826,13 +828,13 @@ mk-event-list {
 }
 
 .mk-moon__disc {
-  fill: var(--color-surface);
+  fill: var(--color-moon-shadow);
   stroke: var(--color-border-strong);
   stroke-width: 1.5;
 }
 
 .mk-moon__lit {
-  fill: var(--color-event-moon);
+  fill: var(--color-moon-lit);
   stroke: none;
 }
 

@@ -111,6 +111,8 @@ html:root[data-stage="wireframe"] {
   --color-status-deleted: var(--wf-gray-text-muted);
   --color-admin-band: var(--wf-gray-text);
   --color-provisional: var(--wf-gray-text);
+  --color-moon-lit: var(--wf-gray-surface);
+  --color-moon-shadow: var(--wf-gray-border-strong);
   --shadow-sm: none;
   --shadow-md: none;
 

@@ -11,7 +11,9 @@
  *   @media (prefers-color-scheme: dark) :root:not([data-theme="light"])   dark (follows OS)
  *   :root[data-theme="dark"]                                     dark (manual switch)
  * The two dark blocks MUST hold identical values (check-contrast verifies this).
- * Tone is an initial proposal; it is finalized in the hi-fi review.
+ * Tone (finalized in task 8.2): light is a pale indigo dawn sky with deep navy text and an indigo
+ * accent; dark is a deep navy night sky with a starlight-gold accent. The moon figure uses its own
+ * pair (--color-moon-lit on --color-moon-shadow) so the lit side is the bright one in both themes.
  */
 
 :root {
@@ -26,19 +28,21 @@
   --palette-indigo-600: #3a4ba8;
   --palette-indigo-300: #9fb0f0;
   --palette-indigo-200: #c3cdf5;
-  --palette-indigo-100: #dfe4f6;
-  --palette-indigo-50: #eef1f9;
-  --palette-mist-500: #737c9f;
+  --palette-mist-500: #6a7397;
   --palette-mist-400: #8e97bd;
   --palette-navy-500: #6670a8;
   --palette-mist-300: #aeb6d8;
   --palette-mist-600: #4b5478;
   --palette-star-50: #f4f6fd;
   --palette-white: #ffffff;
+  /* ---- Palette: dawn (light theme backgrounds, pale indigo) ---- */
+  --palette-dawn-50: #f8f9fe;
+  --palette-dawn-100: #e2e6f6;
+  --palette-dawn-200: #d3d9f0;
   /* ---- Palette: starlight gold ---- */
   --palette-gold-300: #f4d58a;
   --palette-gold-400: #e9c062;
-  --palette-gold-700: #8a6110;
+  --palette-gold-700: #845c0e;
   --palette-gold-800: #6e4c08;
   /* ---- Palette: semantic hues ---- */
   --palette-red-700: #b3261e;
@@ -61,9 +65,9 @@
   --palette-shadow-dark: rgb(0 0 0 / 0.55);
 
   /* ---- Role colors (light) ---- */
-  --color-bg: var(--palette-indigo-50);
-  --color-surface: var(--palette-white);
-  --color-surface-muted: var(--palette-indigo-100);
+  --color-bg: var(--palette-dawn-100);
+  --color-surface: var(--palette-dawn-50);
+  --color-surface-muted: var(--palette-dawn-200);
   --color-text: var(--palette-navy-900);
   --color-text-muted: var(--palette-mist-600);
   --color-accent: var(--palette-indigo-700);
@@ -93,6 +97,8 @@
   --color-status-deleted: var(--palette-slate-600);
   --color-admin-band: var(--palette-rose-800);
   --color-provisional: var(--palette-amber-700);
+  --color-moon-lit: var(--palette-gold-300);
+  --color-moon-shadow: var(--palette-navy-700);
 
   /* ---- Typography ---- */
   --font-body: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", "Noto Sans JP", sans-serif;
@@ -180,6 +186,8 @@
     --color-status-deleted: var(--palette-slate-300);
     --color-admin-band: var(--palette-rose-300);
     --color-provisional: var(--palette-amber-300);
+    --color-moon-lit: var(--palette-gold-300);
+    --color-moon-shadow: var(--palette-navy-700);
     color-scheme: dark;
   }
 }
@@ -217,5 +225,7 @@
   --color-status-deleted: var(--palette-slate-300);
   --color-admin-band: var(--palette-rose-300);
   --color-provisional: var(--palette-amber-300);
+  --color-moon-lit: var(--palette-gold-300);
+  --color-moon-shadow: var(--palette-navy-700);
   color-scheme: dark;
 }

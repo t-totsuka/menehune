@@ -513,16 +513,16 @@ interface SampleDataSet {
 **Responsibilities & Constraints**
 - 命名は `--{category}-{role}[-{variant}]` とする。category は color、font、font-size、font-weight、line-height、space、radius、shadow、border、bp
 - 色は 2 層にする。素材の色（`--palette-navy-900` など）と、役割の色（`--color-bg`、`--color-surface`、`--color-text`、`--color-text-muted`、`--color-accent`、`--color-link`、`--color-border`、`--color-focus`）。部品は役割の色だけを参照する
-- 意味を持つ色（10.3）：`--color-holiday`、`--color-sunday`、`--color-saturday`、`--color-rokuyo-{taian|butsumetsu|…}`（`taian` と `butsumetsu` 以外は中立色を共有してよい）、`--color-event-{moon|planet|sun}`、`--color-status-{public|members-only|hidden|deleted}`、`--color-admin-band`、`--color-provisional`
+- 意味を持つ色（10.3）：`--color-holiday`、`--color-sunday`、`--color-saturday`、`--color-rokuyo-{taian|butsumetsu|…}`（`taian` と `butsumetsu` 以外は中立色を共有してよい）、`--color-event-{moon|planet|sun}`、`--color-status-{public|members-only|hidden|deleted}`、`--color-admin-band`、`--color-provisional`、`--color-moon-{lit|shadow}`（月の満ち欠けの図の光る側と暗い側。タスク 8.2）
 - テーマの定義：`:root` はライトの値。`@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {…} }` と `:root[data-theme="dark"] {…}` に、同じダークの値を書く
-- トーンの方針（初期案。ハイフィのレビューで確定）：ダークは濃紺の夜空（背景 #0b1026 前後）に、星を思わせる金色のアクセント。ライトは明け方の薄藍の背景に、濃紺の文字と藍のアクセントで、ライトでも夜空らしさを残す（9.5）
+- トーンの方針（タスク 8.2 で値を確定。ハイフィのレビューで調整する）：ダークは濃紺の夜空（背景 #0b1026）に、星を思わせる金色のアクセント（#f4d58a）。ライトは明け方の薄藍の背景（#e2e6f6）に、濃紺の文字（#0b1026）と藍のアクセント（#2d3a8c）で、ライトでも夜空らしさを残す（9.5）。月の満ち欠けの図は、両テーマとも暗い側を濃紺、光る側を明るい金色にする
 - 書体：本文は `system-ui` 系のゴシック、見出しは明朝（ヒラギノ明朝、游明朝、Noto Serif JP の順に指定）。Web フォントは使わない（2.6）
 - ブレークポイント：`--bp-sm: 600px`、`--bp-md: 960px`、`--bp-lg: 1280px`。CSS 変数はメディアクエリに使えないので、`@media` にはこれらと同じ数値を書き、check-tokens が一致を検査する
 
 **Contracts**: State [x]
 
 **Implementation Notes**
-- 検証：`contrast-pairs.json` に（前景、背景、最小比）を列挙する。本文の組は 4.5、大きな文字・アイコン・境界線・フォーカスの組は 3.0 とする。両テーマについて `check-contrast.mjs` で計算する
+- 検証：`contrast-pairs.json` に（前景、背景、最小比）を列挙する。本文の組は 4.5、大きな文字・アイコン・境界線・フォーカスの組は 3.0 とする。両テーマについて `check-contrast.mjs` で計算する。組は、ハイフィの全画面と部品で実際に塗られる前景と背景の組み合わせをすべて含める（タスク 8.2。3 つの面 bg・surface・surface-muted の上の文字・境界線・フォーカス、アクセントの上の文字と面の色、月の図の光る側と暗い側など）
 
 #### StageStyles（wireframe.css）
 - `html[data-stage="wireframe"]` の範囲で、役割の色をすべてグレースケールに再定義する。影とグラデーションは `none` にし、`[data-decor]` を付けた要素は非表示にする。画像・図は枠と対角線だけの占位表示にする（1.2）
