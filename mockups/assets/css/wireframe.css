@@ -113,6 +113,7 @@ html:root[data-stage="wireframe"] {
   --color-provisional: var(--wf-gray-text);
   --color-moon-lit: var(--wf-gray-surface);
   --color-moon-shadow: var(--wf-gray-border-strong);
+  --color-decor-star: var(--wf-gray-text-muted);
   --shadow-sm: none;
   --shadow-md: none;
 

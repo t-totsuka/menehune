@@ -114,8 +114,9 @@ test.describe('top: review notes 2 and 3 (1:3 columns, posts in the wide one)', 
     // the band spans the page; the main items share one column
     const lefts = new Set(order.filter((o) => o.name !== 'band').map((o) => Math.round(o.left)));
     expect(lefts.size).toBe(1);
-    // DOM order equals the visual order of the phone layout (reading and focus order)
-    const domOrder = await page.evaluate(() => [...document.querySelectorAll('main > *')]
+    // DOM order equals the visual order of the phone layout (reading and focus order); the
+    // starfield of task 8.3 is decoration (aria-hidden, out of the flow), not part of that order
+    const domOrder = await page.evaluate(() => [...document.querySelectorAll('main > *:not([data-decor])')]
       .map((el) => el.getAttribute('aria-labelledby') ?? el.localName));
     expect(domOrder).toEqual(['h1', 'top-today', 'top-posts', 'top-events']);
   });

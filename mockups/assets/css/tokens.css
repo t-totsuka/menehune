@@ -99,6 +99,8 @@
   --color-provisional: var(--palette-amber-700);
   --color-moon-lit: var(--palette-gold-300);
   --color-moon-shadow: var(--palette-navy-700);
+  /* Decoration (task 8.3): the stars of the background starfields (header, top page). */
+  --color-decor-star: var(--palette-indigo-600);
 
   /* ---- Typography ---- */
   --font-body: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", "Noto Sans JP", sans-serif;
@@ -188,6 +190,7 @@
     --color-provisional: var(--palette-amber-300);
     --color-moon-lit: var(--palette-gold-300);
     --color-moon-shadow: var(--palette-navy-700);
+    --color-decor-star: var(--palette-gold-300);
     color-scheme: dark;
   }
 }
@@ -227,5 +230,6 @@
   --color-provisional: var(--palette-amber-300);
   --color-moon-lit: var(--palette-gold-300);
   --color-moon-shadow: var(--palette-navy-700);
+  --color-decor-star: var(--palette-gold-300);
   color-scheme: dark;
 }

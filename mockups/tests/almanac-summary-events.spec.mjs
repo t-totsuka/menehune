@@ -307,8 +307,8 @@ test.describe('layout', () => {
       }));
       // Task 6.4 added the full summary of 2026-11-20 (a day with events); task 8.1 the two
       // rise / set charts, the collapsed event list and the mark-past event list, then the
-      // day-detail opt-in sample of the summary.
-      expect(fits.length).toBe(18);
+      // day-detail opt-in sample of the summary; task 8.3 the all-kinds list (event-kind icons).
+      expect(fits.length).toBe(19);
       expect(fits.every(Boolean)).toBe(true);
     });
   }

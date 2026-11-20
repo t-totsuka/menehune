@@ -411,7 +411,7 @@
   - 完了状態：コントラストの検査が両テーマで違反 0 件になり、ライトテーマでも夜空のトーンが感じられる配色になっている
   - _Requirements: 9.1, 9.2, 9.5, 13.1, 13.2_
 
-- [ ] 8.3 ハイフィデリティの装飾を全画面に統合する
+- [x] 8.3 ハイフィデリティの装飾を全画面に統合する
   - この作業は、部品と画面の全体にまたがる統合タスクとして行う
   - 次の装飾を加える。どれも装飾の印を付け、ワイヤーフレーム段階では消えるようにする
     - 見出しの明朝体の書体の調整
@@ -493,3 +493,4 @@
 - 8.1（自分の投稿：ページング、2026-11-20）：opt-in の新しい部品 mk-pager（名前付きの nav、範囲の文字、前へ・次へは端で disabled、ページ番号に aria-current、mk-page-change）と純粋なロジック window.MockPaging（PAGE_SIZE 30 は暫定）を shell.js に置き、my-posts の投稿の一覧と mk-notice-list の opt-in `page-size="30"` に付けた。30 件以下ではページ送りを出さない。ページを変えたら一覧の見出しにフォーカスを移す。見せるためのシナリオ many-items（my-posts だけ。MockSample.paging で投稿 75・お知らせ 40。posts と notices には混ぜないのでほかの画面と未読数は変わらない）。生成した投稿を探す処理は findPost と post-edit の両方で paging.posts も見ること（レビューで差し戻された点）。シナリオの切り替えでのページのリセットは fetch-error の早期 return より前に置く
 - 8.1（完了、2026-11-21）：利用者の「ワイヤーフレームはいずれもOK」で、星図以外の 14 画面を approved（reviewedAt 2026-11-21、最後の注記は screens.js の定数 ALL_OK_APPROVAL）にし、8.1 を完了にした。ハイフィは全画面 draft。「未確定」の出し分けは、レジストリを addInitScript で差し替えるテスト（review-shell、catalog-index）で引き続き確かめる。README の論点の各項目の「再レビュー待ち」は記録した時点の状態として残し、節の先頭に、残る論点を 8.2・8.3 か各機能の仕様に持ち越すと書いた
 - 8.2（2026-11-21）：ライトは bg を薄藍の dawn-100（#e2e6f6。以前の #eef1f9 はほぼ白に見えた）、文字 navy-900、アクセント indigo-700。ダークは初期案（濃紺と gold-300）のまま。月の図は新しい役割 --color-moon-lit / --color-moon-shadow で両テーマとも暗い側を濃紺にした（ライトで明暗が逆に見えた 8.1 の論点）。役割トークンを足したら wireframe.css のグレーと tokens.html の SEMANTIC・PAIR_GROUPS も足す。コントラストの組は、全画面・全シナリオを Playwright で描いて実際の前景と背景を集めて網羅した（62 組、両テーマ違反 0）。surface-muted の上に意味を持つ色の文字を置くなら組と palette.test.mjs の SEMANTIC_TEXT を足す。8.3 に持ち越し：375px の月のカレンダーでセルの日付ボタン（surface）と余白（bg）の 2 色が目立つ、凡例の新月 ●・満月 ○ が新しい月の図と逆の印象、ライトのフォーカスは橙のまま（README の論点）
+- 8.3（2026-11-21）：装飾はすべて data-decor・aria-hidden・focusable=false のインライン SVG（ヘッダーとトップの背景の星 --color-decor-star、月相のアイコンを記号の上に重ねる、天文現象 7 種類のアイコン）。「見出しの明朝体の書体の調整」は、見出しがもともと両段階で --font-heading（端末の明朝）であり、段階で書体を変えると配置が変わる（StageStyles、wireframe.css の規則）ので変えず、ハイフィだけで太さ・字間を調整するかを README の論点にした。ハイフィだけの規則は components.css の `html:not([data-stage="wireframe"])`（design.md に規約）。forced-colors では透明にした記号とアイコンが重なりうる。文中のアイコンはワイヤーフレームで 1 文字ぶん空く。star-chart と post-detail は共通ヘッダーの星だけ（README の論点）

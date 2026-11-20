@@ -13,7 +13,8 @@
 //   notice.label ("お知らせ") without a count, so the read notices stay one click away. The count
 //   does not follow the scenario (it is the same on every screen). Guests get no link.
 //   Below 600px the menu collapses behind a toggle button (aria-expanded / aria-controls);
-//   Escape closes it.
+//   Escape closes it. Task 8.3: a decorative starfield (svg.mk-starfield, data-decor,
+//   aria-hidden) is drawn behind the bar on the hi-fi stage.
 // - mk-site-footer: links to the attribution and privacy pages.
 // - mk-guest-notice (6.5, 6.8): variant read-only (default) / private-post, with a login link.
 //   Showing it only to guests is the page's job ([data-when-auth="guest"]). With the boolean
@@ -155,6 +156,55 @@
   const THEMES = ['system', 'light', 'dark'];
   /** @type {readonly PostStatus[]} */
   const STATUSES = ['public', 'members-only', 'hidden', 'deleted'];
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  /**
+   * Stars of the header starfield (task 8.3): [x %, y %, size, shape]. They keep to the top and
+   * bottom edges (the padding of the bar), so they rarely sit behind a word. 'dot' is a circle of
+   * radius size; 'spark' is a four-pointed star reaching size * 3 from its centre.
+   * @type {readonly [number, number, number, 'dot' | 'spark'][]}
+   */
+  const HEADER_STARS = [
+    [3, 16, 1, 'dot'], [9, 84, 0.8, 'dot'], [16, 12, 1, 'spark'], [24, 88, 1.1, 'dot'],
+    [31, 14, 0.8, 'dot'], [38, 86, 0.9, 'spark'], [46, 10, 1.2, 'dot'], [53, 90, 0.8, 'dot'],
+    [61, 15, 1, 'spark'], [68, 85, 1, 'dot'], [75, 11, 0.9, 'dot'], [82, 88, 1, 'spark'],
+    [89, 14, 1.1, 'dot'], [96, 84, 0.8, 'dot'],
+  ];
+
+  /**
+   * Decorative starfield behind the header (task 8.3): an absolutely positioned inline SVG marked
+   * as decoration (hidden on the wireframe stage, note 1.7) and hidden from assistive technology.
+   * Positions are percentages, so the stars keep their shape at every width.
+   * @param {readonly [number, number, number, 'dot' | 'spark'][]} stars
+   * @returns {SVGSVGElement}
+   */
+  const starfield = (stars) => {
+    /** @param {string} tag @param {Record<string, string>} attrs @returns {SVGElement} */
+    const node = (tag, attrs) => {
+      const n = /** @type {SVGElement} */ (document.createElementNS(SVG_NS, tag));
+      for (const [name, value] of Object.entries(attrs)) n.setAttribute(name, value);
+      return n;
+    };
+    const root = /** @type {SVGSVGElement} */ (node('svg', {
+      class: 'mk-starfield', 'data-decor': '', 'aria-hidden': 'true', focusable: 'false',
+    }));
+    for (const [x, y, size, shape] of stars) {
+      if (shape === 'dot') {
+        root.append(node('circle', { class: 'mk-starfield__star', cx: `${x}%`, cy: `${y}%`, r: String(size) }));
+        continue;
+      }
+      const a = size * 3;
+      const b = Math.round(size * 70) / 100;
+      const at = node('svg', { x: `${x}%`, y: `${y}%`, overflow: 'visible' });
+      at.append(node('path', {
+        class: 'mk-starfield__star',
+        d: `M0 -${a} L${b} -${b} L${a} 0 L${b} ${b} L0 ${a} L-${b} ${b} L-${a} 0 L-${b} -${b} Z`,
+      }));
+      root.append(at);
+    }
+    return root;
+  };
 
   if (typeof window.MockElement !== 'function') {
     console.error('[shell.js] window.MockElement is missing; load components/base.js first');
@@ -300,6 +350,7 @@
         this.el('span', null, this.t('site.name')));
 
       this.replaceChildren(this.el('header', { class: 'mk-header' },
+        starfield(HEADER_STARS),
         this.el('div', { class: 'mk-header__inner' },
           this.el('div', { class: 'mk-header__bar' }, ...[logo, this.notices(state), toggle].filter((n) => n !== undefined)),
           menu)));

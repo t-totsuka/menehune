@@ -239,7 +239,7 @@
 
     <section class="l-surface l-stack" aria-labelledby="sec-shell">
       <h2 id="sec-shell">共通の部品</h2>
-      <p class="text-muted">ヘッダー・フッター・閲覧のみの案内・状態バッジ・管理帯です。ログイン状態はツールバーで切り替えます（例：<a href="?auth=guest">?auth=guest</a>、<a href="?auth=member">?auth=member</a>、<a href="?auth=admin">?auth=admin</a>）。ヘッダーの言語切替とテーマ切替は、このページ全体に効きます。幅 600px 未満ではメニューが折りたたまれます。</p>
+      <p class="text-muted">ヘッダー・フッター・閲覧のみの案内・状態バッジ・管理帯です。ログイン状態はツールバーで切り替えます（例：<a href="?auth=guest">?auth=guest</a>、<a href="?auth=member">?auth=member</a>、<a href="?auth=admin">?auth=admin</a>）。ヘッダーの言語切替とテーマ切替は、このページ全体に効きます。幅 600px 未満ではメニューが折りたたまれます。ハイフィ段階では、ヘッダーの背景に星の装飾（<code>.mk-starfield</code>、色は <code>--color-decor-star</code>）を描きます（タスク 8.3。ワイヤーフレーム段階では消えます）。</p>
 
       <h3 id="sec-shell-header"><code>mk-site-header</code></h3>
       <p class="text-muted">属性なし（画面 ID から現在の項目を決める。見本ページでは未選択）</p>
@@ -278,7 +278,7 @@
 
     <section class="l-surface l-stack" aria-labelledby="sec-almanac">
       <h2 id="sec-almanac">月カレンダーと日付のセル</h2>
-      <p class="text-muted">PC 幅（600px 以上）は 7 列の格子、スマートフォン幅（600px 未満）は日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネルになります。小さな格子では、日をタップするか矢印キー（前後の日・前後の週）と Home・End（週の始めと終わり）で選びます。翌年以降の祝日には「予定」の表記が付きます。</p>
+      <p class="text-muted">PC 幅（600px 以上）は 7 列の格子、スマートフォン幅（600px 未満）は日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネルになります。小さな格子では、日をタップするか矢印キー（前後の日・前後の週）と Home・End（週の始めと終わり）で選びます。翌年以降の祝日には「予定」の表記が付きます。ハイフィ段階では、月相の記号（● ◐ ○ ◑）の上に、月の図と同じ色（暗い側は濃紺、光る側は金色）の月相のアイコンを重ねます（タスク 8.3）。記号は DOM に残り、ワイヤーフレーム段階ではアイコンが消えて記号が見えます。</p>
 
       <h3 id="sec-almanac-2026-11"><code>mk-month-calendar month="2026-11"</code></h3>
       <mk-month-calendar id="cal-2026-11" month="2026-11"></mk-month-calendar>
@@ -411,6 +411,10 @@
 
       <h3 id="sec-event-list-past"><code>mk-event-list from="2026-11-01" to="2026-11-20" mark-past relative-days</code>（天文現象一覧用：サンプルの今日 2026-11-16 より前の日付の現象に「過去」の文字を付け、今日以降の現象の日時の後ろに今日から何日後かを出す）</h3>
       <mk-event-list id="events-past" from="2026-11-01" to="2026-11-20" mark-past relative-days></mk-event-list>
+
+      <h3 id="sec-event-list-icons"><code>mk-event-list</code>（属性なし：全期間・全種類。種類のアイコンの見本）</h3>
+      <p class="text-muted">ハイフィ段階では、種類名の前に種類ごとのアイコン（タスク 8.3）を出します。色は月（月相・近地点・赤緯）と惑星などのトーンの色です。アイコンは装飾（<code>data-decor</code>、<code>aria-hidden</code>）で、意味は種類名の文字で伝えます。ワイヤーフレーム段階では消えます（場所は残ります）。</p>
+      <mk-event-list id="events-icons" filters="collapsed"></mk-event-list>
     </section>
 
     <section class="l-surface l-stack" aria-labelledby="sec-star-chart">

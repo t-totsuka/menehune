@@ -48,6 +48,10 @@
 //   moon are above the horizon comes first (rows labelled with text, role="img" + aria-label
 //   listing the times); a missing rise or set means the body was already up / stays up.
 // - Figures sit in a non-focusable wrapper with data-figure (wireframe placeholder, note 1.7).
+// - Task 8.3 (hi-fi decorations, data-decor + aria-hidden inline SVG): a moon-phase icon covers
+//   each phase symbol (cells, legend, summary; the symbol stays for the wireframe stage), the
+//   day detail's summary shows a moon icon of the age on days without a named phase, and every
+//   mk-event-list row has an icon of its kind before the kind's name (the name stays as text).
 // - mk-event-list (3.4, 3.5, 4.4, 4.5) `from`, `to`, `kinds` (initial filter values; the filter
 //   state is local and survives language / theme re-renders, reset when the attributes change):
 //   period (date inputs bounded by the sample events) and kind checkboxes in fieldsets; changes
@@ -133,6 +137,71 @@
 
   /** Moon figure geometry (viewBox units). */
   const MOON = { view: 100, c: 50, r: 45 };
+
+  /**
+   * Outline of the lit part of the moon at a moon age, for a disc of centre (c, c) and radius r:
+   * the limb from the top to the bottom on the lit side, then the terminator ellipse back up.
+   * @param {number} age @param {number} c @param {number} r
+   */
+  const moonLitPath = (age, c, r) => {
+    const { waxing, illumination, terminatorRx } = moonShape(age);
+    const top = `${fmt(c)} ${fmt(c - r)}`;
+    const bottom = `${fmt(c)} ${fmt(c + r)}`;
+    const crescent = illumination < 0.5;
+    const limbSweep = waxing ? 1 : 0;
+    const terminatorSweep = waxing === crescent ? 0 : 1;
+    return `M ${top} A ${fmt(r)} ${fmt(r)} 0 0 ${limbSweep} ${bottom} `
+      + `A ${fmt(r * terminatorRx)} ${fmt(r)} 0 0 ${terminatorSweep} ${top} Z`;
+  };
+
+  /** Representative moon ages of the named phases (the legend has no day to read the age from). */
+  /** @type {Readonly<Record<string, number>>} */
+  const PHASE_AGES = {
+    'moon-phase.new-moon': 0,
+    'moon-phase.first-quarter': SYNODIC_MONTH / 4,
+    'moon-phase.full-moon': SYNODIC_MONTH / 2,
+    'moon-phase.last-quarter': (SYNODIC_MONTH * 3) / 4,
+  };
+
+  /** Moon icon geometry (viewBox units). Below MIN_LIT the moon is drawn as a dark disc only. */
+  const MOON_ICON = { view: 16, c: 8, r: 6.5, minLit: 0.02 };
+
+  /**
+   * Decorative moon icon (task 8.3): the moon figure's colors at icon size (dark disc with a strong
+   * outline, lit part), marked as decoration and hidden from assistive technology (the phase name
+   * and the moon age are text next to it).
+   * @param {number} age
+   * @param {string} className mk-phase-icon (over a phase symbol) | mk-moon-icon (inline)
+   * @param {Readonly<Record<string, string>>} [attrs]
+   * @returns {SVGSVGElement}
+   */
+  const moonIcon = (age, className, attrs = {}) => {
+    const { view, c, r, minLit } = MOON_ICON;
+    /** @type {SVGElement[]} */
+    const parts = [svg('circle', { class: 'mk-phase-icon__disc', cx: fmt(c), cy: fmt(c), r: fmt(r) })];
+    if (moonShape(age).illumination >= minLit) parts.push(svg('path', { class: 'mk-phase-icon__lit', d: moonLitPath(age, c, r) }));
+    return svg('svg', {
+      class: className, viewBox: `0 0 ${view} ${view}`, 'data-decor': '', 'aria-hidden': 'true', focusable: 'false', ...attrs,
+    }, ...parts);
+  };
+
+  /**
+   * Phase symbol of a named phase (●◐○◑): the symbol stays as the wireframe's mark and the moon
+   * icon covers it on the hi-fi stage (task 8.3; components.css makes the symbol transparent there).
+   * @param {string} phaseKey moon-phase.*
+   * @param {number} age
+   * @param {Readonly<Record<string, string>>} [attrs] extra attributes of the outer span
+   * @returns {HTMLSpanElement}
+   */
+  const phaseMark = (phaseKey, age, attrs = {}) => {
+    const mark = document.createElement('span');
+    for (const [name, value] of Object.entries({ class: 'mk-day-cell__phase', 'data-phase-icon': '', ...attrs })) mark.setAttribute(name, value);
+    const glyph = document.createElement('span');
+    glyph.className = 'mk-day-cell__phase-glyph';
+    glyph.textContent = PHASE_SYMBOLS[phaseKey] ?? '◌';
+    mark.append(glyph, moonIcon(age, 'mk-phase-icon', { 'data-phase': phaseKey.replace(/^moon-phase\./, '') }));
+    return mark;
+  };
 
   /** @typedef {'sekki' | 'kou' | 'zassetsu' | 'event'} MarkKind */
   /** @type {Readonly<Record<MarkKind, string>>} */
@@ -288,7 +357,7 @@
         cell.append(this.el('span', markAttrs, this.t('calendar.holiday-short')));
       }
       if (day.moonPhaseKey) {
-        cell.append(this.el('span', { class: 'mk-day-cell__phase' }, PHASE_SYMBOLS[day.moonPhaseKey] ?? '◌'));
+        cell.append(phaseMark(day.moonPhaseKey, day.moonAge));
       }
       const marks = marksOf(day);
       if (marks.length > 0) {
@@ -340,7 +409,7 @@
       const moon = this.el('p', { class: 'mk-day-cell__moon' });
       if (day.moonPhaseKey) {
         moon.append(
-          this.el('span', { class: 'mk-day-cell__phase', 'aria-hidden': 'true' }, PHASE_SYMBOLS[day.moonPhaseKey] ?? '◌'),
+          phaseMark(day.moonPhaseKey, day.moonAge, { 'aria-hidden': 'true' }),
           ' ', this.el('span', { class: 'mk-day-cell__phase-name' }, this.t(day.moonPhaseKey)), ' ');
       }
       moon.append(this.el('span', null, moonAgeText(day)));
@@ -477,8 +546,8 @@
         item(this.el('span', { class: 'mk-mark__symbol', 'data-mark': 'kou' }, MARK_SYMBOLS.kou), this.t('kou.label')),
         item(this.el('span', { class: 'mk-mark__symbol', 'data-mark': 'zassetsu' }, MARK_SYMBOLS.zassetsu), this.t('zassetsu.label')),
         item(this.el('span', { class: 'mk-mark__symbol', 'data-mark': 'event' }, MARK_SYMBOLS.event), this.t('calendar.legend.event')));
-      for (const [key, symbol] of Object.entries(PHASE_SYMBOLS)) {
-        list.append(item(this.el('span', { class: 'mk-day-cell__phase' }, symbol), this.t(key)));
+      for (const key of Object.keys(PHASE_SYMBOLS)) {
+        list.append(item(phaseMark(key, PHASE_AGES[key] ?? 0), this.t(key)));
       }
       return this.el('div', { class: 'mk-calendar__legend' },
         this.el('p', { class: 'mk-calendar__legend-title' }, this.t('calendar.legend.label')), list);
@@ -717,8 +786,11 @@
       /** @type {(Node | string)[]} */
       const moon = [];
       if (day.moonPhaseKey) {
-        moon.push(this.el('span', { class: 'mk-day-cell__phase', 'aria-hidden': 'true' }, PHASE_SYMBOLS[day.moonPhaseKey] ?? '◌'),
+        moon.push(phaseMark(day.moonPhaseKey, day.moonAge, { 'aria-hidden': 'true' }),
           ' ', this.t(day.moonPhaseKey), state.lang === 'ja' ? '・' : ', ');
+      } else if (!brief) {
+        // Day detail (task 8.3): a decorative moon icon of the age (the brief variant has the figure).
+        moon.push(moonIcon(day.moonAge, 'mk-moon-icon'));
       }
       moon.push(moonAgeText(day));
       add('moon', 'almanac.moon', moon);
@@ -775,16 +847,9 @@
      * @param {AlmanacDay} day
      */
     moonFigure(day) {
-      const { waxing, illumination, terminatorRx } = moonShape(day.moonAge);
+      const { waxing, illumination } = moonShape(day.moonAge);
       const { view, c, r } = MOON;
-      const top = `${fmt(c)} ${fmt(c - r)}`;
-      const bottom = `${fmt(c)} ${fmt(c + r)}`;
-      const crescent = illumination < 0.5;
-      // Limb from the top to the bottom on the lit side, then the terminator ellipse back up.
-      const limbSweep = waxing ? 1 : 0;
-      const terminatorSweep = waxing === crescent ? 0 : 1;
-      const d = `M ${top} A ${fmt(r)} ${fmt(r)} 0 0 ${limbSweep} ${bottom} `
-        + `A ${fmt(r * terminatorRx)} ${fmt(r)} 0 0 ${terminatorSweep} ${top} Z`;
+      const d = moonLitPath(day.moonAge, c, r);
       const percent = Math.round(illumination * 100);
       const drawing = svg('svg', {
         class: 'mk-moon__svg',
@@ -960,6 +1025,61 @@
   /** @param {AstroEventKind} kind @returns {MessageKey} */
   const kindKey = (kind) => EVENT_KINDS.find((k) => k.kind === kind)?.labelKey ?? `astro.kind.${kind}`;
 
+  /**
+   * Drawings of the event-kind icons (task 8.3; 16 x 16 viewBox). Shapes are stroked with the
+   * tone color; `fill: true` parts are filled with it. The kind's name is always written next to
+   * the icon (13.3), so the icon is decoration.
+   * @type {Readonly<Record<AstroEventKind, readonly { tag: 'circle' | 'ellipse' | 'path' | 'line', attrs: Record<string, string>, fill?: boolean }[]>>}
+   */
+  const EVENT_ICONS = {
+    // A moon disc, the right half lit.
+    'moon-phase': [
+      { tag: 'circle', attrs: { cx: '8', cy: '8', r: '6' } },
+      { tag: 'path', attrs: { d: 'M 8 2 A 6 6 0 0 1 8 14 Z' }, fill: true },
+    ],
+    // The moon on its elliptic orbit around the earth, at the near end.
+    'moon-apsis': [
+      { tag: 'ellipse', attrs: { cx: '9', cy: '8', rx: '6', ry: '4' } },
+      { tag: 'circle', attrs: { cx: '10.5', cy: '8', r: '1.3' }, fill: true },
+      { tag: 'circle', attrs: { cx: '3', cy: '8', r: '2' }, fill: true },
+    ],
+    // The moon above the equator line, with an arrow up and down.
+    'moon-declination': [
+      { tag: 'line', attrs: { x1: '1.5', y1: '12', x2: '14.5', y2: '12' } },
+      { tag: 'circle', attrs: { cx: '6', cy: '6', r: '3' }, fill: true },
+      { tag: 'path', attrs: { d: 'M 12 2.5 L 12 9.5 M 10.5 4 L 12 2.5 L 13.5 4 M 10.5 8 L 12 9.5 L 13.5 8' } },
+    ],
+    // Two bodies side by side.
+    'planet-conjunction': [
+      { tag: 'circle', attrs: { cx: '5', cy: '9', r: '3' }, fill: true },
+      { tag: 'circle', attrs: { cx: '11.5', cy: '6.5', r: '2.5' } },
+    ],
+    // The sun and a planet on opposite sides of the earth.
+    'planet-opposition': [
+      { tag: 'line', attrs: { x1: '3', y1: '8', x2: '13', y2: '8', 'stroke-dasharray': '1.5 1.5' } },
+      { tag: 'circle', attrs: { cx: '2.5', cy: '8', r: '2' }, fill: true },
+      { tag: 'circle', attrs: { cx: '8', cy: '8', r: '1.5' } },
+      { tag: 'circle', attrs: { cx: '13.5', cy: '8', r: '2' }, fill: true },
+    ],
+    // The angle between the sun and a planet seen from the earth.
+    'planet-elongation': [
+      { tag: 'path', attrs: { d: 'M 14 13 L 2.5 13 L 11 4' } },
+      { tag: 'circle', attrs: { cx: '11.5', cy: '3.5', r: '2' }, fill: true },
+      { tag: 'circle', attrs: { cx: '14', cy: '13', r: '1.5' }, fill: true },
+    ],
+    // Two bodies almost touching, the smaller one passing by.
+    'close-approach': [
+      { tag: 'circle', attrs: { cx: '6', cy: '9.5', r: '4' } },
+      { tag: 'circle', attrs: { cx: '12', cy: '4.5', r: '2' }, fill: true },
+      { tag: 'path', attrs: { d: 'M 13.5 9 Q 13 12 10 13.5' } },
+    ],
+  };
+
+  /** Decorative event-kind icon (task 8.3). @param {AstroEventKind} kind @returns {SVGSVGElement} */
+  const eventIcon = (kind) => svg('svg', {
+    class: 'mk-event__icon', viewBox: '0 0 16 16', 'data-icon': kind, 'data-decor': '', 'aria-hidden': 'true', focusable: 'false',
+  }, ...(EVENT_ICONS[kind] ?? []).map((part) => svg(part.tag, part.fill ? { ...part.attrs, class: 'mk-event__icon-fill' } : part.attrs)));
+
   /** JST date of an event. @param {AstroEvent} event @returns {IsoDate} */
   const eventDate = (event) => event.at.slice(0, 10);
 
@@ -1111,7 +1231,7 @@
         if (past) attrs['data-past'] = '';
         list.append(this.el('li', attrs,
           when,
-          this.el('span', { class: 'mk-event__kind' }, this.t(kindKey(event.kind))),
+          this.el('span', { class: 'mk-event__kind' }, eventIcon(event.kind), this.t(kindKey(event.kind))),
           this.el('span', { class: 'mk-event__title' }, eventTitle(event))));
       }
       results.replaceChildren(list);

@@ -203,7 +203,7 @@
             </tr>
             <tr data-distinction="moon-phase">
               <th scope="row">月の満ち欠け</th>
-              <td>月相の記号（● 新月、○ 満月など）と、月相の名前と月齢の文字</td>
+              <td>月相の記号（● 新月、○ 満月など）と、月相の名前と月齢の文字。ハイフィ段階では記号の上に月相のアイコン（暗い円と、光る側の形。月の図と同じ明暗）を重ねる（装飾。意味は名前の文字と、小さな格子では凡例で伝える）</td>
               <td><code data-component="mk-day-cell">mk-day-cell</code>、<code data-component="mk-almanac-summary">mk-almanac-summary</code>（almanac.js）</td>
             </tr>
             <tr data-distinction="today">
@@ -218,7 +218,7 @@
             </tr>
             <tr data-distinction="event-kind">
               <th scope="row">天文現象の種類（月、惑星など）</th>
-              <td>種類名の文字（左端の線の色は補助）</td>
+              <td>種類名の文字（左端の線の色は補助）。ハイフィ段階では種類名の前に種類ごとの形のアイコンを添える（装飾で <code>aria-hidden</code>。アイコンだけでは伝えない）</td>
               <td><code data-component="mk-event-list">mk-event-list</code>（almanac.js）</td>
             </tr>
             <tr data-distinction="star-chart-bodies">

@@ -513,7 +513,7 @@ interface SampleDataSet {
 **Responsibilities & Constraints**
 - 命名は `--{category}-{role}[-{variant}]` とする。category は color、font、font-size、font-weight、line-height、space、radius、shadow、border、bp
 - 色は 2 層にする。素材の色（`--palette-navy-900` など）と、役割の色（`--color-bg`、`--color-surface`、`--color-text`、`--color-text-muted`、`--color-accent`、`--color-link`、`--color-border`、`--color-focus`）。部品は役割の色だけを参照する
-- 意味を持つ色（10.3）：`--color-holiday`、`--color-sunday`、`--color-saturday`、`--color-rokuyo-{taian|butsumetsu|…}`（`taian` と `butsumetsu` 以外は中立色を共有してよい）、`--color-event-{moon|planet|sun}`、`--color-status-{public|members-only|hidden|deleted}`、`--color-admin-band`、`--color-provisional`、`--color-moon-{lit|shadow}`（月の満ち欠けの図の光る側と暗い側。タスク 8.2）
+- 意味を持つ色（10.3）：`--color-holiday`、`--color-sunday`、`--color-saturday`、`--color-rokuyo-{taian|butsumetsu|…}`（`taian` と `butsumetsu` 以外は中立色を共有してよい）、`--color-event-{moon|planet|sun}`、`--color-status-{public|members-only|hidden|deleted}`、`--color-admin-band`、`--color-provisional`、`--color-moon-{lit|shadow}`（月の満ち欠けの図の光る側と暗い側。タスク 8.2）、`--color-decor-star`（背景の星の装飾。タスク 8.3）
 - テーマの定義：`:root` はライトの値。`@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {…} }` と `:root[data-theme="dark"] {…}` に、同じダークの値を書く
 - トーンの方針（タスク 8.2 で値を確定。ハイフィのレビューで調整する）：ダークは濃紺の夜空（背景 #0b1026）に、星を思わせる金色のアクセント（#f4d58a）。ライトは明け方の薄藍の背景（#e2e6f6）に、濃紺の文字（#0b1026）と藍のアクセント（#2d3a8c）で、ライトでも夜空らしさを残す（9.5）。月の満ち欠けの図は、両テーマとも暗い側を濃紺、光る側を明るい金色にする
 - 書体：本文は `system-ui` 系のゴシック、見出しは明朝（ヒラギノ明朝、游明朝、Noto Serif JP の順に指定）。Web フォントは使わない（2.6）
@@ -684,7 +684,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 
 #### Screens
 - 骨格：`<body data-screen-id="{id}">` の中に、mk-site-header、`<main>`、mk-site-footer を置く。ログイン以外の画面では、mk-site-header と `<main>` の間に、未ログインの案内の帯（`<mk-guest-notice band data-when-auth="guest">`）を置く（ワイヤーフレームのレビューの指摘、8.1）。CSS は tokens、base、components、wireframe、review の順に、JS は theme-boot（head）、data、i18n 辞書、mock-state、i18n、components/base、各部品、review-shell の順に読み込む（すべて `defer` なしの classic script を body の末尾に置く。theme-boot だけ head）
-- 装飾要素には `data-decor` を付ける。状態で出し分ける要素には `data-when-auth` と `data-when-scenario` を付ける
+- 装飾要素には `data-decor` を付ける（タスク 8.3 の背景の星、月相のアイコン、天文現象の種類のアイコンは、`data-decor` と `aria-hidden="true"` を付けたインラインの SVG。意味は必ず文字でも示す）。ワイヤーフレームの記号の上にハイフィのアイコンを重ねるときは、記号を DOM に残し、ハイフィ段階だけ（`html:not([data-stage="wireframe"])`）塗りを変える。配置に関わる値（書体を含む）は段階で変えない。状態で出し分ける要素には `data-when-auth` と `data-when-scenario` を付ける
 - 管理画面（admin.html）は mk-admin-band を持ち、guest と member では「権限がありません」の表示に切り替わる（3.6）
 - 出典表示とプライバシーポリシーは章立てと例文のみとする。プライバシーポリシーには取得項目（Google のアカウント識別子、表示名、任意の位置情報）の例を記載する
 

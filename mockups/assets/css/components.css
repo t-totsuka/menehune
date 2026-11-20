@@ -29,9 +29,99 @@ mk-status-badge {
 
 /* ---- mk-site-header ---- */
 .mk-header {
+  position: relative;
+  isolation: isolate;
   background-color: var(--color-surface);
   border-block-end: var(--border-default);
   box-shadow: var(--shadow-sm);
+}
+
+/* ---- Hi-fi decorations (task 8.3) ----
+   Every decoration is [data-decor] + aria-hidden, so the wireframe stage hides it without moving
+   anything (wireframe.css). Colors are tokens checked against their background at 3:1
+   (contrast-pairs.json). Nothing animates (prefers-reduced-motion needs no special case). */
+
+/* Background starfield: an absolutely positioned SVG under the content of its box (the box is
+   position: relative + isolation: isolate, the field sits at z-index -1 above the box's own
+   background). It never takes pointer events and never widens the page. */
+.mk-starfield {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--color-decor-star);
+}
+
+.mk-starfield__star {
+  fill: var(--color-decor-star);
+}
+
+/* Event-kind icon before the kind's name (mk-event-list): stroke and fill follow currentColor,
+   which is the tone of the event (moon / planet) on the row's surface. */
+.mk-event__icon {
+  display: inline-block;
+  inline-size: var(--font-size-md);
+  block-size: var(--font-size-md);
+  margin-inline-end: var(--space-xs);
+  vertical-align: middle;
+  color: var(--color-event-planet);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.mk-event[data-tone="moon"] .mk-event__icon {
+  color: var(--color-event-moon);
+}
+
+.mk-event__icon .mk-event__icon-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Moon-phase icon over the phase symbol (calendar cells, legend, almanac): the symbol keeps its
+   box and stays the wireframe's mark; on the hi-fi stage it is transparent and the icon, drawn
+   with the moon figure's colors (dark disc, lit part, strong outline), takes its place. */
+.mk-day-cell__phase[data-phase-icon] {
+  position: relative;
+}
+
+.mk-phase-icon {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: var(--font-size-md);
+  block-size: var(--font-size-md);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+html:not([data-stage="wireframe"]) .mk-day-cell__phase[data-phase-icon] > .mk-day-cell__phase-glyph {
+  color: transparent;
+}
+
+/* Moon icon next to the moon age (day detail's almanac, days without a named phase). */
+.mk-moon-icon {
+  display: inline-block;
+  inline-size: var(--font-size-md);
+  block-size: var(--font-size-md);
+  margin-inline-end: var(--space-xs);
+  vertical-align: middle;
+}
+
+.mk-phase-icon__disc {
+  fill: var(--color-moon-shadow);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+
+.mk-phase-icon__lit {
+  fill: var(--color-moon-lit);
+  stroke: none;
 }
 
 .mk-header__inner {
@@ -423,6 +513,13 @@ mk-day-cell {
 
 .mk-calendar__grid--compact td {
   padding: 0;
+}
+
+/* Hi-fi (task 8.3, review point of 8.2): the cell around the date button is painted like the
+   button, so a short button does not leave a two-tone cell. Paint only; the wireframe keeps its
+   approved look. */
+html:not([data-stage="wireframe"]) .mk-calendar__grid--compact td:not(.mk-calendar__blank) {
+  background-color: var(--color-surface);
 }
 
 .mk-calendar__day {
@@ -1793,6 +1890,15 @@ mk-weather {
   align-content: start;
   /* The hidden h1 no longer spaces the content from the header. */
   padding-block-start: var(--space-lg);
+  /* Box of the starfield behind the top of the page (task 8.3). */
+  position: relative;
+  isolation: isolate;
+}
+
+/* Top page starfield (task 8.3): a band behind the first headings, on the page background;
+   the cards (surface) cover it. Out of the grid flow (absolute). */
+.screen-top > .mk-starfield {
+  block-size: calc(var(--space-2xl) * 2);
 }
 
 @media (min-width: 960px) {
