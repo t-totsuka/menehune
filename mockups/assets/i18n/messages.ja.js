@@ -118,6 +118,13 @@
     'notice.open': '返信を見る',
     'notice.open-label': '返信を見る（{name} さん、{datetime}）',
     'notice.list-label': 'お知らせの一覧',
+    'pager.label': 'ページ',
+    'pager.posts-label': '投稿の一覧のページ',
+    'pager.notices-label': 'お知らせのページ',
+    'pager.prev': '前へ',
+    'pager.next': '次へ',
+    'pager.page-label': '{page} ページ目',
+    'pager.range': '{from}〜{to}件目 / 全{total}件',
     'report-link.post': 'この投稿を通報する',
     'report-link.comment': '{name} さんのコメントを通報する',
 

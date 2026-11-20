@@ -101,6 +101,7 @@
           <tbody>
             <tr data-element="mk-site-header"><th scope="row"><a href="#sec-shell-header"><code>mk-site-header</code></a></th><td>shell.js</td><td><ul><li>属性なし</li><li><code>current="star-chart"</code></li><li>スマートフォン幅（メニューの折りたたみ）</li></ul></td><td>ログイン状態（ログイン・表示名・管理、ログイン中は未読のお知らせの件数とお知らせへの導線。未読 0 件は件数なし）、言語、テーマ</td></tr>
             <tr data-element="mk-site-footer"><th scope="row"><a href="#sec-shell-footer"><code>mk-site-footer</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
+            <tr data-element="mk-pager"><th scope="row"><a href="#sec-pager"><code>mk-pager</code></a></th><td>shell.js</td><td><code>total</code>、<code>page</code>、<code>page-size</code>（既定 30、暫定）、<code>label-key</code></td><td>言語</td></tr>
             <tr data-element="mk-guest-notice"><th scope="row"><a href="#sec-shell-notice"><code>mk-guest-notice</code></a></th><td>shell.js</td><td><ul><li><code>variant="read-only"</code>（既定）</li><li><code>variant="private-post"</code></li><li><code>band</code>（ヘッダーの直下に置く全幅の帯。ログイン以外の全画面で使う）</li></ul></td><td>常に表示（出し分けは画面側の <code>data-when-auth</code>）</td></tr>
             <tr data-element="mk-status-badge"><th scope="row"><a href="#sec-shell-badge"><code>mk-status-badge</code></a></th><td>shell.js</td><td><code>status</code>：public、members-only、hidden、deleted</td><td>言語</td></tr>
             <tr data-element="mk-admin-band"><th scope="row"><a href="#sec-shell-admin"><code>mk-admin-band</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
@@ -267,6 +268,12 @@
 
       <h3 id="sec-shell-admin"><code>mk-admin-band</code></h3>
       <mk-admin-band id="admin-band-sample"></mk-admin-band>
+
+      <h3 id="sec-pager"><code>mk-pager</code></h3>
+      <p class="text-muted">長い一覧のページ送り（自分の投稿の指摘、8.1。opt-in）。名前の付いた nav に、範囲の文字、「前へ」「次へ」（最初と最後のページでは押せない）、ページ番号（今のページに <code>aria-current="page"</code>、太字と太い枠）を出します。押すと <code>page</code> を変えて <code>mk-page-change</code> を出し、一覧の側がそのページを表示します。<code>total</code> が <code>page-size</code> 以下なら何も出しません。上から <code>total="75" page="1"</code>、<code>total="75" page="3"</code>、<code>total="20"</code>（何も出ない）です。</p>
+      <mk-pager id="pager-first" total="75" page="1" label-key="pager.label"></mk-pager>
+      <mk-pager id="pager-last" total="75" page="3" label-key="pager.label"></mk-pager>
+      <mk-pager id="pager-single" total="20" label-key="pager.label"></mk-pager>
     </section>
 
     <section class="l-surface l-stack" aria-labelledby="sec-almanac">
@@ -586,7 +593,7 @@
 
       <h3 id="sec-location-scenario">シナリオに追従する例</h3>
       <p class="text-muted">投稿詳細のシナリオと投稿の対応（<code>postDetailScenarios</code>）に従い、シナリオごとの投稿を表示します（例：<a href="?scenario=weather-failed">?scenario=weather-failed</a>、<a href="?scenario=no-location">?scenario=no-location</a>、<a href="?scenario=default">?scenario=default</a>）。</p>
-      <div id="scenario-location-default" class="l-stack" data-when-scenario="default empty fetch-error validation-error private-blocked hidden-own hidden-other deleted-comment provisional-holiday">
+      <div id="scenario-location-default" class="l-stack" data-when-scenario="default empty fetch-error validation-error private-blocked hidden-own hidden-other deleted-comment provisional-holiday many-items">
         <p class="text-muted">既定など：<code>post-id="p-101"</code></p>
         <mk-location-panel post-id="p-101"></mk-location-panel>
       </div>

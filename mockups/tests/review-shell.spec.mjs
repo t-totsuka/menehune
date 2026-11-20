@@ -13,7 +13,7 @@ const indexUrl = pathToFileURL(join(here, '..', 'index.html')).href;
 const ALL_SCENARIOS = [
   'default', 'empty', 'fetch-error', 'validation-error',
   'private-blocked', 'hidden-own', 'hidden-other',
-  'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday',
+  'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday', 'many-items',
 ];
 
 /** @param {import('@playwright/test').Page} page */

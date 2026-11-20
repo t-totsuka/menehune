@@ -26,7 +26,7 @@ const SCREEN_IDS = [
 const SCENARIO_IDS = [
   'default', 'empty', 'fetch-error', 'validation-error',
   'private-blocked', 'hidden-own', 'hidden-other',
-  'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday',
+  'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday', 'many-items',
 ];
 const AUTH_STATES = ['guest', 'member', 'admin'];
 const REVIEW_STATUSES = ['draft', 'in-review', 'changes-requested', 'approved'];
@@ -64,7 +64,7 @@ test('scenario assignments follow the design initial values', () => {
   const expected = {
     'calendar-month': ['default', 'provisional-holiday'],
     'astro-events': ['default', 'empty', 'fetch-error'],
-    'my-posts': ['default', 'empty', 'fetch-error'],
+    'my-posts': ['default', 'empty', 'fetch-error', 'many-items'],
     'post-detail': ['default', 'private-blocked', 'hidden-own', 'hidden-other',
       'deleted-comment', 'no-location', 'weather-failed'],
     'post-edit': ['default', 'validation-error'],
@@ -319,6 +319,7 @@ const MY_POSTS_NOTES = [
   '自分の投稿で投稿にぶら下がるコメントが何件あるか出してください',
   'コメントにコメントがついたときに知る機能が欲しい',
   '自分の投稿は「自分の投稿」を優先とする、PC画面の場合は左右に配置して２：１から３：１のサイズで収まるように変更',
+  '「自分の投稿」は暫定的に投稿・コメント欄は30件ごとにページングができるように',
 ];
 
 test('my-posts: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
@@ -347,7 +348,16 @@ test('my-posts: the 2026-11-19 review notes are kept and each outcome follows it
   // replaced placement in the reply notice outcome keeps its words and gets a remark appended
   const layoutAt = notes.indexOf(MY_POSTS_NOTES[5]);
   assert.equal(layoutAt, noticeAt + 2, 'the layout note follows the reply notice outcome');
-  assert.equal(notes.length, layoutAt + 2, 'the layout outcome is the last note');
+  // the paging note (2026-11-20: 30 items per page, provisional) follows the layout outcome and
+  // comes last; its outcome names the page size, says it is provisional and names the scenario
+  const pagingAt = notes.indexOf(MY_POSTS_NOTES[6]);
+  assert.equal(pagingAt, layoutAt + 2, 'the paging note follows the layout outcome');
+  assert.equal(notes.length, pagingAt + 2, 'the paging outcome is the last note');
+  const paging = notes[pagingAt + 1] ?? '';
+  assert.match(paging, /30 件/, 'the paging outcome names the page size');
+  assert.match(paging, /暫定/, 'the paging outcome says the page size is provisional');
+  assert.match(paging, /many-items/, 'the paging outcome names the scenario that shows it');
+  assert.match(paging, /お知らせ/, 'the paging outcome says how "コメント欄" was read');
   assert.match(outcome, /先頭（投稿の一覧の前）/, 'the reply notice outcome keeps its original words');
   assert.match(outcome, /のちの指摘で/, 'the reply notice outcome notes the later change of placement');
   const layout = notes[layoutAt + 1] ?? '';

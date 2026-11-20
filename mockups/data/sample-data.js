@@ -2,7 +2,7 @@
 // chart, weather). Classic script that registers into window.MockSample.
 // Task 3.2 filled in the almanac and astronomical events; task 3.3 the users, posts, comments,
 // likes, reports, locations and weather; task 3.4 fills in the star chart; task 8.1 adds the
-// reply notices.
+// reply notices and the extra items of the my-posts paging scenario (paging).
 //
 // All almanac / astronomy values are illustrative approximations for the mockups and have NOT
 // been verified (design.md: SampleData "値の正確さは保証しない"). They are kept internally
@@ -557,6 +557,51 @@
     ],
   };
 
+  /**
+   * Extra items for the scenario many-items (task 8.1, my-posts paging: 30 items per page). They
+   * stay out of posts / notices, so the other screens and the shared lists do not change; the
+   * post components still find these posts by id. Generated, not hand-written:
+   * - 71 own posts of the member viewer (p-m01..p-m71), one per day from 2026-11-15 back to
+   *   2026-09-06, so all are older than the shared own posts (the newest-first order is strict);
+   *   with the 4 shared own posts my-posts lists 75 (3 pages: 30, 30, 15). Public, the
+   *   visibility alternating; no location. Bodies say they are paging samples.
+   * - On p-m01..p-m37 a comment of mine has a reply by someone else, and each reply has a read
+   *   notice (n-m01..n-m37; read, so the header's unread count stays 2). With the 3 shared
+   *   notices that is 40 (2 pages: 30, 10), newest reply first (every extra reply is on 11-15 or
+   *   earlier at 21:30, before the shared replies). Their links open post-detail's default post,
+   *   since these posts have no post-detail scenario (README の論点).
+   */
+  const paging = (() => {
+    const repliers = ['u-tsukimi', 'u-koyomi', 'u-orion', 'u-kumo'];
+    /** @type {SamplePost[]} */
+    const pagingPosts = [];
+    /** @type {ReplyNotice[]} */
+    const pagingNotices = [];
+    const start = Date.UTC(2026, 10, 15);
+    for (let i = 1; i <= 71; i += 1) {
+      const n = String(i).padStart(2, '0');
+      const date = new Date(start - (i - 1) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const id = `p-m${n}`;
+      /** @type {CommentNode[]} */
+      const comments = i <= 37
+        ? [cm(`c-m${n}-1`, 'u-hoshizora', `${date}T21:10+09:00`, 'ページングの見本のコメントです。', [
+          cm(`c-m${n}-2`, repliers[(i - 1) % repliers.length] ?? 'u-tsukimi', `${date}T21:30+09:00`, 'ページングの見本の返信です。'),
+        ])]
+        : [];
+      pagingPosts.push({
+        id, authorId: 'u-hoshizora', targetDate: date, postedAt: `${date}T21:00+09:00`,
+        body: `ページングの見本の投稿です（${i} 件目）。`,
+        status: 'public', guestVisible: i % 2 === 1,
+        likes: { count: i % 5, likedByMe: false },
+        comments,
+      });
+      if (i <= 37) {
+        pagingNotices.push({ id: `n-m${n}`, recipientId: 'u-hoshizora', postId: id, commentId: `c-m${n}-1`, replyId: `c-m${n}-2`, read: true });
+      }
+    }
+    return { posts: pagingPosts, notices: pagingNotices };
+  })();
+
   /** @type {SampleDataSet} */
   const sample = deepFreeze({
     today: '2026-11-16',
@@ -570,6 +615,7 @@
     reports,
     notices,
     starChart,
+    paging,
   });
 
   window.MockSample = sample;

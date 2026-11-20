@@ -27,21 +27,25 @@
          (mk-notice-list) are in the section #notices that the header links to; the list follows
          the scenario (empty: no notices, fetch-error: the notices error). Task 8.1 (later review
          note: own posts first): the posts region comes first and the notices follow it, stacked
-         on narrow screens and side by side from 960px (posts : notices = 5 : 2, .screen-my-posts). -->
+         on narrow screens and side by side from 960px (posts : notices = 5 : 2, .screen-my-posts).
+         Task 8.1 (later review note: paging, provisional): both lists page by 30 (mk-pager below
+         each list; nothing with 30 items or fewer). The scenario many-items adds the extra sample
+         items (75 posts, 40 notices) so that paging can be reviewed. After a page change the
+         list's heading gets focus (tabindex="-1"). -->
     <div data-when-auth="guest" data-guest-prompt>
       <p data-i18n="screen.my-posts.login-required">自分の投稿の一覧を見るには、ログインしてください。</p>
     </div>
 
     <div class="screen-my-posts" data-when-auth="member" data-member-content>
       <section class="l-stack screen-my-posts-posts" aria-labelledby="my-posts-posts-heading">
-        <h2 id="my-posts-posts-heading" data-i18n="screen.my-posts.posts-heading">投稿の一覧</h2>
-        <p data-when-scenario="default empty">
+        <h2 id="my-posts-posts-heading" tabindex="-1" data-i18n="screen.my-posts.posts-heading">投稿の一覧</h2>
+        <p data-when-scenario="default empty many-items">
           <a class="button" href="post-edit.html?auth=member" data-i18n="screen.my-posts.new-post">新しく投稿する</a>
         </p>
         <!-- The legend repeats the visibility icon shapes of posts.js (VISIBILITY_SHAPES); the
              review spec checks that they stay equal. It is the explanation for keyboard and touch
              users, since the icons' title tooltip only appears on mouse hover. -->
-        <details class="screen-my-posts-legend" data-icon-legend data-when-scenario="default">
+        <details class="screen-my-posts-legend" data-icon-legend data-when-scenario="default many-items">
           <summary data-i18n="screen.my-posts.icon-legend">アイコンの見方</summary>
           <ul>
             <li data-legend-icon="visibility-guests">
@@ -65,13 +69,14 @@
         </details>
         <p class="screen-error" role="alert" data-when-scenario="fetch-error" data-i18n="error.fetch">データを取得できませんでした。時間をおいてもう一度お試しください。</p>
         <p class="text-muted" data-my-posts-empty data-when-scenario="empty" data-i18n="screen.my-posts.empty">まだ投稿していません。</p>
-        <ul class="screen-post-list screen-my-posts-list" data-my-posts data-when-scenario="default" data-i18n-attr="aria-label:screen.my-posts.list-label"></ul>
+        <ul class="screen-post-list screen-my-posts-list" data-my-posts data-when-scenario="default many-items" data-i18n-attr="aria-label:screen.my-posts.list-label"></ul>
+        <mk-pager data-my-posts-pager label-key="pager.posts-label" page-size="30" total="0" data-when-scenario="default many-items"></mk-pager>
       </section>
 
       <section class="l-stack" id="notices" aria-labelledby="my-posts-notices-heading">
-        <h2 id="my-posts-notices-heading" data-i18n="notice.label">お知らせ</h2>
+        <h2 id="my-posts-notices-heading" tabindex="-1" data-i18n="notice.label">お知らせ</h2>
         <p class="field-hint" data-i18n="screen.my-posts.notices-hint">自分のコメントに返信がつくと、ここにお知らせします。</p>
-        <mk-notice-list></mk-notice-list>
+        <mk-notice-list page-size="30"></mk-notice-list>
       </section>
     </div>
   </main>
@@ -101,41 +106,82 @@
     //   replies included, deleted comments left out).
     //   Unless deleted, an edit link to post-edit.html?post=ID follows the card.
     // - The edit links get an accessible name with the target date on every mock:change.
+    // - Task 8.1 (paging, provisional size 30): the list shows one page; the mk-pager below it
+    //   gets the total and the page. The scenario many-items adds SampleDataSet.paging.posts (75
+    //   own posts in all). A page change (mk-page-change) rebuilds the list and focuses the list's
+    //   heading; so does a page change of the notices (mk-notice-list page-size="30") for its own
+    //   heading. A scenario change goes back to page 1; a language change keeps the page.
     (function () {
       const sample = window.MockSample;
       const list = document.querySelector('[data-my-posts]');
-      if (list === null) return;
-      const posts = sample.posts
+      const pager = document.querySelector('[data-my-posts-pager]');
+      if (list === null || pager === null) return;
+      const size = Number.parseInt(pager.getAttribute('page-size') ?? '', 10) || window.MockPaging.PAGE_SIZE;
+      /** @param {ScenarioId} scenario */
+      const postsOf = (scenario) => (scenario === 'many-items' ? [...sample.posts, ...sample.paging.posts] : sample.posts)
         .filter((p) => p.authorId === sample.viewerIds.member)
         .sort((a, b) => b.targetDate.localeCompare(a.targetDate)
           || Date.parse(b.postedAt) - Date.parse(a.postedAt)
           || a.id.localeCompare(b.id));
-      for (const post of posts) {
-        const item = document.createElement('li');
-        item.className = 'screen-my-post';
-        item.setAttribute('data-my-post', post.id);
-        const card = document.createElement('mk-post-card');
-        card.setAttribute('post-id', post.id);
-        card.setAttribute('meta', 'icons');
-        card.setAttribute('comment-count', '');
-        item.append(card);
-        if (post.status !== 'deleted') {
-          const meta = document.createElement('div');
-          meta.className = 'screen-my-post__meta';
-          const edit = document.createElement('a');
-          edit.setAttribute('href', `post-edit.html?auth=member&post=${post.id}`);
-          edit.setAttribute('data-i18n', 'button.edit');
-          edit.setAttribute('data-edit-date', post.targetDate);
-          meta.append(edit);
-          item.append(meta);
-        }
-        list.append(item);
-      }
-      document.addEventListener('mock:change', () => {
+      let page = 1;
+      /** @type {ScenarioId | null} */
+      let shownScenario = null;
+      const labelEditLinks = () => {
         for (const a of list.querySelectorAll('a[data-edit-date]')) {
           const date = window.MockI18n.formatDate(a.getAttribute('data-edit-date') ?? '', 'date-long');
           a.setAttribute('aria-label', window.MockI18n.t('screen.my-posts.edit-label', { date }));
         }
+      };
+      /** @param {ScenarioId} scenario */
+      const show = (scenario) => {
+        const posts = postsOf(scenario);
+        page = window.MockPaging.clampPage(page, posts.length, size);
+        shownScenario = scenario;
+        const items = window.MockPaging.pageItems(posts, page, size).map((post) => {
+          const item = document.createElement('li');
+          item.className = 'screen-my-post';
+          item.setAttribute('data-my-post', post.id);
+          const card = document.createElement('mk-post-card');
+          card.setAttribute('post-id', post.id);
+          card.setAttribute('meta', 'icons');
+          card.setAttribute('comment-count', '');
+          item.append(card);
+          if (post.status !== 'deleted') {
+            const meta = document.createElement('div');
+            meta.className = 'screen-my-post__meta';
+            const edit = document.createElement('a');
+            edit.setAttribute('href', `post-edit.html?auth=member&post=${post.id}`);
+            edit.setAttribute('data-i18n', 'button.edit');
+            edit.setAttribute('data-edit-date', post.targetDate);
+            meta.append(edit);
+            item.append(meta);
+          }
+          return item;
+        });
+        list.replaceChildren(...items);
+        pager.setAttribute('total', String(posts.length));
+        pager.setAttribute('page', String(page));
+      };
+      show(window.MockState.get().scenario);
+      document.addEventListener('mock:change', (event) => {
+        if (event.detail.scenario !== shownScenario) {
+          page = 1;
+          show(event.detail.scenario);
+          window.MockI18n.apply(list);
+        }
+        labelEditLinks();
+      });
+      pager.addEventListener('mk-page-change', (event) => {
+        if (!(event instanceof CustomEvent)) return;
+        page = Number(event.detail.page) || 1;
+        show(window.MockState.get().scenario);
+        window.MockI18n.apply(list);
+        labelEditLinks();
+        document.getElementById('my-posts-posts-heading')?.focus();
+      });
+      const notices = document.querySelector('#notices mk-notice-list');
+      notices?.addEventListener('mk-page-change', () => {
+        document.getElementById('my-posts-notices-heading')?.focus();
       });
     })();
   </script>

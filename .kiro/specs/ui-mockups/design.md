@@ -262,7 +262,7 @@ sequenceDiagram
 | 6.1, 6.4 | 投稿本文とコメントツリー、削除済みの表示 | PostComponents（mk-comment-tree） | `CommentNode` | — |
 | 6.2, 6.3 | 投稿作成・編集の入力と入力エラー | post-edit.html、LocationComponents（mk-precision-picker） | `ScenarioId`（`validation-error`） | — |
 | 6.5, 6.8 | 未ログインでの非公開投稿、閲覧のみの表示 | ShellComponents（mk-guest-notice）、MockState | `AuthState`、`ScenarioId`（`private-blocked`） | 状態解決 |
-| 6.6 | 自分の投稿一覧と状態 | my-posts.html、PostComponents（mk-post-card）、ShellComponents（mk-status-badge） | `PostStatus` | — |
+| 6.6 | 自分の投稿一覧と状態 | my-posts.html、PostComponents（mk-post-card）、ShellComponents（mk-status-badge、mk-pager） | `PostStatus`、`ScenarioId`（`many-items`） | — |
 | 6.7 | いいねの件数と状態 | PostComponents（mk-like-button） | `LikeState` | — |
 | 6.9 | ログイン中のヘッダーに未読のお知らせの件数と、お知らせへの導線 | ShellComponents（mk-site-header）、SampleData | `ReplyNotice`、`AuthState` | 状態解決 |
 | 6.10 | 自分の投稿一覧のお知らせの一覧と空状態 | my-posts.html、PostComponents（mk-notice-list）、SampleData | `ReplyNotice`、`ScenarioId`（`empty`、`fetch-error`） | 状態解決 |
@@ -346,7 +346,8 @@ type AuthState = 'guest' | 'member' | 'admin';
 type ScenarioId =
   | 'default' | 'empty' | 'fetch-error' | 'validation-error'
   | 'private-blocked' | 'hidden-own' | 'hidden-other'
-  | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday';
+  | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday'
+  | 'many-items';   // 8.1：自分の投稿のページングを確かめるため、件数の多いサンプルを足す
 type ScreenAccess = 'public' | 'member' | 'admin';
 
 interface StageReview {
@@ -369,7 +370,7 @@ type ScreenRegistry = readonly ScreenEntry[];
 ```
 
 **Implementation Notes**
-- 画面ごとの主なシナリオ（初期値）：calendar-month は `provisional-holiday`。astro-events と my-posts は `empty`、`fetch-error`（my-posts では、投稿の一覧とお知らせの両方が空状態・取得エラーになる。8.1）。post-detail は `private-blocked`、`hidden-own`、`hidden-other`、`deleted-comment`、`no-location`、`weather-failed`。post-edit は `validation-error`。admin は `empty`
+- 画面ごとの主なシナリオ（初期値）：calendar-month は `provisional-holiday`。astro-events と my-posts は `empty`、`fetch-error`（my-posts では、投稿の一覧とお知らせの両方が空状態・取得エラーになる。8.1）。my-posts だけ `many-items` も選べ、`SampleDataSet.paging` の見本（投稿 71 件、既読のお知らせ 37 件）を足して、30 件ごとのページ送り（mk-pager）を確かめられる（8.1）。post-detail は `private-blocked`、`hidden-own`、`hidden-other`、`deleted-comment`、`no-location`、`weather-failed`。post-edit は `validation-error`。admin は `empty`
 - 検証：`check-registry.mjs` が ID の網羅、ファイルの存在、不変条件、`scenarios[0] === 'default'` を検査する
 
 #### MessageDictionaries と GlossaryMeta
@@ -658,6 +659,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 | mk-guest-notice | shell.js | `variant`、`band` | 閲覧のみであることと、ログインへの導線（6.8）。非公開投稿を開いたときの案内（6.5）。`band` では、ヘッダーの直下に置く全幅の帯（名前付きの region）として描く（全画面共通の指摘、8.1） |
 | mk-status-badge | shell.js | `status` | 公開中、ログインユーザのみ、一時非表示、削除済みを、色と記号と文字で表示する（6.6、13.3） |
 | mk-admin-band | shell.js | — | 管理者専用であることを示す帯（3.6） |
+| mk-pager | shell.js | `total`、`page`、`page-size`、`label-key` | 長い一覧のページ送り（自分の投稿用、8.1。opt-in）。名前の付いた `nav` に、範囲の文字（「31〜60件目 / 全75件」）、前へ・次へ（最初と最後のページでは disabled）、ページ番号（今のページに `aria-current="page"`）。押すと `page` を変えて `mk-page-change` を出し、一覧の側がそのページを出してフォーカスを移す。`total` が `page-size`（既定 30。暫定）以下なら何も出さない。計算は `window.MockPaging` |
 | mk-month-calendar | almanac.js | `month`、`week-start`、`nav`、`caption` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3）。`week-start="mon"` では月曜始まり（既定は日曜始まり）。`nav` では前の月・今月・次の月のボタンを置き、`month` を変えて `mk-month-change` を出す。サンプルデータのない日は日付と曜日だけを出し、その旨を注記する。`caption="hidden"` では PC の表の caption を読み上げ専用にする（見出しが年月を出す画面で、年月を 2 回見せないため）（月のカレンダーの画面用、ワイヤーフレームのレビューの指摘、8.1） |
 | mk-day-cell | almanac.js | `date`、`compact` | 日付、曜日、祝日（予定の表記つき）、六曜、旧暦、月齢。節気・候・雑節・天文現象の印は、記号と文字を併用する（4.1、4.2、4.6、13.3） |
 | mk-almanac-summary | almanac.js | `date`、`variant`、`kou`、`hide-empty`、`hide-date` | 日詳細用は全項目（4.3）、トップ用は要約（4.7）。トップ用は月齢から描いた月の満ち欠けの図（`role="img"` と `aria-label`）を添える（ワイヤーフレームのレビューの指摘、8.1）。日詳細の画面だけに付ける opt-in（8.1）：`kou="period"` は七十二候を期間として毎日「候の名前（n日目）」で示し（`SampleDataSet.kouStarts`）、`hide-empty` は値のない項目を出さず、`hide-date` は見出しが日付なので要約の日付の行を出さない |
@@ -668,7 +670,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 | mk-comment-tree | posts.js | `post-id` | 入れ子のコメント。字下げの上限は PC で 6 段、スマートフォンで 3 段。それより深いものは字下げせず、「↳ ○○さんへの返信」と表示する。削除済みは本文の代わりに「このコメントは削除されました」と出し、子は残す（6.1、6.4、12.4） |
 | mk-like-button | posts.js | `post-id` | 件数と、いいね済みかの状態。guest では件数のみ（6.7、6.8） |
 | mk-report-link | posts.js | `target-id` | 通報画面への導線。guest では表示しない（8.3） |
-| mk-notice-list | posts.js | `user-id` | 返信のお知らせの一覧（6.10、8.1）。`user-id` を省くとログイン中の自分（guest では何も出さない）。お知らせごとに、未読・既読の文字（色だけに頼らない）、返信の日時、返信した人、自分のコメントと返信の抜粋、投稿（投稿者と対象日）、返信への導線（その投稿の投稿詳細のシナリオと `#post-comments`。コメントごとのアンカーはない）。シナリオの `empty`（またはお知らせなし）で空状態、`fetch-error` で取得エラー |
+| mk-notice-list | posts.js | `user-id`、`page-size` | 返信のお知らせの一覧（6.10、8.1）。`user-id` を省くとログイン中の自分（guest では何も出さない）。お知らせごとに、未読・既読の文字（色だけに頼らない）、返信の日時、返信した人、自分のコメントと返信の抜粋、投稿（投稿者と対象日）、返信への導線（その投稿の投稿詳細のシナリオと `#post-comments`。コメントごとのアンカーはない）。シナリオの `empty`（またはお知らせなし）で空状態、`fetch-error` で取得エラー。`many-items` では `SampleDataSet.paging` のお知らせを後ろに足す。`page-size` を付けると、その件数ごとのページに分け、一覧の下に mk-pager を置く（自分の投稿用、8.1） |
 | mk-precision-picker | location.js | `value`、`collapsed` | 5 段階のラジオグループ。各段階に、他の人からの見え方の説明を添える（6.2、7.1、8.2）。`collapsed` では閉じたアコーディオンにし、見出しに今の選択を出す（投稿作成・編集用、8.1） |
 | mk-location-panel | location.js | `post-id` | 地域名、地図、出没、天気をまとめる。`no-location` では出さない（7.2〜7.6） |
 | mk-map-sample | location.js | `precision`、`region`、`subject` | インライン SVG の模式地図。exact はピン、fuzzed-1km は半径 1km の円、municipality・prefecture・country は範囲の塗りとズームの違いで示す（7.2、13.4）。`subject="observer"` では、星図の観測地点の地図として、見える説明（「観測地点：{地域名}」）と代替テキスト（先頭に「星図の観測地点を示す地図。」）を出す（星図の画面用、8.1） |

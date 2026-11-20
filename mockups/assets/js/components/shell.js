@@ -1,5 +1,5 @@
 // Shell components: mk-site-header, mk-site-footer, mk-guest-notice, mk-status-badge,
-// mk-admin-band (design: Parts > プレゼンテーション部品; attributes *Attrs in types.d.ts).
+// mk-admin-band, mk-pager (design: Parts > プレゼンテーション部品; attributes *Attrs in types.d.ts).
 //
 // - mk-site-header (3.2, 9.4, 11.2): logo, main nav (calendar, astro events, star chart, my
 //   posts; plus admin for the admin viewer), language switch, theme switch (system / light /
@@ -21,12 +21,49 @@
 //   right after mk-site-header: a region named by guest-notice.band-label.
 // - mk-status-badge (6.6, 13.3): PostStatus as color + symbol + text.
 // - mk-admin-band (3.6): band that marks a screen as admin-only.
+// - mk-pager (task 8.1, my-posts paging; opt-in, used where a list is long): `total`, `page`
+//   (1-based, clamped), `page-size` (default 30, provisional) and `label-key` (the nav's name).
+//   A <nav> with the range as text ("31〜60件目 / 全75件", [data-pager-range]) and a list of buttons:
+//   previous / next (disabled, so not focusable, on the first / last page) and one per page
+//   ([data-pager-page], accessible name "n ページ目"; the current one has aria-current="page").
+//   A button sets `page` and fires a bubbling CustomEvent<{ page: number }>('mk-page-change'); the
+//   owner shows that page and moves focus (my-posts focuses the list's heading). With total <=
+//   page-size it renders nothing. The pure logic is window.MockPaging (defined first, without
+//   the DOM, so tests/unit can load it).
 //
 // Links point at mockups/screens/*.html resolved from this script's URL
 // (assets/js/components/ -> ../../../screens/), so they work from screens/ and from the catalog
 // pages at the root. A logged-in auth state is carried over when the target screen allows it.
 //
 // Preconditions: base.js (window.MockElement) is loaded first.
+
+// window.MockPaging (task 8.1): pure paging logic of mk-pager. Pages are 1-based.
+(function () {
+  /** @param {number} total @param {number} size @returns {number} */
+  const pageCount = (total, size) => Math.max(1, Math.ceil(Math.max(0, total) / Math.max(1, size)));
+  /** @param {number} page @param {number} total @param {number} size @returns {number} */
+  const clampPage = (page, total, size) => {
+    if (!Number.isFinite(page)) return 1;
+    return Math.min(pageCount(total, size), Math.max(1, Math.floor(page)));
+  };
+  /** @param {number} total @param {number} page @param {number} size @returns {{ from: number, to: number }} */
+  const pageRange = (total, page, size) => {
+    if (total <= 0) return { from: 0, to: 0 };
+    const p = clampPage(page, total, size);
+    return { from: (p - 1) * size + 1, to: Math.min(total, p * size) };
+  };
+  /**
+   * @template T
+   * @param {readonly T[]} items @param {number} page @param {number} size
+   * @returns {T[]}
+   */
+  const pageItems = (items, page, size) => {
+    const p = clampPage(page, items.length, size);
+    return items.slice((p - 1) * size, p * size);
+  };
+  window.MockPaging = Object.freeze({ PAGE_SIZE: 30, pageCount, clampPage, pageRange, pageItems });
+})();
+
 (function () {
   const scriptEl = document.currentScript;
   const scriptSrc = scriptEl instanceof HTMLScriptElement ? scriptEl.src : '';
@@ -332,9 +369,74 @@
     }
   }
 
+  /**
+   * A positive integer attribute, or the fallback.
+   * @param {Element} el @param {string} name @param {number} fallback @param {number} min
+   * @returns {number}
+   */
+  const intAttr = (el, name, fallback, min) => {
+    const n = Number.parseInt(el.getAttribute(name) ?? '', 10);
+    return Number.isFinite(n) && n >= min ? n : fallback;
+  };
+
+  class Pager extends MockElement {
+    static observedAttributes = ['total', 'page', 'page-size', 'label-key'];
+
+    render() {
+      const P = window.MockPaging;
+      const total = intAttr(this, 'total', 0, 0);
+      const size = intAttr(this, 'page-size', P.PAGE_SIZE, 1);
+      if (total <= size) {
+        this.replaceChildren();
+        return;
+      }
+      const count = P.pageCount(total, size);
+      const page = P.clampPage(intAttr(this, 'page', 1, 1), total, size);
+      const { from, to } = P.pageRange(total, page, size);
+      /** @param {number} target */
+      const go = (target) => {
+        if (target === page) return;
+        this.setAttribute('page', String(target));
+        this.dispatchEvent(new CustomEvent('mk-page-change', { bubbles: true, detail: { page: target } }));
+      };
+      /**
+       * @param {'prev' | 'next'} step @param {MessageKey} key @param {string} arrow @param {number} target
+       * @returns {HTMLLIElement}
+       */
+      const stepItem = (step, key, arrow, target) => {
+        const arrowEl = this.el('span', { class: 'mk-pager__arrow', 'aria-hidden': 'true' }, arrow);
+        const label = this.el('span', null, this.t(key));
+        const button = this.el('button', { type: 'button', class: 'mk-pager__step', 'data-pager-step': step, 'data-mk-focus': step },
+          ...(step === 'prev' ? [arrowEl, label] : [label, arrowEl]));
+        if (target < 1 || target > count) button.disabled = true;
+        else button.addEventListener('click', () => go(target));
+        return this.el('li', null, button);
+      };
+      const pages = Array.from({ length: count }, (_, i) => {
+        const n = i + 1;
+        /** @type {Record<string, string>} */
+        const attrs = {
+          type: 'button', class: 'mk-pager__page', 'data-pager-page': String(n), 'data-mk-focus': `page-${n}`,
+          'aria-label': this.t('pager.page-label', { page: n }),
+        };
+        if (n === page) attrs['aria-current'] = 'page';
+        const button = this.el('button', attrs, String(n));
+        button.addEventListener('click', () => go(n));
+        return this.el('li', null, button);
+      });
+      this.replaceChildren(this.el('nav', { class: 'mk-pager', 'aria-label': this.t(this.getAttribute('label-key') ?? 'pager.label') },
+        this.el('p', { class: 'mk-pager__range', 'data-pager-range': '' }, this.t('pager.range', { from, to, total })),
+        this.el('ul', { class: 'mk-pager__list' },
+          stepItem('prev', 'pager.prev', '‹', page - 1),
+          ...pages,
+          stepItem('next', 'pager.next', '›', page + 1))));
+    }
+  }
+
   customElements.define('mk-site-header', SiteHeader);
   customElements.define('mk-site-footer', SiteFooter);
   customElements.define('mk-guest-notice', GuestNotice);
   customElements.define('mk-status-badge', StatusBadge);
   customElements.define('mk-admin-band', AdminBand);
+  customElements.define('mk-pager', Pager);
 })();

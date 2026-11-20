@@ -36,7 +36,7 @@
   const SCENARIOS = [
     'default', 'empty', 'fetch-error', 'validation-error',
     'private-blocked', 'hidden-own', 'hidden-other',
-    'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday',
+    'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday', 'many-items',
   ];
 
   /** @type {Readonly<Record<StageId, string>>} */
@@ -56,6 +56,7 @@
     'no-location': '位置情報なし',
     'weather-failed': '天気の取得失敗',
     'provisional-holiday': '暫定の祝日',
+    'many-items': '件数が多い（ページング）',
   };
   /** @type {Readonly<Record<ReviewStatus, string>>} */
   const STATUS_LABELS = {

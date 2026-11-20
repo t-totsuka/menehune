@@ -2279,3 +2279,52 @@ mk-weather {
 .screen-admin-reason [data-reason-times] {
   font-weight: var(--font-weight-bold);
 }
+
+/* mk-pager (task 8.1, my-posts paging; opt-in): the range text, then one wrapping row of
+   previous / page / next buttons in the secondary look. The current page is told apart by
+   aria-current, bold text and a thick border (not colour alone); a disabled step keeps its text
+   with the muted look of base.css and a dashed border. Wraps at 320px instead of scrolling. */
+.mk-pager {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.mk-pager__range {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-pager__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-pager__step,
+.mk-pager__page {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  padding-inline: var(--space-sm);
+}
+
+.mk-pager__page {
+  min-width: calc(var(--space-md) * 2.5);
+}
+
+.mk-pager__page[aria-current="page"] {
+  border-width: var(--border-width-thick);
+  font-weight: var(--font-weight-bold);
+  cursor: default;
+}
+
+.mk-pager__step:disabled {
+  border-style: dashed;
+  background-color: var(--color-surface-muted);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}

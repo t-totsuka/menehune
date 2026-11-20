@@ -90,7 +90,8 @@
     // Post create / edit page script (task 5.4). Runs before DOMContentLoaded, so it receives the
     // initial mock:change and every later switch from the review shell.
     // - ?post=ID: one of the viewer's own posts (SampleDataSet.viewerIds.member), not deleted,
-    //   prefills the form for editing. ?date=YYYY-MM-DD (from day-detail) sets the date when it is
+    //   prefills the form for editing (task 8.1: SampleDataSet.paging.posts too, the edit links of
+    //   my-posts in the scenario many-items). ?date=YYYY-MM-DD (from day-detail) sets the date when it is
     //   today or later; anything else keeps the default with a warning.
     // - validation-error: the date field gets a past date, aria-invalid and the error in its
     //   aria-describedby. Values are reset only when the scenario changes (not on lang / theme).
@@ -111,7 +112,9 @@
       let initial = today;
       const postId = params.get('post');
       if (postId !== null) {
-        const post = sample.posts.find((p) => p.id === postId && p.authorId === sample.viewerIds.member && p.status !== 'deleted');
+        // Task 8.1: also the extra own posts of the my-posts scenario many-items (SampleDataSet.paging)
+        const post = [...sample.posts, ...sample.paging.posts]
+          .find((p) => p.id === postId && p.authorId === sample.viewerIds.member && p.status !== 'deleted');
         if (post === undefined) console.warn(`[post-edit] post=${postId} is not an editable post of the viewer; showing a new post`);
         else {
           initial = post.targetDate;

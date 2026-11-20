@@ -118,6 +118,13 @@
     'notice.open': 'View the reply',
     'notice.open-label': 'View the reply ({name}, {datetime})',
     'notice.list-label': 'List of notifications',
+    'pager.label': 'Pages',
+    'pager.posts-label': 'Pages of the post list',
+    'pager.notices-label': 'Pages of the notifications',
+    'pager.prev': 'Previous',
+    'pager.next': 'Next',
+    'pager.page-label': 'Page {page}',
+    'pager.range': '{from}–{to} of {total}',
     'report-link.post': 'Report this post',
     'report-link.comment': 'Report the comment by {name}',
 

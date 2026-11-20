@@ -18,7 +18,9 @@ type AuthState = 'guest' | 'member' | 'admin';
 type ScenarioId =
   | 'default' | 'empty' | 'fetch-error' | 'validation-error'
   | 'private-blocked' | 'hidden-own' | 'hidden-other'
-  | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday';
+  | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday'
+  /** Task 8.1 (my-posts): adds SampleDataSet.paging so that the lists page (mk-pager) */
+  | 'many-items';
 type ScreenAccess = 'public' | 'member' | 'admin';
 
 interface StageReview {
@@ -247,6 +249,18 @@ interface SampleDataSet {
   /** Reply notices, newest reply first (task 8.1, 6.9 and 6.10); the admin viewer has none */
   readonly notices: readonly ReplyNotice[];
   readonly starChart: StarChartSample;
+  /**
+   * Extra items of the scenario `many-items` (task 8.1, my-posts paging): own posts of the member
+   * viewer (older than every shared own post) and read notices on them. Not part of `posts` /
+   * `notices`, so no other screen lists them; components still find these posts by id
+   */
+  readonly paging: SamplePagingExtra;
+}
+
+/** Task 8.1: the extra sample items of the scenario `many-items` */
+interface SamplePagingExtra {
+  readonly posts: readonly SamplePost[];
+  readonly notices: readonly ReplyNotice[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -420,7 +434,21 @@ interface ReportLinkAttrs { readonly 'target-id': string; }
  * guests without `user-id` get nothing). Follows the scenario: `empty` shows the empty state,
  * `fetch-error` the notices error
  */
-interface NoticeListAttrs { readonly 'user-id'?: string; }
+interface NoticeListAttrs {
+  readonly 'user-id'?: string;
+  /**
+   * Task 8.1 (my-posts): items per page (a positive integer); the list then shows one page and an
+   * mk-pager below it (nothing when the notices fit on one page). Omitted: every notice, no pager
+   */
+  readonly 'page-size'?: string;
+}
+/**
+ * Task 8.1 (my-posts paging): `total` items, the current `page` (1-based, clamped; default 1),
+ * `page-size` (default MockPaging.PAGE_SIZE = 30, provisional) and `label-key` (MessageKey of the
+ * nav's accessible name). Renders nothing when total <= page-size. The buttons set `page` and fire
+ * a bubbling CustomEvent<{ page: number }>('mk-page-change')
+ */
+interface PagerAttrs { readonly total: string; readonly page?: string; readonly 'page-size'?: string; readonly 'label-key': MessageKey; }
 
 /** `collapsed` (boolean, task 8.1) folds the radio group into a closed accordion whose summary shows the current choice */
 interface PrecisionPickerAttrs { readonly value?: LocationPrecision; readonly collapsed?: ''; }
@@ -439,6 +467,7 @@ interface MockElementAttrsMap {
   'mk-guest-notice': GuestNoticeAttrs;
   'mk-status-badge': StatusBadgeAttrs;
   'mk-admin-band': AdminBandAttrs;
+  'mk-pager': PagerAttrs;
   'mk-month-calendar': MonthCalendarAttrs;
   'mk-day-cell': DayCellAttrs;
   'mk-almanac-summary': AlmanacSummaryAttrs;
@@ -500,6 +529,22 @@ interface Window {
   MockReviewShell: ReviewShellService;
   /** assets/js/components/base.js */
   MockElement: MockElementConstructor;
+  /** assets/js/components/shell.js (task 8.1): pure paging logic of mk-pager */
+  MockPaging: MockPagingService;
+}
+
+/** Task 8.1 (my-posts paging): pages are 1-based; out-of-range pages are clamped */
+interface MockPagingService {
+  /** Items per page (30; provisional, review note "暫定的に") */
+  readonly PAGE_SIZE: number;
+  /** Number of pages (at least 1) */
+  pageCount(total: number, size: number): number;
+  /** An integer page within 1..pageCount (NaN and below 1 -> 1) */
+  clampPage(page: number, total: number, size: number): number;
+  /** 1-based numbers of the first and last item of the page ({ from: 0, to: 0 } when total is 0) */
+  pageRange(total: number, page: number, size: number): { readonly from: number; readonly to: number };
+  /** The items of the page, in order */
+  pageItems<T>(items: readonly T[], page: number, size: number): T[];
 }
 
 interface DocumentEventMap {

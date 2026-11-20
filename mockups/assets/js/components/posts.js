@@ -36,6 +36,13 @@
 //   since comments have no anchors of their own (the gallery shows the same tree twice, so ids
 //   would repeat). Scenario `empty` (or no notice) shows empty.notices; `fetch-error` shows
 //   error.notices (role="alert").
+//   Task 8.1 (my-posts paging): scenario `many-items` adds SampleDataSet.paging.notices after the
+//   shared ones (still newest first). `page-size` (opt-in, a positive integer) shows one page and
+//   an mk-pager (label pager.notices-label) below the list; the page is kept across re-renders
+//   (clamped) and goes back to 1 when the scenario changes. Without it every notice is listed.
+//
+// Posts are looked up by id in SampleDataSet.posts and then in SampleDataSet.paging.posts (the
+// extra own posts of the scenario many-items; only my-posts lists them).
 //
 // Like counts use like.count, and like.count-one for one like (English common.count has no
 // plural). Links point at mockups/screens/*.html resolved from this script's URL; a logged-in auth
@@ -137,7 +144,8 @@
   };
 
   /** @param {string} id @returns {SamplePost | undefined} */
-  const findPost = (id) => window.MockSample.posts.find((p) => p.id === id);
+  const findPost = (id) => window.MockSample.posts.find((p) => p.id === id)
+    ?? window.MockSample.paging.posts.find((p) => p.id === id);
 
   /** @param {string} id @returns {SampleUser | undefined} */
   const findUser = (id) => window.MockSample.users.find((u) => u.id === id);
@@ -425,7 +433,20 @@
   }
 
   class NoticeList extends MockElement {
-    static observedAttributes = ['user-id'];
+    static observedAttributes = ['user-id', 'page-size'];
+
+    constructor() {
+      super();
+      /** current page of the opt-in paging (1-based) */
+      this.page = 1;
+      /** @type {ScenarioId | null} scenario of the last render (a change resets the page) */
+      this.lastScenario = null;
+      this.addEventListener('mk-page-change', (event) => {
+        if (!(event instanceof CustomEvent)) return;
+        this.page = Number(event.detail.page) || 1;
+        this.refresh(window.MockState.get());
+      });
+    }
 
     /**
      * @param {ReplyNotice} notice
@@ -475,17 +496,37 @@
         this.replaceChildren(this.missingSample(userId));
         return;
       }
+      // A scenario change (fetch-error included) goes back to page 1.
+      if (this.lastScenario !== state.scenario) this.page = 1;
+      this.lastScenario = state.scenario;
       if (state.scenario === 'fetch-error') {
         this.replaceChildren(this.el('p', { class: 'mk-notice-list__error', role: 'alert' }, this.t('error.notices')));
         return;
       }
-      const notices = state.scenario === 'empty' ? [] : sample.notices.filter((n) => n.recipientId === userId);
+      /** @type {readonly ReplyNotice[]} */
+      let source = sample.notices;
+      if (state.scenario === 'empty') source = [];
+      else if (state.scenario === 'many-items') source = [...sample.notices, ...sample.paging.notices];
+      const notices = source.filter((n) => n.recipientId === userId);
       if (notices.length === 0) {
         this.replaceChildren(this.el('p', { class: 'mk-notice-list__empty' }, this.t('empty.notices')));
         return;
       }
-      this.replaceChildren(this.el('ol', { class: 'mk-notice-list', 'aria-label': this.t('notice.list-label') },
-        ...notices.map((n) => this.item(n, state))));
+      const size = Number.parseInt(this.getAttribute('page-size') ?? '', 10);
+      if (!(size >= 1)) {
+        this.replaceChildren(this.el('ol', { class: 'mk-notice-list', 'aria-label': this.t('notice.list-label') },
+          ...notices.map((n) => this.item(n, state))));
+        return;
+      }
+      const P = window.MockPaging;
+      this.page = P.clampPage(this.page, notices.length, size);
+      const pager = childElement('mk-pager', {
+        total: String(notices.length), page: String(this.page), 'page-size': String(size), 'label-key': 'pager.notices-label',
+      });
+      this.replaceChildren(
+        this.el('ol', { class: 'mk-notice-list', 'aria-label': this.t('notice.list-label') },
+          ...P.pageItems(notices, this.page, size).map((n) => this.item(n, state))),
+        pager);
     }
   }
 

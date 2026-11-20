@@ -281,6 +281,7 @@ test.describe('mk-notice-list in the gallery', () => {
   });
 });
 
+// The later paging note added many-items (task 8.1), which only adds items; empty and fetch-error stay.
 test('registry: my-posts keeps its scenarios (empty also empties the notices)', () => {
-  expect(registry.find((s) => s.id === 'my-posts')?.scenarios).toEqual(['default', 'empty', 'fetch-error']);
+  expect(registry.find((s) => s.id === 'my-posts')?.scenarios).toEqual(['default', 'empty', 'fetch-error', 'many-items']);
 });
