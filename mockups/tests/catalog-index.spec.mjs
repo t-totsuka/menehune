@@ -104,8 +104,21 @@ test('star-chart: the wireframe shows 承認済み and the hifi cell has no "未
   await expect(wf).toContainText('2026-11-19');
   await expect(hf.locator('[data-review-state]')).toHaveText(/下書き/);
   await expect(hf.locator('[data-provisional]')).toHaveCount(0);
-  // A screen whose wireframe is still in review keeps the mark.
-  await expect(row(page, 'top').locator('td').nth(2).locator('[data-provisional]')).toHaveText(/未確定/);
+});
+
+// Task 8.1 completion: the person approved the other 14 wireframes (「ワイヤーフレームはいずれもOK」,
+// 2026-11-21). Every row shows 承認済み with its date, hifi stays 下書き, and no row carries "未確定".
+test('every wireframe shows 承認済み with its date; no hifi cell carries the "未確定" mark', async ({ page }) => {
+  await page.goto(indexUrl);
+  await expect(table(page).locator('[data-provisional]')).toHaveCount(0);
+  for (const s of screens) {
+    const wf = row(page, s.id).locator('td').nth(1);
+    const hf = row(page, s.id).locator('td').nth(2);
+    await expect(wf.locator('[data-review-state]')).toHaveAttribute('data-review-state', 'approved');
+    await expect(wf.locator('[data-review-state]')).toHaveText(/承認済み/);
+    await expect(wf).toContainText(s.id === 'star-chart' ? '2026-11-19' : '2026-11-21');
+    await expect(hf.locator('[data-review-state]')).toHaveText(/下書き/);
+  }
 });
 
 test('every screen opens in both stages from the index links', async ({ page }) => {
@@ -149,6 +162,8 @@ test('changing a registry review status changes the index display', async ({ pag
             } };
           }
           if (e.id === 'login') return { ...e, review: { wireframe: { status: 'changes-requested' }, hifi: { status: 'draft' } } };
+          // every real wireframe is approved (task 8.1); an overridden in-review one must get the mark back
+          if (e.id === 'post-edit') return { ...e, review: { wireframe: { status: 'in-review', reviewedAt: '2026-11-22' }, hifi: { status: 'draft' } } };
           return e;
         });
       },
@@ -167,9 +182,15 @@ test('changing a registry review status changes the index display', async ({ pag
   const login = row(page, 'login');
   await expect(login.locator('td').nth(1).locator('[data-review-state]')).toHaveText(/修正依頼/);
   await expect(login.locator('td').nth(2).locator('[data-provisional]')).toHaveText(/未確定/);
+  const postEdit = row(page, 'post-edit');
+  await expect(postEdit.locator('td').nth(1).locator('[data-review-state]')).toHaveText(/レビュー中/);
+  await expect(postEdit.locator('td').nth(1)).toContainText('2026-11-22');
+  await expect(postEdit.locator('td').nth(2).locator('[data-provisional]')).toHaveText(/未確定/);
+  await expect(table(page).locator('[data-provisional]')).toHaveCount(2);
   // Other rows keep the registry values.
-  // (admin: in-review since the cross-screen note of task 8.1)
-  await expect(row(page, 'admin').locator('td').nth(1).locator('[data-review-state]')).toHaveText(/レビュー中/);
+  // (admin: approved by a person on 2026-11-21, task 8.1)
+  await expect(row(page, 'admin').locator('td').nth(1).locator('[data-review-state]')).toHaveText(/承認済み/);
+  await expect(row(page, 'admin').locator('td').nth(2).locator('[data-provisional]')).toHaveCount(0);
   await expect(row(page, 'admin').locator('td').nth(1).locator('[data-review-state]')).toHaveAttribute('data-review-state', screens.find((s) => s.id === 'admin')?.review.wireframe.status ?? '');
   expect(problems).toEqual([]);
 });

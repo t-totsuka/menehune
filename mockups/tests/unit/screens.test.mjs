@@ -96,11 +96,26 @@ test('authStates are valid, unique, include the default guest, and admin can swi
 });
 
 // Screens whose wireframe review has been recorded by a person (see data/screens.js).
-// Task 8.1: every screen got the cross-screen note of 2026-11-19 and is back to in-review, except
-// the wireframes a person has approved (add the id here when a person approves another screen).
-const APPROVED_WIREFRAMES = new Set(['star-chart']);
+// Task 8.1: every screen got the cross-screen note of 2026-11-19 and the per-screen notes, then a
+// person approved the wireframes: star-chart on 2026-11-19 (「星図OK」) and the other 14 screens on
+// 2026-11-21 (「ワイヤーフレームはいずれもOK」). Every wireframe is approved; hifi stays draft.
+const APPROVED_WIREFRAMES = new Set(SCREEN_IDS);
 const REVIEWED_WIREFRAMES = new Map(SCREEN_IDS.map((id) => [id, APPROVED_WIREFRAMES.has(id) ? 'approved' : 'in-review']));
 const APPROVAL_NOTE = /^承認（8\.1）：/;
+// The date of the approval (reviewedAt) of each wireframe.
+const APPROVED_AT = new Map(SCREEN_IDS.map((id) => [id, id === 'star-chart' ? '2026-11-19' : '2026-11-21']));
+// The approval note of 2026-11-21: the last note of every screen but star-chart.
+const ALL_OK_NOTE = '承認（8.1）：2026-11-21 に利用者が「ワイヤーフレームはいずれもOK」として承認した（最新のワイヤーフレーム、コミット 780aad3）。ハイフィは下書きのまま';
+/**
+ * Asserts the wireframe of a screen was approved by the person on 2026-11-21 (task 8.1 completion).
+ * @param {string} id
+ * @param {any} wf
+ */
+const assertApprovedAllOk = (id, wf) => {
+  assert.equal(wf.status, 'approved', `${id} approved by a person on 2026-11-21`);
+  assert.equal(wf.reviewedAt, '2026-11-21', `${id} reviewedAt is the approval date`);
+  assert.equal([...(wf.notes ?? [])].at(-1), ALL_OK_NOTE, `${id} the approval note comes last`);
+};
 
 test('review statuses are valid, unreviewed stages are draft and the hifi/wireframe invariant holds', () => {
   for (const s of registry()) {
@@ -135,15 +150,35 @@ test('an approved wireframe ends with the 承認（8.1） note; the others have 
   }
 });
 
+// Task 8.1 completion (2026-11-21): the person wrote 「ワイヤーフレームはいずれもOK」, so every wireframe
+// is approved (8.2 starts only after that). star-chart keeps its own approval of 2026-11-19.
+test('every wireframe is approved; the 14 screens other than star-chart end with the 2026-11-21 approval note', () => {
+  const screens = registry();
+  assert.equal(screens.filter((s) => s.review.wireframe.status === 'approved').length, 15);
+  for (const s of screens) {
+    const wf = s.review.wireframe;
+    assert.equal(wf.reviewedAt, APPROVED_AT.get(s.id), `${s.id} reviewedAt`);
+    assert.equal(s.review.hifi.status, 'draft', `${s.id} hifi stays draft`);
+    const notes = [...(wf.notes ?? [])];
+    if (s.id === 'star-chart') {
+      assert.ok(!notes.includes(ALL_OK_NOTE), 'star-chart keeps its own approval of 2026-11-19');
+    } else {
+      assertApprovedAllOk(s.id, wf);
+      // the earlier notes and outcomes stay; the approval note is only appended after the last outcome
+      assert.ok(notes.length >= 3, `${s.id} keeps the earlier notes`);
+      assert.match(notes.at(-2) ?? '', /^(反映|見送り)（8\.1）：/, `${s.id} the last outcome comes right before the approval`);
+    }
+  }
+});
+
 // Task 8.1: after the changes are applied the wireframe goes back to in-review (only a person
 // approves). The five recorded notes stay, and the outcome of each is recorded after them
 // as "反映（8.1）：..." or "見送り（8.1）：...".
 test('top: the 2026-11-19 review notes are kept and each outcome is recorded', () => {
   const top = byId().get('top').review.wireframe;
-  assert.equal(top.status, 'in-review');
-  assert.equal(top.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('top', top);
   const notes = [...(top.notes ?? [])];
-  const original = notes.filter((n) => !/^(反映|見送り)（8\.1）：/.test(n));
+  const original = notes.filter((n) => !/^(反映|見送り|承認)（8\.1）：/.test(n));
   const outcomes = notes.filter((n) => /^(反映|見送り)（8\.1）：/.test(n));
   assert.equal(original.length, 7);
   assert.ok(outcomes.length >= original.length, 'every note has an applied / deferred entry');
@@ -154,7 +189,7 @@ test('top: the 2026-11-19 review notes are kept and each outcome is recorded', (
   const at = notes.indexOf(TOP_RELATIVE_DAYS_NOTE);
   assert.equal(at, notes.indexOf(GUEST_BAND_NOTE) + 2, `records "${TOP_RELATIVE_DAYS_NOTE}" verbatim after the guest band outcome`);
   assert.match(notes[at + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the note');
-  assert.equal(notes.length, at + 2);
+  assert.equal(notes.length, at + 3, 'then only the approval note');
 });
 const TOP_RELATIVE_DAYS_NOTE = 'トップにも出すようにしたい。';
 
@@ -168,7 +203,7 @@ test('every screen records the 2026-11-19 guest band note and its outcome', () =
     const wf = s.review.wireframe;
     const expected = APPROVED_WIREFRAMES.has(s.id) ? 'approved' : 'in-review';
     assert.equal(wf.status, expected, `${s.id} in-review, or approved by a person`);
-    assert.equal(wf.reviewedAt, '2026-11-19', `${s.id} reviewedAt`);
+    assert.equal(wf.reviewedAt, APPROVED_AT.get(s.id), `${s.id} reviewedAt`);
     const notes = [...(wf.notes ?? [])];
     const at = notes.indexOf(GUEST_BAND_NOTE);
     assert.ok(at >= 0, `${s.id} records the note`);
@@ -184,8 +219,7 @@ const CALENDAR_MONTH_NOTES = ['月曜始まりが望ましい', '月の移動が
 
 test('calendar-month: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
   const wf = byId().get('calendar-month').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('calendar-month', wf);
   const notes = [...(wf.notes ?? [])];
   assert.ok(notes.includes(GUEST_BAND_NOTE), 'the guest band note stays');
   for (const note of CALENDAR_MONTH_NOTES) {
@@ -201,8 +235,7 @@ const DAY_DETAIL_NOTE = 'Topに同じく、投稿がメインなので左右１�
 
 test('day-detail: the 2026-11-19 review note is kept and its outcome follows it', () => {
   const wf = byId().get('day-detail').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('day-detail', wf);
   const notes = [...(wf.notes ?? [])];
   assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
   const at = notes.indexOf(DAY_DETAIL_NOTE);
@@ -224,8 +257,7 @@ const DAY_DETAIL_WORDING_NOTES = [
 
 test('day-detail: the second-round notes are recorded in order, each followed by its outcome', () => {
   const wf = byId().get('day-detail').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('day-detail', wf);
   const notes = [...(wf.notes ?? [])];
   let previous = notes.indexOf(DAY_DETAIL_NOTE);
   assert.ok(previous >= 2, 'the 1:2 note stays');
@@ -250,8 +282,7 @@ const ASTRO_EVENTS_NO_DAYS_AGO_NOTE = '過去の現象では何日前は出さ�
 
 test('astro-events: the 2026-11-19 review note is kept and its outcome follows it', () => {
   const wf = byId().get('astro-events').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('astro-events', wf);
   const notes = [...(wf.notes ?? [])];
   assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
   assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');
@@ -266,7 +297,7 @@ test('astro-events: the 2026-11-19 review note is kept and its outcome follows i
   const noAgo = notes.indexOf(ASTRO_EVENTS_NO_DAYS_AGO_NOTE);
   assert.equal(noAgo, days + 2, `records "${ASTRO_EVENTS_NO_DAYS_AGO_NOTE}" verbatim after the second outcome`);
   assert.match(notes[noAgo + 1] ?? '', /^反映（8\.1）：/, 'outcome right after the third note');
-  assert.equal(notes.length, noAgo + 2);
+  assert.equal(notes.length, noAgo + 3, 'then only the approval note');
 });
 
 // Task 8.1 (post-detail, 2026-11-19): each note in the user's words, followed right after by its
@@ -277,8 +308,7 @@ const POST_DETAIL_WIDTH_NOTE = '投稿の詳細でコメントと投稿が１：
 
 test('post-detail: the 2026-11-19 review note is kept and its outcome follows it', () => {
   const wf = byId().get('post-detail').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('post-detail', wf);
   const notes = [...(wf.notes ?? [])];
   assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
   assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');
@@ -297,8 +327,7 @@ const POST_EDIT_NOTES = ['位置の公開精度はアコーディオンで', '�
 
 test('post-edit: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
   const wf = byId().get('post-edit').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('post-edit', wf);
   const notes = [...(wf.notes ?? [])];
   assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
   assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');
@@ -324,8 +353,7 @@ const MY_POSTS_NOTES = [
 
 test('my-posts: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
   const wf = byId().get('my-posts').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('my-posts', wf);
   const notes = [...(wf.notes ?? [])];
   assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
   assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');
@@ -352,7 +380,7 @@ test('my-posts: the 2026-11-19 review notes are kept and each outcome follows it
   // comes last; its outcome names the page size, says it is provisional and names the scenario
   const pagingAt = notes.indexOf(MY_POSTS_NOTES[6]);
   assert.equal(pagingAt, layoutAt + 2, 'the paging note follows the layout outcome');
-  assert.equal(notes.length, pagingAt + 2, 'the paging outcome is the last note');
+  assert.equal(notes.length, pagingAt + 3, 'the paging outcome is the last outcome, then the approval note');
   const paging = notes[pagingAt + 1] ?? '';
   assert.match(paging, /30 件/, 'the paging outcome names the page size');
   assert.match(paging, /暫定/, 'the paging outcome says the page size is provisional');
@@ -369,14 +397,13 @@ test('my-posts: the 2026-11-19 review notes are kept and each outcome follows it
 // setting of 6.11 here; the note in the user's words and its outcome follow the guest band entries.
 test('settings: the reply notice setting (6.11) is recorded after the guest band entries', () => {
   const wf = byId().get('settings').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('settings', wf);
   const notes = [...(wf.notes ?? [])];
   assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
   assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');
   assert.equal(notes[2], MY_POSTS_NOTES[4], 'the request in the user\'s words');
   assert.match(notes[3] ?? '', /^反映（8\.1）：.*6\.11/, 'its outcome names 6.11');
-  assert.equal(notes.length, 4);
+  assert.equal(notes.length, 5, 'then only the approval note');
 });
 
 // Task 8.1 (admin, 2026-11-19): two notes in the user's words, each followed right after by its
@@ -388,8 +415,7 @@ const ADMIN_NOTES = [
 
 test('admin: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
   const wf = byId().get('admin').review.wireframe;
-  assert.equal(wf.status, 'in-review');
-  assert.equal(wf.reviewedAt, '2026-11-19');
+  assertApprovedAllOk('admin', wf);
   const notes = [...(wf.notes ?? [])];
   assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
   assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');

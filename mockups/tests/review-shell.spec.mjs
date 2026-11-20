@@ -114,12 +114,53 @@ test('stage switch updates html[data-stage]', async ({ page }) => {
   await expect(toolbar(page)).toBeVisible();
 });
 
+/**
+ * Every real wireframe is approved (task 8.1, 2026-11-21), so to cover the "未確定" logic the
+ * registry is replaced, before any page script reads it, by a copy whose calendar-month (the
+ * fixture's screen id) has the given wireframe status.
+ * @param {import('@playwright/test').Page} page
+ * @param {string} status
+ */
+const overrideFixtureWireframe = (page, status) => page.addInitScript((wfStatus) => {
+  /** @type {unknown} */
+  let value;
+  Object.defineProperty(window, 'MockScreens', {
+    configurable: true,
+    get: () => value,
+    set: (/** @type {any[]} */ list) => {
+      value = list.map((e) => (e.id === 'calendar-month'
+        ? { ...e, review: { wireframe: { status: wfStatus, reviewedAt: '2026-11-22' }, hifi: { status: 'draft' } } }
+        : e));
+    },
+  });
+}, status);
+
+test('no "未確定" banner on hifi for the registry as is: the wireframe is approved (task 8.1)', async ({ page }) => {
+  await page.goto(`${screenUrl}?stage=hifi`);
+  await expect(toolbar(page)).toBeVisible();
+  await expect(page.locator('[data-review-status]')).toContainText('ワイヤーフレーム 承認済み');
+  await expect(page.locator('[data-review-status]')).toContainText('ハイフィ 下書き');
+  await expect(page.locator('[data-review-banner="provisional"]')).toBeHidden();
+});
+
+for (const status of ['in-review', 'changes-requested', 'draft']) {
+  test(`"未確定" banner on hifi when the wireframe is ${status} (overridden registry)`, async ({ page }) => {
+    await overrideFixtureWireframe(page, status);
+    await page.goto(`${screenUrl}?stage=hifi`);
+    const banner = page.locator('[data-review-banner="provisional"]');
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText('未確定');
+  });
+}
+
 test('"未確定" banner on hifi when the wireframe is not approved; not on wireframe', async ({ page }) => {
+  await overrideFixtureWireframe(page, 'in-review');
   await page.goto(`${screenUrl}?stage=hifi`);
   const banner = page.locator('[data-review-banner="provisional"]');
   await expect(banner).toBeVisible();
   await expect(banner).toContainText('未確定');
   // The current review status of the screen is shown.
+  await expect(page.locator('[data-review-status]')).toContainText('レビュー中');
   await expect(page.locator('[data-review-status]')).toContainText('下書き');
 
   await control(page, 'stage').selectOption('wireframe');

@@ -395,7 +395,7 @@
   - _Requirements: 1.2, 2.3, 2.6, 9.3, 9.4, 11.2, 13.5_
 
 - [ ] 8. ハイフィデリティの仕上げ（ワイヤーフレームのレビュー後）
-- [ ] 8.1 ワイヤーフレームのレビューでの指摘を反映する
+- [x] 8.1 ワイヤーフレームのレビューでの指摘を反映する
   - 着手の条件：画面レジストリに、人によるワイヤーフレームのレビューの指摘が記録されている
   - 記録された配置・情報構成の指摘を、該当する部品と画面に反映する
   - 完了状態：記録された指摘がすべて、反映されたか、見送りとしてレビュー状態の注記に記録されている。check、型検査、E2E（7.2、7.3）が通る
@@ -491,3 +491,4 @@
 - 8.1（返信のお知らせ 6.9〜6.11、2026-11-20）：利用者の承認で要件を足してから（620bd10）モックに入れた。mk-site-header はログイン時だけロゴの横に「お知らせ（未読 n 件）」（0 件は「お知らせ」）を出し my-posts.html#notices へ移る。新しい部品 mk-notice-list（未読/既読の文字、日時、返信した人、抜粋、投稿、返信を見る → post-detail の #post-comments。コメントごとのアンカーはない）を my-posts の先頭に置き、empty で空、fetch-error で専用の alert。設定に受け取りのチェックボックス（初期値オン）。データは ReplyNotice と MockSample.notices（p-106 に返信 c-106-2 を追加）。ヘッダーの件数はシナリオに追従しない（README の論点）
 - 8.1（自分の投稿：配置、2026-11-20）：投稿の一覧を section（aria-labelledby=my-posts-posts-heading）にまとめてお知らせ（#notices）より前に置き、960px 以上で `.screen-my-posts` を `minmax(0, 5fr) minmax(min(100%, 15rem 相当), 2fr)` の 2 列（比 2.5、本文の最大幅まで一定）にした。3：1 だと 960px でお知らせの列が 15rem を割る。狭い幅ではヘッダーの #notices が一覧の下に移る（README の論点）
 - 8.1（自分の投稿：ページング、2026-11-20）：opt-in の新しい部品 mk-pager（名前付きの nav、範囲の文字、前へ・次へは端で disabled、ページ番号に aria-current、mk-page-change）と純粋なロジック window.MockPaging（PAGE_SIZE 30 は暫定）を shell.js に置き、my-posts の投稿の一覧と mk-notice-list の opt-in `page-size="30"` に付けた。30 件以下ではページ送りを出さない。ページを変えたら一覧の見出しにフォーカスを移す。見せるためのシナリオ many-items（my-posts だけ。MockSample.paging で投稿 75・お知らせ 40。posts と notices には混ぜないのでほかの画面と未読数は変わらない）。生成した投稿を探す処理は findPost と post-edit の両方で paging.posts も見ること（レビューで差し戻された点）。シナリオの切り替えでのページのリセットは fetch-error の早期 return より前に置く
+- 8.1（完了、2026-11-21）：利用者の「ワイヤーフレームはいずれもOK」で、星図以外の 14 画面を approved（reviewedAt 2026-11-21、最後の注記は screens.js の定数 ALL_OK_APPROVAL）にし、8.1 を完了にした。ハイフィは全画面 draft。「未確定」の出し分けは、レジストリを addInitScript で差し替えるテスト（review-shell、catalog-index）で引き続き確かめる。README の論点の各項目の「再レビュー待ち」は記録した時点の状態として残し、節の先頭に、残る論点を 8.2・8.3 か各機能の仕様に持ち越すと書いた
