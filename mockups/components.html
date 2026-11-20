@@ -110,7 +110,7 @@
             <tr data-element="mk-almanac-summary"><th scope="row"><a href="#sec-summary-full"><code>mk-almanac-summary</code></a></th><td>almanac.js</td><td><code>variant="full"</code>（天文現象・予定の祝日・閏月）、<code>variant="brief"</code>（月齢から描いた月の図つき）、サンプルなし</td><td>言語</td></tr>
             <tr data-element="mk-rise-set"><th scope="row"><a href="#sec-rise-set"><code>mk-rise-set</code></a></th><td>almanac.js</td><td><code>date</code>（月の入りなしを含む）、<code>post-id</code>（位置情報なしは何も出さない）、<code>chart</code>（日月が地平線の上にある時間の図）</td><td>言語</td></tr>
             <tr data-element="mk-event-list"><th scope="row"><a href="#sec-event-list-month"><code>mk-event-list</code></a></th><td>almanac.js</td><td><code>from</code> と <code>to</code>、<code>kinds</code>、<code>filters="collapsed"</code>（絞り込みを閉じたアコーディオンにする）、<code>mark-past</code>（サンプルの今日より前の日付の現象に「過去」の文字を付ける）、<code>relative-days</code>（日時の後ろに、サンプルの今日から何日後か、または「今日」を出す。過去の現象には出さない）</td><td>シナリオ：empty（空状態）、fetch-error（取得エラー）</td></tr>
-            <tr data-element="mk-star-chart"><th scope="row"><a href="#sec-star-chart-default"><code>mk-star-chart</code></a></th><td>sky.js</td><td>属性なし、<code>sample="unknown"</code>（サンプルなし）</td><td>段階（ワイヤーフレームでは占位表示）、言語、テーマ</td></tr>
+            <tr data-element="mk-star-chart"><th scope="row"><a href="#sec-star-chart-default"><code>mk-star-chart</code></a></th><td>sky.js</td><td>属性なし、<code>sample="daytime"</code>（昼間の見本。太陽の描き方）、<code>sample="unknown"</code>（サンプルなし）</td><td>シナリオ：daytime（属性なしでも昼間の見本）、段階（ワイヤーフレームでは占位表示）、言語、テーマ</td></tr>
             <tr data-element="mk-post-card"><th scope="row"><a href="#sec-post-card"><code>mk-post-card</code></a></th><td>posts.js</td><td><code>post-id</code>（公開・ログインユーザのみ・一時非表示・削除済み・サンプルなし）、<code>variant="compact"</code>、<code>meta="icons"</code>（公開範囲のアイコンと記号だけの状態）、<code>comment-count</code>（コメントの件数。削除済みのコメントは数えない）</td><td>言語</td></tr>
             <tr data-element="mk-comment-tree"><th scope="row"><a href="#sec-comment-tree"><code>mk-comment-tree</code></a></th><td>posts.js</td><td><code>post-id</code>（深さ 7 と削除済み、コメントなし、サンプルなし）、スマートフォン幅（字下げ 3 段）</td><td>ログイン状態（コメントごとの通報の導線）、言語</td></tr>
             <tr data-element="mk-like-button"><th scope="row"><a href="#sec-like-button"><code>mk-like-button</code></a></th><td>posts.js</td><td><code>post-id</code>（サンプルなしを含む）</td><td>ログイン状態（未ログインは件数だけ）</td></tr>
@@ -130,7 +130,7 @@
       <p class="text-muted">部品の表示は、属性のほかに、ログイン状態とシナリオでも変わります。次のリンクで、このページ全体を切り替えます（ツールバーからも切り替えられます）。</p>
       <ul>
         <li>ログイン状態：<a href="?auth=guest">?auth=guest</a>（いいねは件数だけ、通報の導線なし）、<a href="?auth=member">?auth=member</a>（ヘッダーに表示名）、<a href="?auth=admin">?auth=admin</a>（ヘッダーのナビに管理を追加）</li>
-        <li>シナリオ：<a href="?scenario=empty">?scenario=empty</a>（天文現象の一覧が空状態）、<a href="?scenario=fetch-error">?scenario=fetch-error</a>（天文現象の一覧が取得エラー）、<a href="?scenario=weather-failed">?scenario=weather-failed</a> と <a href="?scenario=no-location">?scenario=no-location</a>（位置パネルのシナリオ追従の例）</li>
+        <li>シナリオ：<a href="?scenario=empty">?scenario=empty</a>（天文現象の一覧が空状態）、<a href="?scenario=fetch-error">?scenario=fetch-error</a>（天文現象の一覧が取得エラー）、<a href="?scenario=weather-failed">?scenario=weather-failed</a> と <a href="?scenario=no-location">?scenario=no-location</a>（位置パネルのシナリオ追従の例）、<a href="?scenario=daytime">?scenario=daytime</a>（属性なしの全天星図も昼間の見本にする）</li>
         <li>段階：<a href="?stage=wireframe">?stage=wireframe</a>（装飾を消し、図を占位表示にする）、<a href="?stage=hifi">?stage=hifi</a></li>
       </ul>
       <p class="text-muted">スマートフォン幅（600px 未満）の表示は、このページの最後の「スマートフォン幅の見本」か、幅を狭めたブラウザで確認します。画面ごとの幅の確認は <a href="viewer.html">幅プレビュー</a> を使います。</p>
@@ -419,10 +419,14 @@
 
     <section class="l-surface l-stack" aria-labelledby="sec-star-chart">
       <h2 id="sec-star-chart">全天星図</h2>
-      <p class="text-muted">天頂を中心にした円形の全天図（立体射影）です。空を見上げた向きなので、上が北のとき左が東になります。恒星は明るいほど大きく描き、星座線・星座名・月・惑星を重ねます。地平線の下の天体（この例では太陽）は描きません。日時と地点の入力欄は星図の画面側に置きます。図は幅に合わせて伸縮し、画像を見られない利用者向けに、見えている主な天体と方角を説明する代替テキストを付けます。ワイヤーフレーム段階では占位表示になります（例：<a href="?stage=wireframe">?stage=wireframe</a>）。</p>
+      <p class="text-muted">天頂を中心にした円形の全天図（立体射影）です。空を見上げた向きなので、上が北のとき左が東になります。恒星は明るいほど大きく描き、星座線・星座名・月・惑星・太陽を重ねます。天体は形でも区別します（月は円、惑星はひし形、太陽は短い光線の付いた円）。地平線の下の天体（20:00 の例では太陽）は描きません。昼間（太陽が地平線の上にあるとき）は、恒星を淡い参考表示にし、図の下と代替テキストに「昼間は明るい星も肉眼では見えません（参考表示）。」と添えます。日時と地点の入力欄は星図の画面側に置きます。図は幅に合わせて伸縮し、画像を見られない利用者向けに、見えている主な天体と方角を説明する代替テキストを付けます。ワイヤーフレーム段階では占位表示になります（例：<a href="?stage=wireframe">?stage=wireframe</a>）。</p>
 
       <h3 id="sec-star-chart-default"><code>mk-star-chart</code>（属性なし：2026年11月16日 20:00、東京都三鷹市付近）</h3>
       <mk-star-chart id="star-chart-default"></mk-star-chart>
+
+      <h3 id="sec-star-chart-daytime"><code>mk-star-chart sample="daytime"</code>（昼間の見本：2026年11月16日 12:00、同じ地点。太陽の描き方）</h3>
+      <p class="text-muted">太陽は南の空の高さ約 35°、月（月齢 7.2、11:59 の月の出）は東南東の地平線の近くです。土星は地平線の下なので描きません。星図の画面では、シナリオ「昼間（星図の太陽）」（<code>?scenario=daytime</code>）で同じ見本になります。値は架空で、未検証です。</p>
+      <mk-star-chart id="star-chart-daytime" sample="daytime"></mk-star-chart>
 
       <h3 id="sec-star-chart-missing"><code>mk-star-chart sample="unknown"</code>（サンプルなし）</h3>
       <mk-star-chart id="star-chart-missing" sample="unknown"></mk-star-chart>
@@ -597,7 +601,7 @@
 
       <h3 id="sec-location-scenario">シナリオに追従する例</h3>
       <p class="text-muted">投稿詳細のシナリオと投稿の対応（<code>postDetailScenarios</code>）に従い、シナリオごとの投稿を表示します（例：<a href="?scenario=weather-failed">?scenario=weather-failed</a>、<a href="?scenario=no-location">?scenario=no-location</a>、<a href="?scenario=default">?scenario=default</a>）。</p>
-      <div id="scenario-location-default" class="l-stack" data-when-scenario="default empty fetch-error validation-error private-blocked hidden-own hidden-other deleted-comment provisional-holiday many-items">
+      <div id="scenario-location-default" class="l-stack" data-when-scenario="default empty fetch-error validation-error private-blocked hidden-own hidden-other deleted-comment provisional-holiday many-items daytime">
         <p class="text-muted">既定など：<code>post-id="p-101"</code></p>
         <mk-location-panel post-id="p-101"></mk-location-panel>
       </div>

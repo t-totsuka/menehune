@@ -93,6 +93,7 @@
     'sky.describe.star': '{name} ({direction})',
     'sky.describe.stars': 'Main stars: {list}.',
     'sky.describe.constellations': 'Constellations: {list}.',
+    'sky.daytime-note': 'In the daytime even bright stars cannot be seen with the naked eye (shown for reference).',
 
     // Post components (task 4.5). like.count-one is the one-like form (same wording in Japanese).
     'post-card.target-date': 'Date',

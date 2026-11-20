@@ -24,7 +24,7 @@
   const SCENARIOS = [
     'default', 'empty', 'fetch-error', 'validation-error',
     'private-blocked', 'hidden-own', 'hidden-other',
-    'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday', 'many-items',
+    'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday', 'many-items', 'daytime',
   ];
 
   /** @typedef {'stage' | 'lang' | 'theme' | 'auth' | 'scenario'} StateField */

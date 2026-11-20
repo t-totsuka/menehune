@@ -51,7 +51,7 @@ const open = async (page, width, query = '') => {
 
 test('the source scan finds the component set', () => {
   expect(DEFINED.length).toBeGreaterThanOrEqual(19);
-  expect(SCENARIOS.length).toBe(12);
+  expect(SCENARIOS.length).toBe(13);
 });
 
 test('every defined mk-* element appears in <main>, upgraded, with an overview row linking to its section', async ({ page }) => {

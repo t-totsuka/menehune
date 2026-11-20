@@ -558,6 +558,88 @@
   };
 
   /**
+   * Star chart in the daytime (final-validation remediation of requirement 5.2: how the sun is
+   * drawn): the same fictional point in 東京都 三鷹市 and the same date, 2026-11-16 at 12:00 JST
+   * (local sidereal time about 16h). Shown by mk-star-chart sample="daytime" and, on the star-chart
+   * screen, by the scenario `daytime`; the default chart (20:00 above) does not change.
+   * - bodies: the sun is near the meridian, a little west of due south, at about 35°; the moon
+   *   (age 7.2, rose at 11:59, see the almanac day) has only just risen in the east-southeast;
+   *   Saturn is below the horizon and is not drawn.
+   * - stars: the summer triangle in the east, the Big Dipper in the north-west, the Little Dipper
+   *   around Polaris and Cassiopeia low in the north, converted from J2000 RA/Dec (simple precession
+   *   correction) like the evening sample. Only stars above the horizon are listed. In daytime
+   *   they are not visible to the naked eye; the chart draws them as a pale reference and says so
+   *   (sky.daytime-note).
+   * Values are illustrative approximations, not verified ephemerides (サンプル値は未検証).
+   * @type {StarChartSample}
+   */
+  const starChartDaytime = {
+    observedAt: '2026-11-16T12:00:00+09:00',
+    placeLabel: '東京都 三鷹市',
+    stars: [
+      { az: 0.2, alt: 35.1, mag: 1.98, nameKey: 'astro.star.polaris' }, // 0 Polaris (α UMi)
+      { az: 1.6, alt: 38.9, mag: 4.35 }, // 1 δ UMi
+      { az: 2.1, alt: 43.5, mag: 4.20 }, // 2 ε UMi
+      { az: 358.7, alt: 48.0, mag: 4.30 }, // 3 ζ UMi
+      { az: 352.7, alt: 50.7, mag: 2.08 }, // 4 Kochab (β UMi)
+      { az: 354.9, alt: 53.6, mag: 3.05 }, // 5 Pherkad (γ UMi)
+      { az: 1.7, alt: 50.0, mag: 4.95 }, // 6 η UMi
+      { az: 324.3, alt: 38.6, mag: 1.79 }, // 7 Dubhe (α UMa)
+      { az: 317.6, alt: 37.6, mag: 2.37 }, // 8 Merak (β UMa)
+      { az: 313.0, alt: 44.7, mag: 2.44 }, // 9 Phecda (γ UMa)
+      { az: 318.0, alt: 47.7, mag: 3.31 }, // 10 Megrez (δ UMa)
+      { az: 317.7, alt: 53.1, mag: 1.77 }, // 11 Alioth (ε UMa)
+      { az: 318.1, alt: 57.5, mag: 2.27 }, // 12 Mizar (ζ UMa)
+      { az: 309.8, alt: 62.7, mag: 1.86 }, // 13 Alkaid (η UMa)
+      { az: 26.5, alt: 16.1, mag: 2.27 }, // 14 Caph (β Cas)
+      { az: 25.1, alt: 11.3, mag: 2.24 }, // 15 Schedar (α Cas)
+      { az: 20.8, alt: 13.4, mag: 2.15 }, // 16 γ Cas
+      { az: 18.0, alt: 11.0, mag: 2.68 }, // 17 Ruchbah (δ Cas)
+      { az: 13.3, alt: 12.4, mag: 3.37 }, // 18 Segin (ε Cas)
+      { az: 72.3, alt: 58.5, mag: 0.03, nameKey: 'astro.star.vega' }, // 19 Vega (α Lyr)
+      { az: 74.0, alt: 56.8, mag: 4.30 }, // 20 ζ Lyr
+      { az: 74.6, alt: 54.8, mag: 4.30 }, // 21 δ Lyr
+      { az: 81.1, alt: 52.8, mag: 3.25 }, // 22 Sulafat (γ Lyr)
+      { az: 81.0, alt: 54.8, mag: 3.50 }, // 23 Sheliak (β Lyr)
+      { az: 56.2, alt: 37.1, mag: 1.25, nameKey: 'astro.star.deneb' }, // 24 Deneb (α Cyg)
+      { az: 63.6, alt: 39.0, mag: 2.23 }, // 25 Sadr (γ Cyg)
+      { az: 84.1, alt: 44.7, mag: 3.05 }, // 26 Albireo (β Cyg)
+      { az: 68.8, alt: 32.3, mag: 2.48 }, // 27 Gienah (ε Cyg)
+      { az: 59.2, alt: 46.7, mag: 2.87 }, // 28 δ Cyg
+      { az: 101.9, alt: 30.8, mag: 0.77, nameKey: 'astro.star.altair' }, // 29 Altair (α Aql)
+      { az: 101.0, alt: 32.8, mag: 2.72 }, // 30 Tarazed (γ Aql)
+      { az: 103.4, alt: 28.5, mag: 3.71 }, // 31 Alshain (β Aql)
+    ],
+    constellationLines: [
+      // Ursa Minor (Little Dipper)
+      [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3],
+      // Ursa Major (Big Dipper)
+      [7, 8], [8, 9], [9, 10], [10, 7], [10, 11], [11, 12], [12, 13],
+      // Cassiopeia (W)
+      [14, 15], [15, 16], [16, 17], [17, 18],
+      // Lyra
+      [19, 20], [20, 23], [23, 22], [22, 21], [21, 20],
+      // Cygnus (Northern Cross)
+      [24, 25], [25, 26], [28, 25], [25, 27],
+      // Aquila
+      [30, 29], [29, 31],
+    ],
+    constellationLabels: [
+      { az: 8.0, alt: 45.0, nameKey: 'astro.constellation.ursa-minor' },
+      { az: 306.0, alt: 52.0, nameKey: 'astro.constellation.ursa-major' },
+      { az: 20.0, alt: 7.0, nameKey: 'astro.constellation.cassiopeia' },
+      { az: 86.0, alt: 58.0, nameKey: 'astro.constellation.lyra' },
+      { az: 52.0, alt: 43.0, nameKey: 'astro.constellation.cygnus' },
+      { az: 108.0, alt: 25.0, nameKey: 'astro.constellation.aquila' },
+    ],
+    bodies: [
+      { kind: 'sun', nameKey: 'astro.body.sun', az: 189.7, alt: 35.0 },
+      { kind: 'moon', nameKey: 'astro.body.moon', az: 113.0, alt: 0.3 },
+      { kind: 'planet', nameKey: 'astro.body.saturn', az: 63.3, alt: -29.9 },
+    ],
+  };
+
+  /**
    * Extra items for the scenario many-items (task 8.1, my-posts paging: 30 items per page). They
    * stay out of posts / notices, so the other screens and the shared lists do not change; the
    * post components still find these posts by id. Generated, not hand-written:
@@ -615,6 +697,7 @@
     reports,
     notices,
     starChart,
+    starChartDaytime,
     paging,
   });
 

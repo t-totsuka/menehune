@@ -20,7 +20,9 @@ type ScenarioId =
   | 'private-blocked' | 'hidden-own' | 'hidden-other'
   | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday'
   /** Task 8.1 (my-posts): adds SampleDataSet.paging so that the lists page (mk-pager) */
-  | 'many-items';
+  | 'many-items'
+  /** Final-validation remediation (5.2, star-chart): the daytime sample, so that the chart shows how the sun is drawn */
+  | 'daytime';
 type ScreenAccess = 'public' | 'member' | 'admin';
 
 interface StageReview {
@@ -250,6 +252,11 @@ interface SampleDataSet {
   readonly notices: readonly ReplyNotice[];
   readonly starChart: StarChartSample;
   /**
+   * The same observer and date at 12:00 JST (5.2: how the sun is drawn): mk-star-chart sample="daytime",
+   * and the star-chart screen in the scenario `daytime`.
+   */
+  readonly starChartDaytime: StarChartSample;
+  /**
    * Extra items of the scenario `many-items` (task 8.1, my-posts paging): own posts of the member
    * viewer (older than every shared own post) and read notices on them. Not part of `posts` /
    * `notices`, so no other screen lists them; components still find these posts by id
@@ -413,8 +420,12 @@ interface RiseSetAttrs { readonly date?: IsoDate; readonly 'post-id'?: string; r
  *  distance from the sample's today in calendar days ("n日後" / "今日"; none for past events) after its datetime */
 interface EventListAttrs { readonly from?: IsoDate; readonly to?: IsoDate; readonly kinds?: string; readonly filters?: 'collapsed'; readonly 'mark-past'?: ''; readonly 'relative-days'?: ''; }
 
-/** `sample` selects a star chart sample; omitted means SampleDataSet.starChart */
-interface StarChartAttrs { readonly sample?: string; }
+/**
+ * `sample` selects a star chart sample: omitted means SampleDataSet.starChart, or
+ * SampleDataSet.starChartDaytime in the scenario `daytime`; `daytime` always means
+ * SampleDataSet.starChartDaytime; any other value is an unknown sample id
+ */
+interface StarChartAttrs { readonly sample?: 'daytime' | string; }
 
 /**
  * `meta="icons"` (task 8.1, my-posts) shows the visibility setting as an icon and the public /

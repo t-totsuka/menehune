@@ -26,7 +26,7 @@ const SCREEN_IDS = [
 const SCENARIO_IDS = [
   'default', 'empty', 'fetch-error', 'validation-error',
   'private-blocked', 'hidden-own', 'hidden-other',
-  'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday', 'many-items',
+  'deleted-comment', 'no-location', 'weather-failed', 'provisional-holiday', 'many-items', 'daytime',
 ];
 const AUTH_STATES = ['guest', 'member', 'admin'];
 const REVIEW_STATUSES = ['draft', 'in-review', 'changes-requested', 'approved'];
@@ -68,6 +68,7 @@ test('scenario assignments follow the design initial values', () => {
     'post-detail': ['default', 'private-blocked', 'hidden-own', 'hidden-other',
       'deleted-comment', 'no-location', 'weather-failed'],
     'post-edit': ['default', 'validation-error'],
+    'star-chart': ['default', 'daytime'],
     admin: ['default', 'empty'],
   };
   for (const id of SCREEN_IDS) {

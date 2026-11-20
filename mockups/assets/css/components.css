@@ -1232,6 +1232,27 @@ mk-star-chart {
   fill: var(--color-event-sun);
 }
 
+/* The sun's own mark (final-validation remediation of 5.2): a disc with eight short rays, so it
+   differs from the planets' diamond and the moon's plain circle by shape, not only by color. */
+.mk-star-chart__sun-rays {
+  fill: none;
+  stroke: var(--color-event-sun);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+/* Daytime (the sun above the horizon): the stars stay as a pale reference; the note says so. */
+.mk-star-chart[data-daytime] .mk-star-chart__star {
+  fill: var(--color-text-muted);
+}
+
+.mk-star-chart__note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
 /* ---- mk-post-card / mk-comment-tree / mk-like-button / mk-report-link (6.1, 6.4, 6.6, 6.7, 6.8, 8.3, 12.4) ---- */
 mk-post-card,
 mk-comment-tree {

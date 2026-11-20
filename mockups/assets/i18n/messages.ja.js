@@ -93,6 +93,7 @@
     'sky.describe.star': '{name}（{direction}）',
     'sky.describe.stars': '主な星：{list}。',
     'sky.describe.constellations': '星座：{list}。',
+    'sky.daytime-note': '昼間は明るい星も肉眼では見えません（参考表示）。',
 
     // Post components (task 4.5). like.count-one is the one-like form (same wording in Japanese).
     'post-card.target-date': '対象日',

@@ -157,7 +157,7 @@
       }),
       DRAFT,
     )),
-    screen('star-chart', 'public', GUEST_MEMBER, [], review(
+    screen('star-chart', 'public', GUEST_MEMBER, ['daytime'], review(
       Object.freeze({
         // 2026-11-19 の画面ごとの指摘をタスク 8.1 で反映し、同日に利用者が承認した（「星図OK」）。ハイフィは下書きのまま
         status: 'approved',

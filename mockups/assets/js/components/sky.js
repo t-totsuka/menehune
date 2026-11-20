@@ -1,18 +1,25 @@
 // Sky component: mk-star-chart (design: Parts > プレゼンテーション部品; StarChartAttrs and
 // StarChartSample in types.d.ts). Task 4.4 (5.1, 5.2, 5.4, 5.5, 13.4).
 //
-// - `sample`: omitted (or empty) means SampleDataSet.starChart; any other value is an unknown sample id and
-//   renders this.missingSample(id). The date/time and place inputs live on the screen, not here.
+// - `sample`: omitted (or empty) means SampleDataSet.starChart, or SampleDataSet.starChartDaytime
+//   when the scenario is `daytime` (the star-chart screen); `daytime` always means
+//   SampleDataSet.starChartDaytime (the component gallery); any other value is an unknown sample id
+//   and renders this.missingSample(id). The date/time and place inputs live on the screen, not here.
 // - Projection: zenith-centred stereographic projection of the horizontal coordinates
 //   (az from north, clockwise, degrees; alt in degrees):
 //       r = R * tan((90° - alt) / 2)        (zenith r = 0, horizon r = R)
 //       x = cx - r * sin(az),  y = cy - r * cos(az)
 //   The chart is the sky seen from below (planisphere orientation): north up, EAST ON THE LEFT,
-//   south down, west on the right. Objects with alt < 0 (e.g. the sun at -41.7°) are not drawn,
-//   nor are lines touching such a star.
+//   south down, west on the right. Objects with alt < 0 (e.g. the sun at -41.7° at 20:00) are not
+//   drawn, nor are lines touching such a star.
 // - Drawn: the sky disc and horizon circle, cardinal labels (sky.direction.*), stars with a radius
 //   from their magnitude (brighter = larger), labels only for stars with nameKey, constellation
-//   lines and names, the moon (circle) and planets / the sun (diamond) with their names.
+//   lines and names, and the bodies with their names, each kind with its own shape (13.3): the moon
+//   a plain circle, the planets a diamond, the sun a disc with eight short rays.
+// - Daytime (the sun above the horizon, final-validation remediation of 5.2): the stars, lines and
+//   names stay drawn as a pale reference (the stars in the muted text color) so that one chart
+//   still shows every element of 5.2, and a visible note under the chart (sky.daytime-note) says
+//   that even bright stars cannot be seen with the naked eye; the alt text ends with the same note.
 // - Label layout (deterministic, estimated boxes; see LabelLayout): bright star points, body
 //   marks and cardinal labels are obstacles; then body names, star names in brightness order and
 //   constellation names are placed at the first candidate position that collides with nothing
@@ -41,6 +48,11 @@
   const CARDINAL_OFFSET = 16;
   /** Half size of the moon / planet marks (user units). */
   const BODY_MARK = 7;
+  /** The sun: disc radius, and the rays from SUN_RAY_INNER to SUN_RAY_OUTER (user units). */
+  const SUN_DISC = 5.5;
+  const SUN_RAY_INNER = 8;
+  const SUN_RAY_OUTER = 12;
+  const SUN_RAYS = 8;
   /** Number of named stars listed in the alt text (brightest first). */
   const DESCRIBED_STARS = 6;
 
@@ -98,6 +110,39 @@
 
   /** @param {StarChartBody} body */
   const bodyId = (body) => body.nameKey.replace(/^astro\.body\./, '');
+
+  /** Half size of a body's mark, rays included (label obstacle and label offset). @param {StarChartBody} body */
+  const markRadius = (body) => (body.kind === 'sun' ? SUN_RAY_OUTER : BODY_MARK);
+
+  /** Daytime: the sun is above the horizon. @param {StarChartSample} chart */
+  const isDaytime = (chart) => chart.bodies.some((b) => b.kind === 'sun' && b.alt >= 0);
+
+  /**
+   * The mark of one body: the moon a circle, a planet a diamond, the sun a disc with rays.
+   * @param {StarChartBody} body @param {number} x @param {number} y
+   * @returns {SVGElement[]}
+   */
+  const bodyMark = (body, x, y) => {
+    if (body.kind === 'moon') {
+      return [svg('circle', { class: 'mk-star-chart__body-mark', cx: fmt(x), cy: fmt(y), r: fmt(BODY_MARK) })];
+    }
+    if (body.kind === 'sun') {
+      /** @type {string[]} */
+      const rays = [];
+      for (let i = 0; i < SUN_RAYS; i += 1) {
+        const a = ((i * 360) / SUN_RAYS) * DEG;
+        rays.push(`M ${fmt(x + SUN_RAY_INNER * Math.sin(a))} ${fmt(y - SUN_RAY_INNER * Math.cos(a))} L ${fmt(x + SUN_RAY_OUTER * Math.sin(a))} ${fmt(y - SUN_RAY_OUTER * Math.cos(a))}`);
+      }
+      return [
+        svg('path', { class: 'mk-star-chart__sun-rays', d: rays.join(' ') }),
+        svg('circle', { class: 'mk-star-chart__body-mark', cx: fmt(x), cy: fmt(y), r: fmt(SUN_DISC) }),
+      ];
+    }
+    return [svg('path', {
+      class: 'mk-star-chart__body-mark',
+      d: `M ${fmt(x)} ${fmt(y - BODY_MARK)} L ${fmt(x + BODY_MARK)} ${fmt(y)} L ${fmt(x)} ${fmt(y + BODY_MARK)} L ${fmt(x - BODY_MARK)} ${fmt(y)} Z`,
+    })];
+  };
 
   // ---- Label layout (deterministic, no DOM measurement) ----
   // Label font sizes are viewBox user units (set as attributes, so the estimate below and the
@@ -225,20 +270,23 @@
   class StarChart extends MockElement {
     static observedAttributes = ['sample'];
 
-    /** @returns {StarChartSample | null} */
-    chart() {
+    /** @param {MockStateSnapshot} state @returns {StarChartSample | null} */
+    chart(state) {
       const id = this.getAttribute('sample');
-      return id === null || id === '' ? this.sample().starChart : null;
+      if (id === 'daytime') return this.sample().starChartDaytime;
+      if (id !== null && id !== '') return null;
+      return state.scenario === 'daytime' ? this.sample().starChartDaytime : this.sample().starChart;
     }
 
     /**
      * Alt text: date/time and place, orientation, visible bodies with directions, the brightest
-     * named stars with directions, and the visible constellations.
+     * named stars with directions, the visible constellations, and in daytime the note that the
+     * stars are a reference only.
      * @param {MockStateSnapshot} state
      * @returns {string}
      */
     describe(state) {
-      const chart = this.chart();
+      const chart = this.chart(state);
       if (!chart) return '';
       const sep = state.lang === 'ja' ? '、' : ', ';
       const sentenceSep = state.lang === 'ja' ? '' : ' ';
@@ -255,12 +303,13 @@
       if (stars.length > 0) sentences.push(this.t('sky.describe.stars', { list: stars.join(sep) }));
       const constellations = chart.constellationLabels.filter((l) => l.alt >= 0).map((l) => this.t(l.nameKey));
       if (constellations.length > 0) sentences.push(this.t('sky.describe.constellations', { list: constellations.join(sep) }));
+      if (isDaytime(chart)) sentences.push(this.t('sky.daytime-note'));
       return sentences.join(sentenceSep);
     }
 
     /** @param {MockStateSnapshot} state */
     render(state) {
-      const chart = this.chart();
+      const chart = this.chart(state);
       if (!chart) {
         this.replaceChildren(this.missingSample(this.getAttribute('sample') ?? ''));
         return;
@@ -270,7 +319,12 @@
         datetime: window.MockI18n.formatDate(chart.observedAt, 'datetime'),
         place: chart.placeLabel,
       }));
-      this.replaceChildren(this.el('div', { class: 'mk-star-chart' }, figure, caption));
+      if (!isDaytime(chart)) {
+        this.replaceChildren(this.el('div', { class: 'mk-star-chart' }, figure, caption));
+        return;
+      }
+      const note = this.el('p', { class: 'mk-star-chart__note' }, this.t('sky.daytime-note'));
+      this.replaceChildren(this.el('div', { class: 'mk-star-chart', 'data-daytime': '' }, figure, caption, note));
     }
 
     /**
@@ -309,7 +363,7 @@
 
       const visibleBodies = chart.bodies.filter((b) => b.alt >= 0).map((body) => {
         const p = project(body.az, body.alt);
-        layout.reserve(pointBox(p.x, p.y, BODY_MARK), `body-${bodyId(body)}`);
+        layout.reserve(pointBox(p.x, p.y, markRadius(body)), `body-${bodyId(body)}`);
         return { body, x: p.x, y: p.y };
       });
 
@@ -328,19 +382,13 @@
         }, text));
       }
 
-      // Label priority: 1. moon / planet names, 2. star names by brightness, 3. constellation names.
+      // Label priority: 1. sun / moon / planet names, 2. star names by brightness, 3. constellation names.
       const bodies = svg('g', { class: 'mk-star-chart__bodies' });
       for (const { body, x, y } of visibleBodies) {
         const name = this.t(body.nameKey);
         const owner = `body-${bodyId(body)}`;
-        const box = layout.place(pointCandidates(x, y, BODY_MARK, textWidth(name, FONT.body, true), FONT.body), owner);
-        const mark = body.kind === 'moon'
-          ? svg('circle', { class: 'mk-star-chart__body-mark', cx: fmt(x), cy: fmt(y), r: fmt(BODY_MARK) })
-          : svg('path', {
-            class: 'mk-star-chart__body-mark',
-            d: `M ${fmt(x)} ${fmt(y - BODY_MARK)} L ${fmt(x + BODY_MARK)} ${fmt(y)} L ${fmt(x)} ${fmt(y + BODY_MARK)} L ${fmt(x - BODY_MARK)} ${fmt(y)} Z`,
-          });
-        const group = svg('g', { class: 'mk-star-chart__body', 'data-body': bodyId(body), 'data-kind': body.kind }, mark);
+        const box = layout.place(pointCandidates(x, y, markRadius(body), textWidth(name, FONT.body, true), FONT.body), owner);
+        const group = svg('g', { class: 'mk-star-chart__body', 'data-body': bodyId(body), 'data-kind': body.kind }, ...bodyMark(body, x, y));
         if (box) {
           group.append(svg('text', { class: 'mk-star-chart__body-label', ...baselineOf(box, FONT.body), 'font-size': String(FONT.body) }, name));
         }

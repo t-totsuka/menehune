@@ -347,7 +347,8 @@ type ScenarioId =
   | 'default' | 'empty' | 'fetch-error' | 'validation-error'
   | 'private-blocked' | 'hidden-own' | 'hidden-other'
   | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday'
-  | 'many-items';   // 8.1：自分の投稿のページングを確かめるため、件数の多いサンプルを足す
+  | 'many-items'    // 8.1：自分の投稿のページングを確かめるため、件数の多いサンプルを足す
+  | 'daytime';      // 最終検証の是正（5.2）：星図を昼間の見本にして、太陽の描き方を示す
 type ScreenAccess = 'public' | 'member' | 'admin';
 
 interface StageReview {
@@ -371,6 +372,7 @@ type ScreenRegistry = readonly ScreenEntry[];
 
 **Implementation Notes**
 - 画面ごとの主なシナリオ（初期値）：calendar-month は `provisional-holiday`。astro-events と my-posts は `empty`、`fetch-error`（my-posts では、投稿の一覧とお知らせの両方が空状態・取得エラーになる。8.1）。my-posts だけ `many-items` も選べ、`SampleDataSet.paging` の見本（投稿 71 件、既読のお知らせ 37 件）を足して、30 件ごとのページ送り（mk-pager）を確かめられる（8.1）。post-detail は `private-blocked`、`hidden-own`、`hidden-other`、`deleted-comment`、`no-location`、`weather-failed`。post-edit は `validation-error`。admin は `empty`
+- star-chart は `daytime` も選べ、星図と日時・地点の入力欄を `SampleDataSet.starChartDaytime`（同じ地点の 2026-11-16 12:00）にして、太陽の描き方を確かめられる（最終検証の是正、5.2）。既定の表示（20:00、承認済みのワイヤーフレーム）は変えない
 - 検証：`check-registry.mjs` が ID の網羅、ファイルの存在、不変条件、`scenarios[0] === 'default'` を検査する
 
 #### MessageDictionaries と GlossaryMeta
@@ -494,6 +496,7 @@ interface SampleDataSet {
   readonly viewerIds: Readonly<Record<Exclude<AuthState, 'guest'>, string>>;   // ログイン時の「自分」（likedByMe、hidden-own、自分の投稿一覧の判定に使う）
   readonly postDetailScenarios: Readonly<Record<PostDetailScenarioId, string>>; // 投稿詳細のシナリオごとに表示する投稿 ID
   readonly starChart: StarChartSample;
+  readonly starChartDaytime: StarChartSample;     // 同じ地点・同じ日の 12:00（太陽が南の空の約 35°）。mk-star-chart の sample="daytime" と、星図の画面のシナリオ daytime で使う（5.2）
 }
 ```
 
@@ -665,7 +668,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 | mk-almanac-summary | almanac.js | `date`、`variant`、`kou`、`hide-empty`、`hide-date` | 日詳細用は全項目（4.3）、トップ用は要約（4.7）。トップ用は月齢から描いた月の満ち欠けの図（`role="img"` と `aria-label`）を添える（ワイヤーフレームのレビューの指摘、8.1）。日詳細の画面だけに付ける opt-in（8.1）：`kou="period"` は七十二候を期間として毎日「候の名前（n日目）」で示し（`SampleDataSet.kouStarts`）、`hide-empty` は値のない項目を出さず、`hide-date` は見出しが日付なので要約の日付の行を出さない |
 | mk-rise-set | almanac.js | `date`、`post-id`、`chart` | 日の出・日の入り・月の出・月の入り（4.3、7.3）。`chart` では、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示す（トップ用、8.1） |
 | mk-event-list | almanac.js | `from`、`to`、`kinds`、`filters`、`mark-past`、`relative-days` | 天文現象の日時と種類の一覧、期間と種類の絞り込み UI、空状態、取得エラー（4.4、4.5、3.4、3.5）。`filters="collapsed"` では絞り込みを閉じたアコーディオンにする（トップ用、8.1）。`mark-past` では、サンプルの今日より前の日付の現象に、日時の前に文字の印（「過去」／Past）と `data-past` を付ける（色だけに頼らない。天文現象一覧用、8.1）。`relative-days` では、日時の後ろの同じ欄に、サンプルの今日から日付単位で数えた「n日後」「今日」（英語は in n days／today、1 は in 1 day）の文字を出す。今日より前の現象には出さない（過去は `mark-past` の印で示す）。日時と一緒に読み上げられる（天文現象一覧とトップ用、8.1） |
-| mk-star-chart | sky.js | `sample` | 天頂中心の円形の全天図（立体射影）と方位。恒星の大きさは等級に応じる。星座線、星座名、太陽・月・惑星。入力欄は画面側に置く。`viewBox` で幅に追従させる（5.1〜5.5、13.4） |
+| mk-star-chart | sky.js | `sample` | 天頂中心の円形の全天図（立体射影）と方位。恒星の大きさは等級に応じる。星座線、星座名、太陽・月・惑星。天体は形でも区別する（月は円、惑星はひし形、太陽は短い光線の付いた円、13.3）。`sample` を省くと `starChart`（シナリオ `daytime` では `starChartDaytime`）、`sample="daytime"` は常に `starChartDaytime`。昼間（太陽が地平線の上）は恒星を淡い参考表示にし、図の下と代替テキストに注記（sky.daytime-note）を添える。入力欄は画面側に置く。`viewBox` で幅に追従させる（5.1〜5.5、13.4） |
 | mk-post-card | posts.js | `post-id`、`variant`、`meta`、`comment-count` | 一覧用のカード（対象日、抜粋、状態バッジ、いいね数）（6.6）。`meta="icons"` では、公開範囲（未ログインに公開するか）をアイコン（`role="img"`、`aria-label`、`title`）で添え、公開中・ログインユーザのみの状態バッジを記号だけにする（文字は読み上げ用に残す）。一時非表示と削除済みは文字のバッジのまま（自分の投稿用、8.1）。`comment-count` では、状態の行にコメントの件数を文字で添える（ツリー全体、返信を含む。6.4 で削除済みと表示するコメントは数えない。削除済みの投稿には出さない。自分の投稿用、8.1） |
 | mk-comment-tree | posts.js | `post-id` | 入れ子のコメント。字下げの上限は PC で 6 段、スマートフォンで 3 段。それより深いものは字下げせず、「↳ ○○さんへの返信」と表示する。削除済みは本文の代わりに「このコメントは削除されました」と出し、子は残す（6.1、6.4、12.4） |
 | mk-like-button | posts.js | `post-id` | 件数と、いいね済みかの状態。guest では件数のみ（6.7、6.8） |
