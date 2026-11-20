@@ -94,12 +94,12 @@
       <p class="text-muted">このページにある部品と、並べている変種です。要素名のリンクから各部品の見本へ移動します。</p>
       <div class="gl-table-wrap" tabindex="0" role="region" aria-label="部品の一覧の表">
         <table class="gl-table">
-          <caption>部品と見本の変種（19 部品）</caption>
+          <caption>部品と見本の変種（20 部品）</caption>
           <thead>
             <tr><th scope="col">要素</th><th scope="col">ファイル</th><th scope="col">見本の変種（属性）</th><th scope="col">状態で変わる表示</th></tr>
           </thead>
           <tbody>
-            <tr data-element="mk-site-header"><th scope="row"><a href="#sec-shell-header"><code>mk-site-header</code></a></th><td>shell.js</td><td><ul><li>属性なし</li><li><code>current="star-chart"</code></li><li>スマートフォン幅（メニューの折りたたみ）</li></ul></td><td>ログイン状態（ログイン・表示名・管理）、言語、テーマ</td></tr>
+            <tr data-element="mk-site-header"><th scope="row"><a href="#sec-shell-header"><code>mk-site-header</code></a></th><td>shell.js</td><td><ul><li>属性なし</li><li><code>current="star-chart"</code></li><li>スマートフォン幅（メニューの折りたたみ）</li></ul></td><td>ログイン状態（ログイン・表示名・管理、ログイン中は未読のお知らせの件数とお知らせへの導線。未読 0 件は件数なし）、言語、テーマ</td></tr>
             <tr data-element="mk-site-footer"><th scope="row"><a href="#sec-shell-footer"><code>mk-site-footer</code></a></th><td>shell.js</td><td>属性なし</td><td>言語</td></tr>
             <tr data-element="mk-guest-notice"><th scope="row"><a href="#sec-shell-notice"><code>mk-guest-notice</code></a></th><td>shell.js</td><td><ul><li><code>variant="read-only"</code>（既定）</li><li><code>variant="private-post"</code></li><li><code>band</code>（ヘッダーの直下に置く全幅の帯。ログイン以外の全画面で使う）</li></ul></td><td>常に表示（出し分けは画面側の <code>data-when-auth</code>）</td></tr>
             <tr data-element="mk-status-badge"><th scope="row"><a href="#sec-shell-badge"><code>mk-status-badge</code></a></th><td>shell.js</td><td><code>status</code>：public、members-only、hidden、deleted</td><td>言語</td></tr>
@@ -114,6 +114,7 @@
             <tr data-element="mk-comment-tree"><th scope="row"><a href="#sec-comment-tree"><code>mk-comment-tree</code></a></th><td>posts.js</td><td><code>post-id</code>（深さ 7 と削除済み、コメントなし、サンプルなし）、スマートフォン幅（字下げ 3 段）</td><td>ログイン状態（コメントごとの通報の導線）、言語</td></tr>
             <tr data-element="mk-like-button"><th scope="row"><a href="#sec-like-button"><code>mk-like-button</code></a></th><td>posts.js</td><td><code>post-id</code>（サンプルなしを含む）</td><td>ログイン状態（未ログインは件数だけ）</td></tr>
             <tr data-element="mk-report-link"><th scope="row"><a href="#sec-report-link"><code>mk-report-link</code></a></th><td>posts.js</td><td><code>target-id</code>（投稿・コメント・サンプルなし）</td><td>ログイン状態（未ログインは表示しない）</td></tr>
+            <tr data-element="mk-notice-list"><th scope="row"><a href="#sec-notice-list"><code>mk-notice-list</code></a></th><td>posts.js</td><td><code>user-id</code>（お知らせあり＝ほしぞら散歩さん、お知らせなし＝運営チーム。省略すると、ログイン中の自分）</td><td>シナリオ：empty（空状態）、fetch-error（取得エラー）、言語</td></tr>
             <tr data-element="mk-precision-picker"><th scope="row"><a href="#sec-precision-picker"><code>mk-precision-picker</code></a></th><td>location.js</td><td>属性なし（未選択）、<code>value</code>：5 段階それぞれ、<code>collapsed</code>（閉じたアコーディオンにし、見出しに今の選択を出す）</td><td>言語</td></tr>
             <tr data-element="mk-map-sample"><th scope="row"><a href="#sec-map-sample"><code>mk-map-sample</code></a></th><td>location.js</td><td><code>precision</code>：5 段階、<code>region</code>、<code>subject="observer"</code>（星図の観測地点の地図として、説明と代替テキストに「観測地点」を出す）、サンプルなし</td><td>段階（占位表示）、テーマ</td></tr>
             <tr data-element="mk-weather"><th scope="row"><a href="#sec-weather"><code>mk-weather</code></a></th><td>location.js</td><td><code>post-id</code>（晴れ・風あり・取得失敗・位置情報なし・サンプルなし）</td><td>言語</td></tr>
@@ -418,7 +419,7 @@
 
     <section class="l-surface l-stack" aria-labelledby="sec-posts">
       <h2 id="sec-posts">投稿の部品</h2>
-      <p class="text-muted">投稿カード・コメントツリー・いいね・通報への導線です。未ログインでは、いいねは件数だけになり、通報への導線は表示しません（例：<a href="?auth=guest">?auth=guest</a>、<a href="?auth=member">?auth=member</a>）。ログイン時の「自分」は「ほしぞら散歩」さんです。</p>
+      <p class="text-muted">投稿カード・コメントツリー・いいね・通報への導線・返信のお知らせです。未ログインでは、いいねは件数だけになり、通報への導線は表示しません（例：<a href="?auth=guest">?auth=guest</a>、<a href="?auth=member">?auth=member</a>）。ログイン時の「自分」は「ほしぞら散歩」さんです。</p>
 
       <h3 id="sec-post-card"><code>mk-post-card</code></h3>
       <p class="text-muted">一覧用のカードで、対象日・状態バッジ・本文の抜粋・いいね数を表示します。<code>variant="compact"</code> は抜粋を短くします。</p>
@@ -468,6 +469,13 @@
       <mk-comment-tree id="comments-empty" post-id="p-105"></mk-comment-tree>
       <p class="text-muted"><code>post-id="p-999"</code>（サンプルなし）</p>
       <mk-comment-tree id="comments-missing" post-id="p-999"></mk-comment-tree>
+
+      <h3 id="sec-notice-list"><code>mk-notice-list</code></h3>
+      <p class="text-muted">自分のコメントへの返信のお知らせ（6.10）。未読・既読は文字（「未読」「既読」）で示し、太字と左の太い線は補助です。各お知らせに、返信した人、自分のコメントと返信の抜粋、投稿、日時、返信を見る導線（その投稿の投稿詳細のコメントの位置）を出します。<code>user-id</code> を省くと、ログイン中の自分のお知らせを出します（未ログインでは何も出しません）。左は <code>user-id="u-hoshizora"</code>（3 件、うち未読 2 件）、右は <code>user-id="u-admin"</code>（お知らせなし）です。シナリオの empty と fetch-error にも追従します（例：<a href="?scenario=empty">?scenario=empty</a>、<a href="?scenario=fetch-error">?scenario=fetch-error</a>）。</p>
+      <div class="mk-post-card-samples">
+        <mk-notice-list id="notice-list-member" user-id="u-hoshizora"></mk-notice-list>
+        <mk-notice-list id="notice-list-empty" user-id="u-admin"></mk-notice-list>
+      </div>
     </section>
 
     <section class="l-surface l-stack" aria-labelledby="sec-location">

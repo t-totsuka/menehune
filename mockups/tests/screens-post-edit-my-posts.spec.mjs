@@ -288,7 +288,11 @@ test.describe('my-posts (6.6, 3.4, 3.5)', () => {
   test('fetch-error: an alert instead of the list (3.5)', async ({ page }) => {
     await page.goto(urlOf('my-posts', '?lang=ja&auth=member&scenario=fetch-error'));
     await expect(page.locator('main mk-post-card:visible')).toHaveCount(0);
-    const alert = page.locator('main [role="alert"]:visible');
+    // Task 8.1 (6.10): the notices section above has an alert of its own (error.notices), so the
+    // list's alert is the one outside mk-notice-list
+    await expect(page.locator('main [role="alert"]:visible')).toHaveCount(2);
+    await expect(page.locator('main mk-notice-list [role="alert"]')).toHaveText(ja['error.notices']);
+    const alert = page.locator('main [role="alert"]:visible:not(mk-notice-list *)');
     await expect(alert).toHaveCount(1);
     await expect(alert).toHaveText(ja['error.fetch']);
     await expect(page.locator('main [data-my-posts-empty]')).toBeHidden();

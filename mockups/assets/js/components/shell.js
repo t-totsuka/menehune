@@ -6,6 +6,12 @@
 //   dark; through MockState.update, so a manual theme wins over the OS appearance), login state
 //   (guest: login link; member / admin: display name of SampleDataSet.viewerIds[auth]).
 //   `current` marks the current nav item; without it the item is inferred from the screen id.
+//   Task 8.1 (6.9): while logged in, the bar (next to the logo, so it stays visible when the menu
+//   is collapsed) holds a link to the notices of my-posts (my-posts.html#notices, ?auth carried
+//   over like the nav links) with the number of the viewer's unread ReplyNotice as text
+//   (notice.header-unread, "お知らせ（未読 2 件）"; not colour alone). With 0 unread it reads
+//   notice.label ("お知らせ") without a count, so the read notices stay one click away. The count
+//   does not follow the scenario (it is the same on every screen). Guests get no link.
 //   Below 600px the menu collapses behind a toggle button (aria-expanded / aria-controls);
 //   Escape closes it.
 // - mk-site-footer: links to the attribution and privacy pages.
@@ -28,16 +34,18 @@
   /**
    * @param {ScreenId} id
    * @param {MockStateSnapshot} state
+   * @param {string} [hash] e.g. '#notices'
    * @returns {string}
    */
-  const screenHref = (id, state) => {
+  const screenHref = (id, state, hash = '') => {
     /** @type {URL} */
     let url;
     try {
       url = new URL(`../../../screens/${id}.html`, scriptSrc || window.location.href);
     } catch {
-      return `${id}.html`;
+      return `${id}.html${hash}`;
     }
+    url.hash = hash;
     const registry = Array.isArray(window.MockScreens) ? window.MockScreens : [];
     const entry = registry.find((s) => s.id === id);
     if (state.auth !== 'guest' && entry !== undefined && entry.authStates.includes(state.auth)) {
@@ -193,6 +201,24 @@
       return box;
     }
 
+    /**
+     * Link to the notices of my-posts with the unread count (6.9); undefined for guests.
+     * @param {MockStateSnapshot} state
+     * @returns {HTMLAnchorElement | undefined}
+     */
+    notices(state) {
+      if (state.auth === 'guest') return undefined;
+      const sample = this.sample();
+      const viewer = sample.viewerIds[state.auth];
+      const unread = sample.notices.filter((n) => n.recipientId === viewer && !n.read).length;
+      return this.el('a', {
+        class: 'mk-header__notices',
+        href: screenHref('my-posts', state, '#notices'),
+        'data-header-notices': '',
+        'data-unread': String(unread),
+      }, unread > 0 ? this.t('notice.header-unread', { count: unread }) : this.t('notice.label'));
+    }
+
     /** @param {MockStateSnapshot} state */
     render(state) {
       const current = this.currentItem(state);
@@ -238,7 +264,7 @@
 
       this.replaceChildren(this.el('header', { class: 'mk-header' },
         this.el('div', { class: 'mk-header__inner' },
-          this.el('div', { class: 'mk-header__bar' }, logo, toggle),
+          this.el('div', { class: 'mk-header__bar' }, ...[logo, this.notices(state), toggle].filter((n) => n !== undefined)),
           menu)));
     }
   }

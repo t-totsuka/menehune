@@ -106,6 +106,18 @@
     'comment.tree-label': 'コメント',
     'comment.reply-to': '{name} さんへの返信',
     'comment.reply-to-deleted': '削除されたコメントへの返信',
+    'notice.label': 'お知らせ',
+    'notice.header-unread': 'お知らせ（未読 {count} 件）',
+    'notice.unread': '未読',
+    'notice.read': '既読',
+    'notice.summary': '{name} さんが、あなたのコメントに返信しました',
+    'notice.my-comment': 'あなたのコメント：',
+    'notice.reply': '返信：',
+    'notice.post': '投稿：',
+    'notice.post-title': '{name} さんの投稿（{date}）',
+    'notice.open': '返信を見る',
+    'notice.open-label': '返信を見る（{name} さん、{datetime}）',
+    'notice.list-label': 'お知らせの一覧',
     'report-link.post': 'この投稿を通報する',
     'report-link.comment': '{name} さんのコメントを通報する',
 
@@ -210,6 +222,8 @@
     'screen.my-posts.icon-legend': 'アイコンの見方',
     'screen.my-posts.icon-legend-note': '一時非表示と削除済みは、アイコンにせず文字で示します。',
     'screen.my-posts.edit-label': '{date}の投稿を編集',
+    'screen.my-posts.notices-hint': '自分のコメントに返信がつくと、ここにお知らせします。',
+    'screen.my-posts.posts-heading': '投稿の一覧',
 
     // Screen content: settings and login (task 5.5)
     'screen.settings.login-required': '設定を変えるには、ログインしてください。',
@@ -225,6 +239,8 @@
     'screen.settings.guest-visible': '自分の投稿を、ログインしていない人にも公開するか',
     'screen.settings.guest-visible-yes': 'ログインしていない人にも公開する',
     'screen.settings.guest-visible-no': 'ログインしたユーザだけに公開する',
+    'screen.settings.reply-notices': 'コメントへの返信をお知らせで受け取る',
+    'screen.settings.reply-notices-hint': '自分のコメントに返信がついたとき、ヘッダーと「自分の投稿」の画面のお知らせに表示します。メールなど、サイトの外には送りません。',
     'screen.settings.mock-note': 'このモックアップでは、保存しても設定は保存されません。',
     'screen.login.intro': 'ログインすると、投稿、コメント、いいね、通報ができるようになります。',
     'screen.login.google': 'Google アカウントでログイン',
@@ -326,6 +342,7 @@
 
     // Common errors
     'error.fetch': 'データを取得できませんでした。時間をおいてもう一度お試しください。',
+    'error.notices': 'お知らせを取得できませんでした。時間をおいてもう一度お試しください。',
     'error.validation': '入力内容に誤りがあります。各項目を確認してください。',
     'error.required': '{field}を入力してください。',
     'error.no-permission': 'このページを表示する権限がありません。',
@@ -338,6 +355,7 @@
     'empty.posts': 'まだ投稿はありません。',
     'empty.comments': 'まだコメントはありません。',
     'empty.events': 'この期間の天文現象はありません。',
+    'empty.notices': 'お知らせはありません。',
 
     // Common status
     'status.loading': '読み込み中…',

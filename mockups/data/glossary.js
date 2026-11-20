@@ -304,6 +304,10 @@
     e({ key: 'post.status.members-only', category: 'ui', policy: 'translation' }),
     e({ key: 'post.status.hidden', category: 'ui', policy: 'translation' }),
     e({ key: 'post.status.deleted', category: 'ui', policy: 'translation' }),
+    // Reply notices (task 8.1, 6.9 and 6.10): shown on the site only, never sent outside it
+    e({ key: 'notice.label', category: 'ui', policy: 'translation', note: { ja: 'サイトの中だけに表示するお知らせ（自分のコメントへの返信）。メールやプッシュ通知ではない', en: 'In-site notices only (replies to your comments); not email or push notifications.' } }),
+    e({ key: 'notice.unread', category: 'ui', policy: 'translation' }),
+    e({ key: 'notice.read', category: 'ui', policy: 'translation' }),
     // Moderation (ReportReason, ReportQueueState)
     e({ key: 'moderation.report', category: 'moderation', policy: 'translation' }),
     e({ key: 'moderation.reason.label', category: 'moderation', policy: 'translation' }),

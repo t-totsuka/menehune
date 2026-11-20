@@ -73,16 +73,16 @@ test('hifi not draft while wireframe not approved is a violation at the entry li
   const dir = fixture(({ read, write }) => {
     const src = read('data/screens.js');
     const next = src.replace(
-      "screen('settings', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),",
-      "{ ...screen('settings', 'member', GUEST_MEMBER), review: review({ status: 'in-review' }, { status: 'approved' }) },",
+      "screen('report', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),",
+      "{ ...screen('report', 'member', GUEST_MEMBER), review: review({ status: 'in-review' }, { status: 'approved' }) },",
     );
     assert.notEqual(next, src);
     write('data/screens.js', next);
   });
   try {
     const src = readFileSync(join(dir, 'data', 'screens.js'), 'utf8');
-    const { line } = assertViolation(run([dir]), 'data/screens.js', /settings.*hifi|hifi.*settings/);
-    assert.equal(line, lineOf(src, "screen('settings'"));
+    const { line } = assertViolation(run([dir]), 'data/screens.js', /report.*hifi|hifi.*report/);
+    assert.equal(line, lineOf(src, "screen('report'"));
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -92,8 +92,8 @@ test('hifi not draft with wireframe approved is allowed', () => {
   const dir = fixture(({ read, write }) => {
     const src = read('data/screens.js');
     const next = src.replace(
-      "screen('settings', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),",
-      "{ ...screen('settings', 'member', GUEST_MEMBER), review: review({ status: 'approved' }, { status: 'in-review' }) },",
+      "screen('report', 'member', GUEST_MEMBER, [], guestBandReview(PROMPT_KEPT)),",
+      "{ ...screen('report', 'member', GUEST_MEMBER), review: review({ status: 'approved' }, { status: 'in-review' }) },",
     );
     assert.notEqual(next, src);
     write('data/screens.js', next);

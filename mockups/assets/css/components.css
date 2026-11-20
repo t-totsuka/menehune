@@ -114,6 +114,17 @@ mk-status-badge {
   font-weight: var(--font-weight-medium);
 }
 
+/* Task 8.1 (6.9): the link to the notices sits in the bar, so it stays visible when the menu is
+   collapsed. The unread count is text ("お知らせ（未読 2 件）"); bold only adds to it. */
+.mk-header__notices {
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.mk-header__notices:not([data-unread="0"]) {
+  font-weight: var(--font-weight-bold);
+}
+
 /* Segmented switch (language / theme): the pressed option is filled and gets a check mark,
    so the selection does not depend on color alone. */
 .mk-switch {
@@ -156,6 +167,11 @@ mk-status-badge {
 @media (width < 600px) {
   .mk-header__bar {
     flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+
+  .mk-header__notices {
+    margin-inline-start: auto;
   }
 
   .mk-header__toggle {
@@ -1388,6 +1404,97 @@ button.mk-like[aria-pressed="true"] {
   .mk-comment__reply-to[data-scope="phone"] {
     display: block;
   }
+}
+
+/* ---- mk-notice-list (task 8.1; 6.10): reply notices. Unread and read are told apart by the
+   text label first; the thick start border and the bold summary only add to it. ---- */
+mk-notice-list {
+  display: block;
+  min-width: 0;
+}
+
+.mk-notice-list {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-notice {
+  display: grid;
+  gap: var(--space-2xs);
+  min-width: 0;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  overflow-wrap: anywhere;
+}
+
+.mk-notice[data-read="false"] {
+  border-inline-start: var(--border-width-focus) solid var(--color-border-strong);
+}
+
+.mk-notice p {
+  margin: 0;
+}
+
+.mk-notice__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+.mk-notice__state {
+  padding-inline: var(--space-xs);
+  border: var(--border-width-thin) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-notice[data-read="true"] .mk-notice__state {
+  border-style: dashed;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.mk-notice__at {
+  color: var(--color-text-muted);
+}
+
+.mk-notice[data-read="false"] .mk-notice__summary {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-notice__quote,
+.mk-notice__post {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-notice__label {
+  margin-inline-end: var(--space-xs);
+}
+
+.mk-notice-list__empty {
+  padding: var(--space-md);
+  border: var(--border-width-thin) dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.mk-notice-list__error {
+  padding: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-error);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-error);
 }
 
 /* ---- mk-precision-picker (task 4.6; 6.2, 7.1, 8.2): a fieldset radio group with descriptions ---- */

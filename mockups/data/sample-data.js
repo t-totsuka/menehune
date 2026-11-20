@@ -1,7 +1,8 @@
 // Fictional sample data (users, posts, comment trees, almanac values, astronomical events, star
 // chart, weather). Classic script that registers into window.MockSample.
 // Task 3.2 filled in the almanac and astronomical events; task 3.3 the users, posts, comments,
-// likes, reports, locations and weather; task 3.4 fills in the star chart.
+// likes, reports, locations and weather; task 3.4 fills in the star chart; task 8.1 adds the
+// reply notices.
 //
 // All almanac / astronomy values are illustrative approximations for the mockups and have NOT
 // been verified (design.md: SampleData "値の正確さは保証しない"). They are kept internally
@@ -295,7 +296,10 @@
       status: 'public', guestVisible: true,
       likes: { count: 9, likedByMe: true },
       comments: [
-        cm('c-106-1', 'u-hoshizora', '2026-11-16T10:02+09:00', '朝晩の冷え込みが増してきましたね。'),
+        cm('c-106-1', 'u-hoshizora', '2026-11-16T10:02+09:00', '朝晩の冷え込みが増してきましたね。', [
+          // task 8.1: a reply to my comment (a reply notice, 6.10)
+          cm('c-106-2', 'u-koyomi', '2026-11-16T10:40+09:00', '本当に。小雪のころから、夜空もいっそう澄んで見えますね。'),
+        ]),
       ],
     },
     {
@@ -385,6 +389,22 @@
     { targetId: 'p-108', targetType: 'post', reportCount: 3, reasons: ['spam', 'other'], reasonCounts: { spam: 2, other: 1 }, state: 'appealed' },
     { targetId: 'p-103', targetType: 'post', reportCount: 2, reasons: ['spam'], reasonCounts: { spam: 2 }, state: 'restored' },
     { targetId: 'c-120-03', targetType: 'comment', reportCount: 4, reasons: ['harassment', 'personal-info'], reasonCounts: { harassment: 3, 'personal-info': 1 }, state: 'removed' },
+  ];
+
+  /**
+   * Reply notices (task 8.1, 6.9 and 6.10), newest reply first. Each one follows the comment
+   * trees: someone else's live, direct reply (replyId) to a comment of the recipient (commentId);
+   * the replier and the datetime come from the reply. Every such reply to a comment of the member
+   * viewer has one notice; the deleted reply c-120-03 to my c-120-02 has none (its author and body
+   * are gone). Two are unread (the header count), one is read. The admin viewer has none (the
+   * header without a count and the empty list). Every post here has a post-detail scenario, so
+   * the notice's link opens the right post.
+   * @type {ReplyNotice[]}
+   */
+  const notices = [
+    { id: 'n-101-2', recipientId: 'u-hoshizora', postId: 'p-101', commentId: 'c-101-1', replyId: 'c-101-2', read: false },
+    { id: 'n-106-2', recipientId: 'u-hoshizora', postId: 'p-106', commentId: 'c-106-1', replyId: 'c-106-2', read: false },
+    { id: 'n-120-07', recipientId: 'u-hoshizora', postId: 'p-120', commentId: 'c-120-06', replyId: 'c-120-07', read: true },
   ];
 
   /** @type {Record<Exclude<AuthState, 'guest'>, string>} */
@@ -548,6 +568,7 @@
     events,
     posts,
     reports,
+    notices,
     starChart,
   });
 

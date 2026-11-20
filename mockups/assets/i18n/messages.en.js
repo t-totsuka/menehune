@@ -106,6 +106,18 @@
     'comment.tree-label': 'Comments',
     'comment.reply-to': 'Reply to {name}',
     'comment.reply-to-deleted': 'Reply to a deleted comment',
+    'notice.label': 'Notifications',
+    'notice.header-unread': 'Notifications ({count} unread)',
+    'notice.unread': 'Unread',
+    'notice.read': 'Read',
+    'notice.summary': '{name} replied to your comment',
+    'notice.my-comment': 'Your comment:',
+    'notice.reply': 'Reply:',
+    'notice.post': 'Post:',
+    'notice.post-title': "{name}'s post ({date})",
+    'notice.open': 'View the reply',
+    'notice.open-label': 'View the reply ({name}, {datetime})',
+    'notice.list-label': 'List of notifications',
     'report-link.post': 'Report this post',
     'report-link.comment': 'Report the comment by {name}',
 
@@ -210,6 +222,8 @@
     'screen.my-posts.icon-legend': 'What the icons mean',
     'screen.my-posts.icon-legend-note': 'Temporarily hidden and deleted posts are shown in words, not as icons.',
     'screen.my-posts.edit-label': 'Edit the post for {date}',
+    'screen.my-posts.notices-hint': 'When someone replies to one of your comments, you are notified here.',
+    'screen.my-posts.posts-heading': 'Your posts',
 
     // Screen content: settings and login (task 5.5)
     'screen.settings.login-required': 'Log in to change your settings.',
@@ -225,6 +239,8 @@
     'screen.settings.guest-visible': 'Whether people who are not logged in can see your posts',
     'screen.settings.guest-visible-yes': 'Also show my posts to people who are not logged in',
     'screen.settings.guest-visible-no': 'Show my posts to logged-in users only',
+    'screen.settings.reply-notices': 'Notify me of replies to my comments',
+    'screen.settings.reply-notices-hint': 'Replies to your comments appear in the header and under Notifications on My Posts. Nothing is sent outside the site, such as by email.',
     'screen.settings.mock-note': 'In this mockup, saving does not store your settings.',
     'screen.login.intro': 'Log in to write posts and comments, like posts and report problems.',
     'screen.login.google': 'Sign in with Google',
@@ -326,6 +342,7 @@
 
     // Common errors
     'error.fetch': "We couldn't load the data. Please try again later.",
+    'error.notices': "We couldn't load your notifications. Please try again later.",
     'error.validation': 'Some fields need your attention. Please check them and try again.',
     'error.required': '{field} is required.',
     'error.no-permission': "You don't have permission to view this page.",
@@ -338,6 +355,7 @@
     'empty.posts': 'No posts yet.',
     'empty.comments': 'No comments yet.',
     'empty.events': 'No astronomical events in this period.',
+    'empty.notices': 'No notifications.',
 
     // Common status
     'status.loading': 'Loading…',

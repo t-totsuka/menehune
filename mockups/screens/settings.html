@@ -83,6 +83,17 @@
         <mk-precision-picker value="municipality"></mk-precision-picker>
       </section>
 
+      <!-- Task 8.1 (6.11): whether to receive reply notices (in the header and on my-posts, never
+           outside the site). Checked by default; applied with the save button like the defaults. -->
+      <section class="l-stack" aria-labelledby="settings-notices">
+        <h2 id="settings-notices" data-i18n="notice.label">お知らせ</h2>
+        <div class="screen-check">
+          <input type="checkbox" id="settings-reply-notices" name="reply-notices" checked aria-describedby="settings-reply-notices-hint">
+          <label for="settings-reply-notices" data-i18n="screen.settings.reply-notices">コメントへの返信をお知らせで受け取る</label>
+          <p class="field-hint" id="settings-reply-notices-hint" data-i18n="screen.settings.reply-notices-hint">自分のコメントに返信がついたとき、ヘッダーと「自分の投稿」の画面のお知らせに表示します。メールなど、サイトの外には送りません。</p>
+        </div>
+      </section>
+
       <div class="l-stack">
         <p class="l-cluster">
           <button type="button" data-i18n="button.save">保存</button>

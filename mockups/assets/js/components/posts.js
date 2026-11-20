@@ -1,4 +1,4 @@
-// Post components: mk-post-card, mk-comment-tree, mk-like-button, mk-report-link
+// Post components: mk-post-card, mk-comment-tree, mk-like-button, mk-report-link, mk-notice-list
 // (design: Parts > プレゼンテーション部品; attributes *Attrs in types.d.ts).
 //
 // - mk-post-card (6.6) `post-id`, `variant` (list (default) / compact): target date (link to
@@ -26,6 +26,16 @@
 //   (mockup only; reset when post-id changes). Guests see the count only.
 // - mk-report-link (8.3) `target-id` (post or comment id): link to screens/report.html?target=ID.
 //   Guests see nothing.
+// - mk-notice-list (6.10, task 8.1) `user-id` (optional; omitted = the viewer
+//   SampleDataSet.viewerIds[auth], and guests get nothing): the user's ReplyNotice as an <ol>, one
+//   <li data-notice-id data-read> per notice in the sample's order (newest reply first): unread /
+//   read as text ([data-notice-state], notice.unread / notice.read; not colour alone) and the
+//   reply's datetime, who replied, an excerpt of my comment ([data-notice-comment]) and of the
+//   reply ([data-notice-reply]), the post (author and target date, [data-notice-post]) and a link
+//   to the reply: post-detail of that post (its postDetailScenarios scenario) at #post-comments,
+//   since comments have no anchors of their own (the gallery shows the same tree twice, so ids
+//   would repeat). Scenario `empty` (or no notice) shows empty.notices; `fetch-error` shows
+//   error.notices (role="alert").
 //
 // Like counts use like.count, and like.count-one for one like (English common.count has no
 // plural). Links point at mockups/screens/*.html resolved from this script's URL; a logged-in auth
@@ -87,21 +97,24 @@
   /** Excerpt lengths in characters (code points). */
   const EXCERPT_LIST = 80;
   const EXCERPT_COMPACT = 40;
+  const EXCERPT_NOTICE = 40;
 
   /**
    * @param {ScreenId} id
    * @param {MockStateSnapshot} state
    * @param {Readonly<Record<string, string>>} [params]
+   * @param {string} [hash] e.g. '#post-comments'
    * @returns {string}
    */
-  const screenHref = (id, state, params = {}) => {
+  const screenHref = (id, state, params = {}, hash = '') => {
     /** @type {URL} */
     let url;
     try {
       url = new URL(`../../../screens/${id}.html`, scriptSrc || window.location.href);
     } catch {
-      return `${id}.html`;
+      return `${id}.html${hash}`;
     }
+    url.hash = hash;
     for (const [name, value] of Object.entries(params)) url.searchParams.set(name, value);
     const registry = Array.isArray(window.MockScreens) ? window.MockScreens : [];
     const entry = registry.find((s) => s.id === id);
@@ -164,6 +177,19 @@
   const liveCommentCount = (nodes) =>
     nodes.reduce((n, node) => n + (node.deleted ? 0 : 1) + liveCommentCount(node.children), 0);
 
+  /**
+   * URL parameters that make post-detail show a post (it picks the post by scenario).
+   * @param {string} postId
+   * @returns {Record<string, string>}
+   */
+  const postDetailParams = (postId) => {
+    /** @type {Record<string, string>} */
+    const params = {};
+    const scenario = Object.entries(window.MockSample.postDetailScenarios).find(([, id]) => id === postId);
+    if (scenario && scenario[0] !== 'default') params['scenario'] = scenario[0];
+    return params;
+  };
+
   /** @param {number} count @returns {string} */
   const likeText = (count) => window.MockI18n.t(count === 1 ? 'like.count-one' : 'like.count', { count });
 
@@ -196,11 +222,7 @@
       if (metaAttr !== null && !icons) console.warn(`[mk-post-card] unknown meta="${metaAttr}"; using text badges`);
 
       const date = window.MockI18n.formatDate(post.targetDate, 'date-long');
-      /** @type {Record<string, string>} */
-      const params = {};
-      const scenarios = window.MockSample.postDetailScenarios;
-      const scenario = Object.entries(scenarios).find(([, postId]) => postId === post.id);
-      if (scenario && scenario[0] !== 'default') params['scenario'] = scenario[0];
+      const params = postDetailParams(post.id);
 
       /** @type {Record<string, string>} */
       const badgeAttrs = { status: post.status };
@@ -402,8 +424,74 @@
     }
   }
 
+  class NoticeList extends MockElement {
+    static observedAttributes = ['user-id'];
+
+    /**
+     * @param {ReplyNotice} notice
+     * @param {MockStateSnapshot} state
+     * @returns {HTMLElement}
+     */
+    item(notice, state) {
+      const post = findPost(notice.postId);
+      const mine = post ? findInTree(post.comments, notice.commentId) : undefined;
+      const reply = mine?.children.find((c) => c.id === notice.replyId);
+      if (!post || !mine || !reply) return this.el('li', null, this.missingSample(notice.id));
+      const name = userName(reply.authorId);
+      const at = window.MockI18n.formatDate(reply.at, 'datetime');
+      const date = window.MockI18n.formatDate(post.targetDate, 'date-long');
+      /** @param {MessageKey} labelKey @param {string} text @param {string} data */
+      const quote = (labelKey, text, data) => this.el('p', { class: 'mk-notice__quote', [data]: '' },
+        this.el('span', { class: 'mk-notice__label' }, this.t(labelKey)),
+        this.el('q', null, excerpt(text, EXCERPT_NOTICE)));
+      return this.el('li', { class: 'mk-notice', 'data-notice-id': notice.id, 'data-read': String(notice.read) },
+        this.el('p', { class: 'mk-notice__head' },
+          this.el('span', { class: 'mk-notice__state', 'data-notice-state': notice.read ? 'read' : 'unread' },
+            this.t(notice.read ? 'notice.read' : 'notice.unread')),
+          this.el('time', { class: 'mk-notice__at', datetime: reply.at }, at)),
+        this.el('p', { class: 'mk-notice__summary' }, this.t('notice.summary', { name })),
+        quote('notice.my-comment', mine.body, 'data-notice-comment'),
+        quote('notice.reply', reply.body, 'data-notice-reply'),
+        this.el('p', { class: 'mk-notice__post', 'data-notice-post': '' },
+          this.el('span', { class: 'mk-notice__label' }, this.t('notice.post')),
+          this.t('notice.post-title', { name: userName(post.authorId), date })),
+        this.el('p', { class: 'mk-notice__open' },
+          this.el('a', {
+            href: screenHref('post-detail', state, postDetailParams(post.id), '#post-comments'),
+            'aria-label': this.t('notice.open-label', { name, datetime: at }),
+          }, this.t('notice.open'))));
+    }
+
+    /** @param {MockStateSnapshot} state */
+    render(state) {
+      const attr = this.getAttribute('user-id');
+      const sample = this.sample();
+      const userId = attr ?? (state.auth === 'guest' ? undefined : sample.viewerIds[state.auth]);
+      if (userId === undefined) {
+        this.replaceChildren();
+        return;
+      }
+      if (findUser(userId) === undefined) {
+        this.replaceChildren(this.missingSample(userId));
+        return;
+      }
+      if (state.scenario === 'fetch-error') {
+        this.replaceChildren(this.el('p', { class: 'mk-notice-list__error', role: 'alert' }, this.t('error.notices')));
+        return;
+      }
+      const notices = state.scenario === 'empty' ? [] : sample.notices.filter((n) => n.recipientId === userId);
+      if (notices.length === 0) {
+        this.replaceChildren(this.el('p', { class: 'mk-notice-list__empty' }, this.t('empty.notices')));
+        return;
+      }
+      this.replaceChildren(this.el('ol', { class: 'mk-notice-list', 'aria-label': this.t('notice.list-label') },
+        ...notices.map((n) => this.item(n, state))));
+    }
+  }
+
   customElements.define('mk-post-card', PostCard);
   customElements.define('mk-comment-tree', CommentTree);
   customElements.define('mk-like-button', LikeButton);
   customElements.define('mk-report-link', ReportLink);
+  customElements.define('mk-notice-list', NoticeList);
 })();

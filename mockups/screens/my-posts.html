@@ -23,12 +23,21 @@
          target date newest first) as cards with the status icons; empty and fetch-error replace
          the list. Task 8.1 (wireframe review): one column, newest target date first, visibility
          and status as icons (mk-post-card meta="icons") explained by the legend below, and the
-         number of comments next to them (comment-count). -->
+         number of comments next to them (comment-count). Task 8.1 (6.10): the reply notices
+         (mk-notice-list) come first, in the section #notices that the header links to; the list
+         follows the scenario (empty: no notices, fetch-error: the notices error). -->
     <div data-when-auth="guest" data-guest-prompt>
       <p data-i18n="screen.my-posts.login-required">自分の投稿の一覧を見るには、ログインしてください。</p>
     </div>
 
     <div class="l-stack" data-when-auth="member" data-member-content>
+      <section class="l-stack" id="notices" aria-labelledby="my-posts-notices-heading">
+        <h2 id="my-posts-notices-heading" data-i18n="notice.label">お知らせ</h2>
+        <p class="field-hint" data-i18n="screen.my-posts.notices-hint">自分のコメントに返信がつくと、ここにお知らせします。</p>
+        <mk-notice-list></mk-notice-list>
+      </section>
+
+      <h2 id="my-posts-posts-heading" data-i18n="screen.my-posts.posts-heading">投稿の一覧</h2>
       <p data-when-scenario="default empty">
         <a class="button" href="post-edit.html?auth=member" data-i18n="screen.my-posts.new-post">新しく投稿する</a>
       </p>

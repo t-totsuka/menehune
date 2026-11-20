@@ -317,6 +317,7 @@ const MY_POSTS_NOTES = [
   '新しい日付が上に来るように',
   '公開範囲などはアイコン化する（マウスホバーで説明が出ればよい）',
   '自分の投稿で投稿にぶら下がるコメントが何件あるか出してください',
+  'コメントにコメントがついたときに知る機能が欲しい',
 ];
 
 test('my-posts: the 2026-11-19 review notes are kept and each outcome follows its note', () => {
@@ -334,6 +335,28 @@ test('my-posts: the 2026-11-19 review notes are kept and each outcome follows it
   const countAt = notes.indexOf(MY_POSTS_NOTES[3]);
   assert.ok(countAt > notes.indexOf(MY_POSTS_NOTES[2]), 'the comment count note follows the earlier notes');
   assert.match(notes[countAt + 1] ?? '', /削除/, 'the outcome says how deleted comments count');
+  // the reply notices (requirements 6.9-6.11, added for this note) come last; the outcome names
+  // the requirements and the header change, which applies to every screen
+  const noticeAt = notes.indexOf(MY_POSTS_NOTES[4]);
+  assert.ok(noticeAt > countAt, 'the reply notice note follows the comment count note');
+  assert.equal(notes.length, noticeAt + 2, 'the reply notice outcome is the last note');
+  const outcome = notes[noticeAt + 1] ?? '';
+  for (const req of ['6.9', '6.10', '6.11']) assert.ok(outcome.includes(req), `the outcome names ${req}`);
+  assert.match(outcome, /ヘッダー/, 'the outcome mentions the header (every screen)');
+});
+
+// Task 8.1 (settings, 2026-11-19): the reply notice request recorded on my-posts also adds the
+// setting of 6.11 here; the note in the user's words and its outcome follow the guest band entries.
+test('settings: the reply notice setting (6.11) is recorded after the guest band entries', () => {
+  const wf = byId().get('settings').review.wireframe;
+  assert.equal(wf.status, 'in-review');
+  assert.equal(wf.reviewedAt, '2026-11-19');
+  const notes = [...(wf.notes ?? [])];
+  assert.equal(notes.indexOf(GUEST_BAND_NOTE), 0, 'the guest band note stays first');
+  assert.match(notes[1] ?? '', /^反映（8\.1）：/, 'the guest band outcome stays second');
+  assert.equal(notes[2], MY_POSTS_NOTES[4], 'the request in the user\'s words');
+  assert.match(notes[3] ?? '', /^反映（8\.1）：.*6\.11/, 'its outcome names 6.11');
+  assert.equal(notes.length, 4);
 });
 
 // Task 8.1 (admin, 2026-11-19): two notes in the user's words, each followed right after by its

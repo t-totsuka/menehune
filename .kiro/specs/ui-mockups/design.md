@@ -264,6 +264,9 @@ sequenceDiagram
 | 6.5, 6.8 | 未ログインでの非公開投稿、閲覧のみの表示 | ShellComponents（mk-guest-notice）、MockState | `AuthState`、`ScenarioId`（`private-blocked`） | 状態解決 |
 | 6.6 | 自分の投稿一覧と状態 | my-posts.html、PostComponents（mk-post-card）、ShellComponents（mk-status-badge） | `PostStatus` | — |
 | 6.7 | いいねの件数と状態 | PostComponents（mk-like-button） | `LikeState` | — |
+| 6.9 | ログイン中のヘッダーに未読のお知らせの件数と、お知らせへの導線 | ShellComponents（mk-site-header）、SampleData | `ReplyNotice`、`AuthState` | 状態解決 |
+| 6.10 | 自分の投稿一覧のお知らせの一覧と空状態 | my-posts.html、PostComponents（mk-notice-list）、SampleData | `ReplyNotice`、`ScenarioId`（`empty`、`fetch-error`） | 状態解決 |
+| 6.11 | 返信のお知らせを受け取るかの設定 | settings.html | — | — |
 | 7.1 | 公開精度 5 段階の選択 | LocationComponents（mk-precision-picker） | `LocationPrecision` | — |
 | 7.2, 7.3, 7.4, 7.5, 7.6 | 地域名と地図、出没、天気、取得失敗、位置なし | LocationComponents（mk-location-panel、mk-map-sample、mk-weather）、AlmanacComponents（mk-rise-set） | `PostLocation`、`WeatherSnapshot` | — |
 | 8.1 | ログイン画面 | login.html | — | — |
@@ -305,10 +308,10 @@ sequenceDiagram
 | I18nRuntime | Core | 文言の適用と日付の書式 | 11.1, 11.2, 11.7 | MessageDictionaries (P0), MockState (P0) | Service |
 | ReviewShell | Review | ツールバー、戻り導線、段階バナー、条件表示 | 1.3, 2.3, 3.3〜3.5 | MockState (P0), ScreenRegistry (P0) | Service |
 | MockElement 基底 | Parts | 部品の共通の振る舞い | 2.4 | MockState (P0), I18nRuntime (P0) | Service |
-| ShellComponents | Parts | ヘッダー、フッター、閲覧のみの案内、状態バッジ、管理帯 | 3.2, 3.6, 6.5, 6.8, 8.4, 9.4, 11.2, 13.3 | MockElement (P0) | — |
+| ShellComponents | Parts | ヘッダー、フッター、閲覧のみの案内、状態バッジ、管理帯 | 3.2, 3.6, 6.5, 6.8, 6.9, 8.4, 9.4, 11.2, 13.3 | MockElement (P0) | — |
 | AlmanacComponents | Parts | カレンダー、暦の要約、出没、天文現象の一覧 | 4.1〜4.7, 7.3, 12.3, 13.3 | MockElement (P0), SampleData (P0) | — |
 | SkyComponents | Parts | 全天図のサンプル | 5.1〜5.5, 13.4 | MockElement (P0), SampleData (P0) | — |
-| PostComponents | Parts | 投稿カード、コメントツリー、いいね、通報 | 6.1, 6.4, 6.6, 6.7, 8.3, 8.4, 12.4 | MockElement (P0), SampleData (P0) | — |
+| PostComponents | Parts | 投稿カード、コメントツリー、いいね、通報、返信のお知らせ | 6.1, 6.4, 6.6, 6.7, 6.10, 8.3, 8.4, 12.4 | MockElement (P0), SampleData (P0) | — |
 | LocationComponents | Parts | 位置パネル、地図、天気、精度選択 | 6.2, 7.1〜7.6, 8.2, 13.4 | MockElement (P0), SampleData (P0) | — |
 | Screens | Pages | 15 画面のマークアップ | 3.1〜3.6, 4〜8 全般 | Parts (P0), ReviewShell (P0) | — |
 | CatalogPages | Pages | 一覧、幅プレビュー、部品・トークン・用語集・a11y のページ | 1.5, 2.2, 2.4, 10.5, 11.3, 11.4, 11.7, 12.1, 13.4 | ScreenRegistry (P0), GlossaryMeta (P0) | — |
@@ -366,7 +369,7 @@ type ScreenRegistry = readonly ScreenEntry[];
 ```
 
 **Implementation Notes**
-- 画面ごとの主なシナリオ（初期値）：calendar-month は `provisional-holiday`。astro-events と my-posts は `empty`、`fetch-error`。post-detail は `private-blocked`、`hidden-own`、`hidden-other`、`deleted-comment`、`no-location`、`weather-failed`。post-edit は `validation-error`。admin は `empty`
+- 画面ごとの主なシナリオ（初期値）：calendar-month は `provisional-holiday`。astro-events と my-posts は `empty`、`fetch-error`（my-posts では、投稿の一覧とお知らせの両方が空状態・取得エラーになる。8.1）。post-detail は `private-blocked`、`hidden-own`、`hidden-other`、`deleted-comment`、`no-location`、`weather-failed`。post-edit は `validation-error`。admin は `empty`
 - 検証：`check-registry.mjs` が ID の網羅、ファイルの存在、不変条件、`scenarios[0] === 'default'` を検査する
 
 #### MessageDictionaries と GlossaryMeta
@@ -461,6 +464,9 @@ interface SamplePost {
   readonly comments: readonly CommentNode[];
 }
 type ReportReason = 'spam' | 'harassment' | 'inappropriate' | 'personal-info' | 'other';
+// 返信のお知らせ（6.9、6.10、8.1）。commentId は recipientId のコメント、replyId はそれへのほかの人の直接の返信（削除済みでない）。
+// 返信した人と日時は返信のコメントから読む。削除済みの返信にはお知らせを出さない
+interface ReplyNotice { readonly id: string; readonly recipientId: string; readonly postId: string; readonly commentId: string; readonly replyId: string; readonly read: boolean; }
 interface ReportQueueItem { readonly targetId: string; readonly targetType: 'post' | 'comment'; readonly reportCount: number; readonly reasons: readonly ReportReason[]; readonly reasonCounts: Readonly<Partial<Record<ReportReason, number>>>; readonly state: 'open' | 'auto-hidden' | 'hidden-by-admin' | 'appealed' | 'restored' | 'removed'; }
 
 interface StarChartSample {
@@ -483,6 +489,7 @@ interface SampleDataSet {
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];
+  readonly notices: readonly ReplyNotice[];      // 返信のお知らせ（返信の新しい順。member の自分に未読 2 件・既読 1 件、admin は 0 件、8.1）
   readonly viewerIds: Readonly<Record<Exclude<AuthState, 'guest'>, string>>;   // ログイン時の「自分」（likedByMe、hidden-own、自分の投稿一覧の判定に使う）
   readonly postDetailScenarios: Readonly<Record<PostDetailScenarioId, string>>; // 投稿詳細のシナリオごとに表示する投稿 ID
   readonly starChart: StarChartSample;
@@ -646,7 +653,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 
 | 要素 | ファイル | 主な属性 | 要件と表示の要点 |
 |------|----------|----------|------------------|
-| mk-site-header | shell.js | `current` | ロゴ、ナビ（カレンダー、天文現象、星図、マイ投稿）、言語切替、テーマ切替、ログイン状態の表示（3.2、9.4、11.2）。スマートフォン幅ではメニューを折りたたむ |
+| mk-site-header | shell.js | `current` | ロゴ、ナビ（カレンダー、天文現象、星図、マイ投稿）、言語切替、テーマ切替、ログイン状態の表示（3.2、9.4、11.2）。スマートフォン幅ではメニューを折りたたむ。ログイン中は、ロゴの横（メニューを折りたたんでも見える位置）に、自分の未読の `ReplyNotice` の件数を文字で示すお知らせへのリンク（「お知らせ（未読 2 件）」、自分の投稿の `#notices`）を出す。未読 0 件は件数なしの「お知らせ」。シナリオには追従しない。未ログインでは出さない（6.9、8.1） |
 | mk-site-footer | shell.js | — | 出典表示とプライバシーポリシーへのリンク |
 | mk-guest-notice | shell.js | `variant`、`band` | 閲覧のみであることと、ログインへの導線（6.8）。非公開投稿を開いたときの案内（6.5）。`band` では、ヘッダーの直下に置く全幅の帯（名前付きの region）として描く（全画面共通の指摘、8.1） |
 | mk-status-badge | shell.js | `status` | 公開中、ログインユーザのみ、一時非表示、削除済みを、色と記号と文字で表示する（6.6、13.3） |
@@ -661,6 +668,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 | mk-comment-tree | posts.js | `post-id` | 入れ子のコメント。字下げの上限は PC で 6 段、スマートフォンで 3 段。それより深いものは字下げせず、「↳ ○○さんへの返信」と表示する。削除済みは本文の代わりに「このコメントは削除されました」と出し、子は残す（6.1、6.4、12.4） |
 | mk-like-button | posts.js | `post-id` | 件数と、いいね済みかの状態。guest では件数のみ（6.7、6.8） |
 | mk-report-link | posts.js | `target-id` | 通報画面への導線。guest では表示しない（8.3） |
+| mk-notice-list | posts.js | `user-id` | 返信のお知らせの一覧（6.10、8.1）。`user-id` を省くとログイン中の自分（guest では何も出さない）。お知らせごとに、未読・既読の文字（色だけに頼らない）、返信の日時、返信した人、自分のコメントと返信の抜粋、投稿（投稿者と対象日）、返信への導線（その投稿の投稿詳細のシナリオと `#post-comments`。コメントごとのアンカーはない）。シナリオの `empty`（またはお知らせなし）で空状態、`fetch-error` で取得エラー |
 | mk-precision-picker | location.js | `value`、`collapsed` | 5 段階のラジオグループ。各段階に、他の人からの見え方の説明を添える（6.2、7.1、8.2）。`collapsed` では閉じたアコーディオンにし、見出しに今の選択を出す（投稿作成・編集用、8.1） |
 | mk-location-panel | location.js | `post-id` | 地域名、地図、出没、天気をまとめる。`no-location` では出さない（7.2〜7.6） |
 | mk-map-sample | location.js | `precision`、`region`、`subject` | インライン SVG の模式地図。exact はピン、fuzzed-1km は半径 1km の円、municipality・prefecture・country は範囲の塗りとズームの違いで示す（7.2、13.4）。`subject="observer"` では、星図の観測地点の地図として、見える説明（「観測地点：{地域名}」）と代替テキスト（先頭に「星図の観測地点を示す地図。」）を出す（星図の画面用、8.1） |

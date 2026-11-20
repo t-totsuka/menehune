@@ -190,6 +190,20 @@ interface ReportQueueItem {
   readonly reasonCounts: Readonly<Partial<Record<ReportReason, number>>>;
   readonly state: ReportQueueState;
 }
+/**
+ * A reply notice (task 8.1, 6.9 and 6.10): someone replied to a comment of `recipientId`.
+ * Derived from the comment trees: `commentId` is the recipient's comment in post `postId` and
+ * `replyId` a direct, not deleted reply to it by another user; the replier and the datetime are
+ * read from that reply. `read` tells unread from read. A deleted reply gives no notice.
+ */
+interface ReplyNotice {
+  readonly id: string;
+  readonly recipientId: string;
+  readonly postId: string;
+  readonly commentId: string;
+  readonly replyId: string;
+  readonly read: boolean;
+}
 
 interface StarChartStar { readonly az: number; readonly alt: number; readonly mag: number; readonly nameKey?: MessageKey; }
 interface StarChartLabel { readonly az: number; readonly alt: number; readonly nameKey: MessageKey; }
@@ -230,6 +244,8 @@ interface SampleDataSet {
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];
+  /** Reply notices, newest reply first (task 8.1, 6.9 and 6.10); the admin viewer has none */
+  readonly notices: readonly ReplyNotice[];
   readonly starChart: StarChartSample;
 }
 
@@ -348,6 +364,10 @@ interface DescribableElement {
 /** HTML boolean attribute: the attribute being present (any value, usually '') means true. */
 type BooleanAttr = string;
 
+/**
+ * While logged in, the header bar also links to the notices of my-posts (#notices) with the number
+ * of unread ReplyNotice of the viewer as text (task 8.1, 6.9); no attribute is needed
+ */
 interface SiteHeaderAttrs { readonly current?: 'calendar' | 'astro-events' | 'star-chart' | 'my-posts' | 'settings' | 'admin'; }
 type SiteFooterAttrs = Readonly<Record<string, never>>;
 /** `band` (boolean, task 8.1) renders the full-width band placed right after mk-site-header on every screen but login */
@@ -395,6 +415,12 @@ interface PostCardAttrs {
 interface CommentTreeAttrs { readonly 'post-id': string; }
 interface LikeButtonAttrs { readonly 'post-id': string; }
 interface ReportLinkAttrs { readonly 'target-id': string; }
+/**
+ * Task 8.1 (6.10): the reply notices of `user-id` (omitted: the viewer, SampleDataSet.viewerIds[auth];
+ * guests without `user-id` get nothing). Follows the scenario: `empty` shows the empty state,
+ * `fetch-error` the notices error
+ */
+interface NoticeListAttrs { readonly 'user-id'?: string; }
 
 /** `collapsed` (boolean, task 8.1) folds the radio group into a closed accordion whose summary shows the current choice */
 interface PrecisionPickerAttrs { readonly value?: LocationPrecision; readonly collapsed?: ''; }
@@ -423,6 +449,7 @@ interface MockElementAttrsMap {
   'mk-comment-tree': CommentTreeAttrs;
   'mk-like-button': LikeButtonAttrs;
   'mk-report-link': ReportLinkAttrs;
+  'mk-notice-list': NoticeListAttrs;
   'mk-precision-picker': PrecisionPickerAttrs;
   'mk-location-panel': LocationPanelAttrs;
   'mk-map-sample': MapSampleAttrs;
