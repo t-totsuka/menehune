@@ -70,14 +70,12 @@
 //
 // Days are looked up by date in SampleDataSet.almanac (its first row is the leap-month example
 // 2025-07-25, so the calendar filters by month); events by AlmanacDay.eventIds.
-// Day-detail links point at mockups/screens/day-detail.html?date=YYYY-MM-DD resolved from this
-// script's URL; a logged-in auth state is carried over when day-detail allows it.
+// Day-detail links point at mockups/screens/day-detail.html?date=YYYY-MM-DD, built with
+// MockElement#screenHref (base.js; a logged-in auth state is carried over when day-detail allows
+// it). Posts are looked up with MockElement#findPost.
 //
 // Preconditions: base.js (window.MockElement) and i18n.js are loaded first.
 (function () {
-  const scriptEl = document.currentScript;
-  const scriptSrc = scriptEl instanceof HTMLScriptElement ? scriptEl.src : '';
-
   if (typeof window.MockElement !== 'function') {
     console.error('[almanac.js] window.MockElement is missing; load components/base.js first');
     return;
@@ -241,24 +239,6 @@
     return `${String(Math.floor(index / 12)).padStart(4, '0')}-${pad2((index % 12) + 1)}`;
   };
 
-  /** @param {IsoDate} date @param {MockStateSnapshot} state @returns {string} */
-  const dayDetailHref = (date, state) => {
-    /** @type {URL} */
-    let url;
-    try {
-      url = new URL('../../../screens/day-detail.html', scriptSrc || window.location.href);
-    } catch {
-      return `day-detail.html?date=${date}`;
-    }
-    url.searchParams.set('date', date);
-    const registry = Array.isArray(window.MockScreens) ? window.MockScreens : [];
-    const entry = registry.find((s) => s.id === 'day-detail');
-    if (state.auth !== 'guest' && entry !== undefined && entry.authStates.includes(state.auth)) {
-      url.searchParams.set('auth', state.auth);
-    }
-    return url.href;
-  };
-
   /** @param {IsoDate} date @returns {AlmanacDay | undefined} */
   const findDay = (date) => window.MockSample.almanac.find((d) => d.date === date);
 
@@ -317,7 +297,7 @@
     if (day.moonPhaseKey) parts.push(t(day.moonPhaseKey));
     parts.push(moonAgeText(day));
     for (const mark of marksOf(day)) parts.push(mark.text);
-    return parts.join(state.lang === 'ja' ? '、' : ', ');
+    return parts.join(t('common.list-separator'));
   };
 
   class DayCell extends MockElement {
@@ -383,7 +363,7 @@
       const head = this.el('div', { class: 'mk-day-cell__head' },
         this.el('a', {
           class: 'mk-day-cell__date',
-          href: dayDetailHref(day.date, state),
+          href: this.screenHref('day-detail', state, { date: day.date }),
           'aria-label': window.MockI18n.formatDate(day.date, 'date-long'),
           'data-mk-focus': `date-${day.date}`,
         },
@@ -625,7 +605,7 @@
         const attrs = { class: 'mk-day-cell', 'data-weekday': WEEKDAYS[weekdayOf(month.y, month.m, d)] ?? 'sun', 'data-no-sample-day': '' };
         if (compact) {
           const label = [window.MockI18n.formatDate(date, 'date-long'), this.t('calendar.no-sample-day')]
-            .join(state.lang === 'ja' ? '、' : ', ');
+            .join(this.t('common.list-separator'));
           return this.el('span', { ...attrs, 'data-compact': '', role: 'img', 'aria-label': label },
             this.el('span', { class: 'mk-day-cell__num' }, String(d)));
         }
@@ -722,7 +702,7 @@
       const title = this.el('h3', { class: 'mk-calendar__summary-title' }, window.MockI18n.formatDate(selected, 'date-long'));
       if (hasSample(selected)) {
         layout.summary.replaceChildren(title, dayCellElement(selected, false),
-          this.el('a', { class: 'mk-calendar__detail-link', href: dayDetailHref(selected, state) }, this.t('calendar.open-day-detail')));
+          this.el('a', { class: 'mk-calendar__detail-link', href: this.screenHref('day-detail', state, { date: selected }) }, this.t('calendar.open-day-detail')));
       } else {
         layout.summary.replaceChildren(title, this.el('p', null, this.t('calendar.no-sample-day')));
       }
@@ -787,7 +767,7 @@
       const moon = [];
       if (day.moonPhaseKey) {
         moon.push(phaseMark(day.moonPhaseKey, day.moonAge, { 'aria-hidden': 'true' }),
-          ' ', this.t(day.moonPhaseKey), state.lang === 'ja' ? '・' : ', ');
+          ' ', this.t(day.moonPhaseKey), this.t('almanac.moon-separator'));
       } else if (!brief) {
         // Day detail (task 8.3): a decorative moon icon of the age (the brief variant has the figure).
         moon.push(moonIcon(day.moonAge, 'mk-moon-icon'));
@@ -816,7 +796,7 @@
           addOrNone('kou', 'kou.label', day.kouKey ? [this.t(day.kouKey)] : null);
         }
         addOrNone('zassetsu', 'zassetsu.label', day.zassetsuKeys.length > 0
-          ? [day.zassetsuKeys.map((key) => this.t(key)).join(state.lang === 'ja' ? '、' : ', ')]
+          ? [day.zassetsuKeys.map((key) => this.t(key)).join(this.t('common.list-separator'))]
           : null);
         addOrNone('holiday', 'almanac.holiday', day.holiday ? holidayNodes(day.holiday, this) : null);
         const events = day.eventIds
@@ -957,7 +937,7 @@
       const items = RISE_SET_ITEMS.map(({ item, labelKey }) => {
         const at = riseSet[item];
         return `${this.t(labelKey)} ${at === undefined ? this.t('almanac.riseset-none') : window.MockI18n.formatDate(at, 'time')}`;
-      }).join(state.lang === 'ja' ? '、' : ', ');
+      }).join(this.t('common.list-separator'));
       const drawing = svg('svg', {
         class: 'mk-rise-set-chart__svg',
         viewBox: `0 0 ${width} ${height}`,
@@ -973,7 +953,7 @@
       /** @type {RiseSet} */
       let riseSet;
       if (postId !== null) {
-        const post = this.sample().posts.find((p) => p.id === postId);
+        const post = this.findPost(postId);
         if (!post) {
           this.replaceChildren(this.missingSample(postId));
           return;

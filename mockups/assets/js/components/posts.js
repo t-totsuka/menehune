@@ -41,18 +41,16 @@
 //   an mk-pager (label pager.notices-label) below the list; the page is kept across re-renders
 //   (clamped) and goes back to 1 when the scenario changes. Without it every notice is listed.
 //
-// Posts are looked up by id in SampleDataSet.posts and then in SampleDataSet.paging.posts (the
-// extra own posts of the scenario many-items; only my-posts lists them).
+// Posts are looked up by id with MockElement#findPost (base.js): SampleDataSet.posts and then
+// SampleDataSet.paging.posts (the extra own posts of the scenario many-items; only my-posts lists them).
 //
 // Like counts use like.count, and like.count-one for one like (English common.count has no
-// plural). Links point at mockups/screens/*.html resolved from this script's URL; a logged-in auth
-// state is carried over when the target screen allows it.
+// plural). Links come from MockElement#screenHref (base.js): mockups/screens/*.html, with a
+// logged-in auth state carried over when the target screen allows it.
 //
-// Preconditions: base.js (window.MockElement), shell.js (mk-status-badge) and i18n.js are loaded first.
+// Preconditions: base.js (window.MockElement), paging.js (window.MockPaging), shell.js
+// (mk-status-badge, mk-pager) and i18n.js are loaded first.
 (function () {
-  const scriptEl = document.currentScript;
-  const scriptSrc = scriptEl instanceof HTMLScriptElement ? scriptEl.src : '';
-
   if (typeof window.MockElement !== 'function') {
     console.error('[posts.js] window.MockElement is missing; load components/base.js first');
     return;
@@ -107,31 +105,6 @@
   const EXCERPT_NOTICE = 40;
 
   /**
-   * @param {ScreenId} id
-   * @param {MockStateSnapshot} state
-   * @param {Readonly<Record<string, string>>} [params]
-   * @param {string} [hash] e.g. '#post-comments'
-   * @returns {string}
-   */
-  const screenHref = (id, state, params = {}, hash = '') => {
-    /** @type {URL} */
-    let url;
-    try {
-      url = new URL(`../../../screens/${id}.html`, scriptSrc || window.location.href);
-    } catch {
-      return `${id}.html${hash}`;
-    }
-    url.hash = hash;
-    for (const [name, value] of Object.entries(params)) url.searchParams.set(name, value);
-    const registry = Array.isArray(window.MockScreens) ? window.MockScreens : [];
-    const entry = registry.find((s) => s.id === id);
-    if (state.auth !== 'guest' && entry !== undefined && entry.authStates.includes(state.auth)) {
-      url.searchParams.set('auth', state.auth);
-    }
-    return url.href;
-  };
-
-  /**
    * A child mk-* element (custom element names are not in HTMLElementTagNameMap).
    * @param {MockElementName} name
    * @param {Readonly<Record<string, string>>} attrs
@@ -142,10 +115,6 @@
     for (const [attr, value] of Object.entries(attrs)) node.setAttribute(attr, value);
     return node;
   };
-
-  /** @param {string} id @returns {SamplePost | undefined} */
-  const findPost = (id) => window.MockSample.posts.find((p) => p.id === id)
-    ?? window.MockSample.paging.posts.find((p) => p.id === id);
 
   /** @param {string} id @returns {SampleUser | undefined} */
   const findUser = (id) => window.MockSample.users.find((u) => u.id === id);
@@ -214,7 +183,7 @@
     /** @param {MockStateSnapshot} state */
     render(state) {
       const id = this.getAttribute('post-id') ?? '';
-      const post = findPost(id);
+      const post = this.findPost(id);
       if (!post) {
         this.replaceChildren(this.missingSample(id));
         return;
@@ -267,7 +236,7 @@
         this.el('div', { class: 'mk-post-card__head' },
           this.el('p', { class: 'mk-post-card__date' },
             this.el('span', { class: 'mk-post-card__date-label' }, this.t('post-card.target-date')),
-            this.el('a', { class: 'mk-post-card__link', href: screenHref('post-detail', state, params) },
+            this.el('a', { class: 'mk-post-card__link', href: this.screenHref('post-detail', state, params) },
               this.el('time', { datetime: post.targetDate }, date))),
           meta),
         this.el('p', { class: 'mk-post-card__excerpt' },
@@ -343,7 +312,7 @@
     /** @param {MockStateSnapshot} state */
     render(state) {
       const id = this.getAttribute('post-id') ?? '';
-      const post = findPost(id);
+      const post = this.findPost(id);
       if (!post) {
         this.replaceChildren(this.missingSample(id));
         return;
@@ -368,7 +337,7 @@
     /** @param {MockStateSnapshot} state */
     render(state) {
       const id = this.getAttribute('post-id') ?? '';
-      const post = findPost(id);
+      const post = this.findPost(id);
       if (!post) {
         this.local = null;
         this.replaceChildren(this.missingSample(id));
@@ -408,7 +377,7 @@
     /** @param {MockStateSnapshot} state */
     render(state) {
       const id = this.getAttribute('target-id') ?? '';
-      const post = findPost(id);
+      const post = this.findPost(id);
       const comment = post ? undefined : findComment(id);
       if (!post && !comment) {
         this.replaceChildren(this.missingSample(id));
@@ -424,7 +393,7 @@
         : this.t('report-link.post');
       this.replaceChildren(this.el('a', {
         class: 'mk-report-link',
-        href: screenHref('report', state, { target: id }),
+        href: this.screenHref('report', state, { target: id }),
         'aria-label': label,
       },
       this.el('span', { class: 'mk-report-link__symbol', 'aria-hidden': 'true' }, '⚑'),
@@ -454,7 +423,7 @@
      * @returns {HTMLElement}
      */
     item(notice, state) {
-      const post = findPost(notice.postId);
+      const post = this.findPost(notice.postId);
       const mine = post ? findInTree(post.comments, notice.commentId) : undefined;
       const reply = mine?.children.find((c) => c.id === notice.replyId);
       if (!post || !mine || !reply) return this.el('li', null, this.missingSample(notice.id));
@@ -478,7 +447,7 @@
           this.t('notice.post-title', { name: userName(post.authorId), date })),
         this.el('p', { class: 'mk-notice__open' },
           this.el('a', {
-            href: screenHref('post-detail', state, postDetailParams(post.id), '#post-comments'),
+            href: this.screenHref('post-detail', state, postDetailParams(post.id), '#post-comments'),
             'aria-label': this.t('notice.open-label', { name, datetime: at }),
           }, this.t('notice.open'))));
     }

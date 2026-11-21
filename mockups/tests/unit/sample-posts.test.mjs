@@ -235,6 +235,24 @@ test('reports: per-reason counts cover exactly the reasons, most frequent first,
   assert.ok(reports.some((r) => r.reasons.some((reason) => r.reasonCounts[reason] >= 2)), 'a reason reported more than once');
 });
 
+// Post-validation cleanup: the appeal texts the admin screen shows live in the sample data (they
+// were a Japanese constant in the page script). Like post bodies, they are text the poster wrote,
+// so they stay in one language (Japanese) in both display languages.
+test('appeals: one appeal text per appealed report, by the target post\'s author', () => {
+  const appeals = sample.appeals;
+  assert.ok(Array.isArray(appeals) && Object.isFrozen(appeals), 'MockSample.appeals is a frozen array');
+  const appealed = reports.filter((r) => r.state === 'appealed').map((r) => r.targetId).sort();
+  assert.deepEqual(appeals.map((a) => a.targetId).sort(), appealed, 'exactly the appealed reports');
+  for (const a of appeals) {
+    assert.ok(typeof a.body === 'string' && a.body.trim() !== '', `${a.targetId}: body`);
+    const post = postById.get(a.targetId);
+    assert.ok(post, `${a.targetId}: a post`);
+    assert.equal(a.authorId, post.authorId, `${a.targetId}: the poster appeals`);
+    assert.match(a.at, ISO_OFFSET, `${a.targetId}: at`);
+    assert.ok(a.at >= post.postedAt, `${a.targetId}: after the post`);
+  }
+});
+
 test('every MessageKey used by posts and reports exists in both dictionaries', () => {
   const keys = [
     ...posts.flatMap((p) => (p.weather ? [p.weather.conditionKey] : [])),

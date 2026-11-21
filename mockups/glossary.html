@@ -110,6 +110,7 @@
   <script src="assets/i18n/messages.ja.js"></script>
   <script src="assets/i18n/messages.en.js"></script>
   <script src="assets/js/mock-state.js"></script>
+  <script src="assets/js/paging.js"></script>
   <script src="assets/js/i18n.js"></script>
   <script src="assets/js/components/base.js"></script>
   <script src="assets/js/components/shell.js"></script>
@@ -192,10 +193,9 @@
       });
 
       // ---- date / time / weekday formats ----
-      // MockI18n.formatDate formats in the current page language. To show both languages side by
-      // side, the examples are produced while this script runs (before DOMContentLoaded, so only
-      // I18nRuntime listens to 'mock:change' yet): one mock:change per language, then one with the
-      // real MockState snapshot so the runtime goes back to the page language.
+      // Both languages side by side: MockI18n.formatDate(value, style, lang) formats in the given
+      // language without touching the page language (no mock:change from this page; every state
+      // change goes through MockState.update).
       var FORMATS = [
         ['date-long', '2026-11-16', '日付（年・曜日付き）'],
         ['date-short', '2026-11-16', '日付（短い形）'],
@@ -212,17 +212,13 @@
       function formatBoth(list) {
         var out = { ja: [], en: [] };
         var i18n = window.MockI18n;
-        var state = window.MockState;
-        if (!i18n || !state) {
-          console.warn('[glossary] MockI18n or MockState is missing; no format examples');
+        if (!i18n) {
+          console.warn('[glossary] MockI18n is missing; no format examples');
           return out;
         }
-        var snapshot = state.get();
         LANGS.forEach(function (lang) {
-          document.dispatchEvent(new CustomEvent('mock:change', { detail: Object.assign({}, snapshot, { lang: lang }) }));
-          out[lang] = list.map(function (r) { return i18n.formatDate(r.value, r.style); });
+          out[lang] = list.map(function (r) { return i18n.formatDate(r.value, r.style, lang); });
         });
-        document.dispatchEvent(new CustomEvent('mock:change', { detail: state.get() }));
         return out;
       }
       var formatted = formatBoth(requests);

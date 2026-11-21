@@ -288,7 +288,7 @@
     describe(state) {
       const chart = this.chart(state);
       if (!chart) return '';
-      const sep = state.lang === 'ja' ? '、' : ', ';
+      const sep = this.t('common.list-separator');
       const sentenceSep = state.lang === 'ja' ? '' : ' ';
       const sentences = [this.t('sky.describe.intro', {
         datetime: window.MockI18n.formatDate(chart.observedAt, 'datetime'),

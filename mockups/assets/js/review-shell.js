@@ -55,7 +55,7 @@
     'deleted-comment': '削除されたコメント',
     'no-location': '位置情報なし',
     'weather-failed': '天気の取得失敗',
-    'provisional-holiday': '暫定の祝日',
+    'provisional-holiday': '予定の祝日',
     'many-items': '件数が多い（ページング）',
     'daytime': '昼間（星図の太陽）',
   };
@@ -156,7 +156,7 @@
     // In-flow spacer as tall as the fixed shell, so the shell never covers the end of the page.
     const spacer = el('div', { class: 'mk-review-spacer', 'aria-hidden': 'true' });
     document.body.append(spacer, root);
-    const syncSpacer = () => { spacer.style.height = `${root.offsetHeight}px`; };
+    const syncSpacer = () => { spacer.style.height = `${Math.ceil(root.getBoundingClientRect().height)}px`; };
     if (typeof ResizeObserver === 'function') new ResizeObserver(syncSpacer).observe(root);
     syncSpacer();
 

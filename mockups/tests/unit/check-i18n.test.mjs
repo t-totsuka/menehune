@@ -257,3 +257,66 @@ test('test fixtures and dictionaries themselves are not scanned for usages', () 
     (r) => assert.equal(r.status, 0, r.stdout + r.stderr),
   );
 });
+
+// Post-validation cleanup: unused dictionary keys are a warning on stderr, never a violation.
+// Keys reached through a template literal such as `astro.kind.${kind}` count as used for their
+// static prefix; the generic reserved keys (RESERVED_KEYS in check-i18n.mjs) are exempt.
+/** @param {string} stderr */
+const unusedWarnings = (stderr) => stderr.split(/\r?\n/).filter((l) => /\bwarning: unused key\b/.test(l));
+
+test('current tree: no unused-key warning (reserved keys and dynamic prefixes are exempt)', () => {
+  const r = run([]);
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.deepEqual(unusedWarnings(r.stderr), [], r.stderr);
+});
+
+test('a dictionary key used nowhere is a warning at its dictionary line; the exit code stays 0', () => {
+  withFixture(
+    ({ read, write }) => {
+      for (const l of ['ja', 'en']) {
+        const p = `assets/i18n/messages.${l}.js`;
+        write(p, addKey(read(p), 'extra.never-used', 'x'));
+      }
+    },
+    (r, dir) => {
+      assert.equal(r.status, 0, r.stdout + r.stderr);
+      assert.equal(r.lines.length, 0, `warnings stay off stdout:\n${r.stdout}`);
+      const ja = readFileSync(join(dir, 'assets/i18n/messages.ja.js'), 'utf8');
+      const hits = unusedWarnings(r.stderr).filter((l) => l.includes('"extra.never-used"'));
+      assert.deepEqual(hits, [`assets/i18n/messages.ja.js:${lineOf(ja, "'extra.never-used'")} warning: unused key "extra.never-used"`],
+        'one warning, at the first locale\'s line');
+    },
+  );
+});
+
+test('a key reached only through a template literal prefix is not reported as unused', () => {
+  withFixture(
+    ({ read, write }) => {
+      for (const l of ['ja', 'en']) {
+        const p = `assets/i18n/messages.${l}.js`;
+        write(p, addKey(read(p), 'extra.dyn.a', 'x'));
+      }
+      write('assets/js/extra-dyn.js', extraScript('  const k = (id) => `extra.dyn.${id}`;\n  void k;'));
+    },
+    (r) => {
+      assert.equal(r.status, 0, r.stdout + r.stderr);
+      assert.ok(!r.stderr.includes('"extra.dyn.a"'), r.stderr);
+    },
+  );
+});
+
+test('reserved keys are exempt, and a reserved key missing from the dictionaries is a warning', () => {
+  withFixture(
+    ({ read, write }) => {
+      for (const l of ['ja', 'en']) {
+        const p = `assets/i18n/messages.${l}.js`;
+        write(p, dropKey(read(p), 'status.saved'));
+      }
+    },
+    (r) => {
+      assert.equal(r.status, 0, r.stdout + r.stderr);
+      assert.deepEqual(unusedWarnings(r.stderr), [], r.stderr);
+      assert.ok(r.stderr.split(/\r?\n/).some((l) => /^tools\/check-i18n\.mjs:\d+ warning: reserved key "status\.saved" is not in the dictionaries$/.test(l)), r.stderr);
+    },
+  );
+});

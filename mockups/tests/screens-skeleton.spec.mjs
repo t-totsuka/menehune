@@ -36,7 +36,7 @@ const urlOf = (/** @type {string} */ id, query = '') =>
 const STYLESHEETS = ['tokens.css', 'base.css', 'components.css', 'wireframe.css', 'review.css'];
 const BODY_SCRIPTS = [
   'screens.js', 'glossary.js', 'sample-data.js', 'messages.ja.js', 'messages.en.js',
-  'mock-state.js', 'i18n.js', 'base.js', 'shell.js', 'almanac.js', 'sky.js', 'posts.js',
+  'mock-state.js', 'paging.js', 'i18n.js', 'base.js', 'shell.js', 'almanac.js', 'sky.js', 'posts.js',
   'location.js', 'review-shell.js',
 ];
 

@@ -6,7 +6,6 @@
   /** @type {MessageDictionary} */
   const en = Object.freeze({
     // Common navigation
-    'nav.top': 'Home',
     'nav.calendar': 'Calendar',
     'nav.astro-events': 'Astronomical Events',
     'nav.star-chart': 'Star Chart',
@@ -53,6 +52,7 @@
 
     // Almanac summary, rise/set and event list (task 4.3)
     'almanac.moon': 'Moon age',
+    'almanac.moon-separator': ', ',
     'almanac.holiday': 'Holiday',
     'almanac.events': 'Astronomical events',
     'almanac.none': 'None',
@@ -153,9 +153,6 @@
     'button.close': 'Close',
     'button.retry': 'Try again',
     'button.more': 'Show more',
-    'button.prev': 'Previous',
-    'button.next': 'Next',
-    'button.today': 'Today',
 
     // Screen titles (one per ScreenId)
     'screen.top.title': 'Home',
@@ -270,7 +267,6 @@
     'screen.report.kind.post': 'Post',
     'screen.report.kind.comment': 'Comment',
     'screen.report.author': 'Written by',
-    'screen.report.content': 'Content',
     'screen.report.back': 'Back to the post',
     'screen.report.form': 'Your report',
     'screen.report.details': 'Details (optional)',
@@ -369,6 +365,7 @@
     'status.loading': 'Loading…',
     'status.saved': 'Saved.',
     'common.count': '{count} items',
+    'common.list-separator': ', ',
     // ---- Terms (task 3.1); metadata in data/glossary.js ----
 
     // Rokuyo (六曜): romanized name plus meaning

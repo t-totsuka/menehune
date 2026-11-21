@@ -165,6 +165,30 @@ test('format examples show the documented ja / en forms', async ({ page }) => {
   await expect(page.locator('[data-format-row] [data-lang-cell="en"]:not([lang="en"])')).toHaveCount(0);
 });
 
+// Post-validation cleanup: the examples come from MockI18n.formatDate(value, style, lang), so the
+// page fires no mock:change of its own (every state change goes through MockState.update).
+for (const lang of /** @type {const} */ (['ja', 'en'])) {
+  test(`building the examples fires no mock:change in another language (lang=${lang})`, async ({ page }) => {
+    await page.addInitScript(() => {
+      /** @type {string[]} */
+      const seen = [];
+      Object.defineProperty(window, '__mockChangeLangs', { value: seen });
+      const original = Document.prototype.dispatchEvent;
+      Document.prototype.dispatchEvent = function (event) {
+        if (event.type === 'mock:change') {
+          const detail = /** @type {CustomEvent} */ (event).detail;
+          seen.push(String(detail && detail.lang));
+        }
+        return original.call(this, event);
+      };
+    });
+    await page.goto(`${pageUrl}?lang=${lang}`);
+    await expect(page.locator('[data-format-row]').first()).toBeAttached();
+    const langs = await page.evaluate(() => /** @type {any} */ (window).__mockChangeLangs);
+    expect(langs.filter((/** @type {string} */ l) => l !== lang), `mock:change languages: ${langs.join(', ')}`).toEqual([]);
+  });
+}
+
 test('switching the page language keeps both languages in the examples', async ({ page }) => {
   const problems = collectProblems(page);
   await page.goto(pageUrl);

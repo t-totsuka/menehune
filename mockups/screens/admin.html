@@ -75,6 +75,7 @@
   <script src="../assets/i18n/messages.ja.js"></script>
   <script src="../assets/i18n/messages.en.js"></script>
   <script src="../assets/js/mock-state.js"></script>
+  <script src="../assets/js/paging.js"></script>
   <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/components/base.js"></script>
   <script src="../assets/js/components/shell.js"></script>
@@ -86,7 +87,8 @@
   <script>
     // Admin page script (task 5.7, board in task 8.1). Builds one card per report of
     // MockSample.reports into the board column of its state (the appealed column is the appeal
-    // review: its cards carry the appeal text and the restore / remove decisions). Texts are set
+    // review: its cards carry the appeal text from MockSample.appeals, free text by the poster that
+    // stays Japanese like post bodies, and the restore / remove decisions). Texts are set
     // as data-i18n (+ data-i18n-args) and translated by the i18n runtime. The mock actions keep
     // the changed state per target in `states`, update the state label, drop the actions and move
     // the card to the column of its new state (focus goes to its state label). On every
@@ -94,8 +96,6 @@
     // cards are data-when-scenario="default", so the `empty` scenario shows empty columns).
     (function () {
       const sample = window.MockSample;
-      /** @type {Record<string, string>} Appeal texts of the sample (free text by the author). */
-      const appealTexts = { 'p-108': '参加費のない有志の観望会の案内で、宣伝の意図はありません。外部へのリンクも載せていないので、表示を再開してください。' };
       /** @type {Record<ReportQueueState, string>} Board column of each state. */
       const columnOf = { open: 'open', 'auto-hidden': 'hidden', 'hidden-by-admin': 'hidden', appealed: 'appealed', restored: 'done', removed: 'done' };
       /** @type {Map<string, ReportQueueState>} */
@@ -147,7 +147,7 @@
           ? [el('button', { type: 'button', 'data-decision': 'restore', 'data-i18n': 'screen.admin.restore' }), el('button', { type: 'button', 'data-decision': 'remove', 'data-i18n': 'screen.admin.remove' })]
           : (r.state === 'open' ? [el('button', { type: 'button', 'data-hide-now': '', 'data-i18n': 'screen.admin.hide-now' })] : []);
         const appealBox = el('div', { class: 'screen-target l-stack' },
-          el('p', { class: 'text-muted', 'data-i18n': 'screen.admin.appeal-text' }), el('p', { class: 'screen-target__body', 'data-appeal-text': '' }, appealTexts[r.targetId] ?? ''));
+          el('p', { class: 'text-muted', 'data-i18n': 'screen.admin.appeal-text' }), el('p', { class: 'screen-target__body', 'data-appeal-text': '' }, sample.appeals.find((a) => a.targetId === r.targetId)?.body ?? ''));
         /** @type {Record<string, string>} */
         const attrs = { class: 'screen-admin-item l-stack', 'data-queue-item': '', 'data-target-id': r.targetId, 'data-when-scenario': 'default' };
         if (appeal) attrs['data-appeal-item'] = '';

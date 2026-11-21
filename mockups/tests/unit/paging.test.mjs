@@ -1,5 +1,5 @@
 // Task 8.1 (my-posts, 2026-11-20: "「自分の投稿」は暫定的に投稿・コメント欄は30件ごとにページングが
-// できるように"): the pure paging logic of mk-pager (window.MockPaging in shell.js) and the extra
+// できるように"): the pure paging logic of mk-pager (window.MockPaging in the foundation script assets/js/paging.js) and the extra
 // sample items that make paging reviewable (window.MockSample.paging, used only by the my-posts
 // scenario `many-items`; the shared lists MockSample.posts / notices do not change).
 import { test } from 'node:test';
@@ -11,17 +11,10 @@ import vm from 'node:vm';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-/** Loads shell.js with just enough of a browser for its top level (classes are never constructed). */
+/** Loads paging.js: a foundation script without the DOM, so a bare `window` is enough. */
 function loadPaging() {
-  const window = { MockElement: class {} };
-  const ctx = vm.createContext({
-    window,
-    console,
-    document: { currentScript: null },
-    HTMLScriptElement: class {},
-    customElements: { define() {} },
-  });
-  vm.runInContext(readFileSync(join(root, 'assets/js/components/shell.js'), 'utf8'), ctx, { filename: 'shell.js' });
+  const window = {};
+  vm.runInContext(readFileSync(join(root, 'assets/js/paging.js'), 'utf8'), vm.createContext({ window }), { filename: 'paging.js' });
   return window.MockPaging;
 }
 
@@ -35,7 +28,7 @@ function loadSample(file) {
 const P = loadPaging();
 
 test('MockPaging: a frozen object with the page size 30 (provisional)', () => {
-  assert.ok(P, 'shell.js registers window.MockPaging');
+  assert.ok(P, 'paging.js registers window.MockPaging');
   assert.ok(Object.isFrozen(P));
   assert.equal(P.PAGE_SIZE, 30);
 });

@@ -296,6 +296,7 @@
   <script src="assets/i18n/messages.ja.js"></script>
   <script src="assets/i18n/messages.en.js"></script>
   <script src="assets/js/mock-state.js"></script>
+  <script src="assets/js/paging.js"></script>
   <script src="assets/js/i18n.js"></script>
   <script src="assets/js/components/base.js"></script>
   <script src="assets/js/components/shell.js"></script>
@@ -609,6 +610,16 @@
         });
         var heading = document.querySelector('[data-category="' + category + '"] h2');
         fill(category, table(heading ? heading.textContent || category : category, ['トークン', '値', '見本'], rows));
+      });
+
+      // ---- Reserved tokens (post-validation cleanup) ----
+      // Tokens that no product file uses yet. They stay, because removing a token name is a
+      // revalidation trigger for the later specs (design.md); the row says so. Keep this list in
+      // sync with the files (tokens-page.spec checks it).
+      var RESERVED = ['--palette-gold-800', '--palette-indigo-200', '--space-xl'];
+      RESERVED.forEach(function (name) {
+        var th = document.querySelector('main [data-token="' + name + '"] > th');
+        if (th) th.append(' ', el('span', { class: 'tk-meta', 'data-reserved': '' }, ['予約（未使用。後続の仕様のために残す）']));
       });
     })();
   </script>

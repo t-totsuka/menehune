@@ -392,6 +392,16 @@
   ];
 
   /**
+   * Appeal texts of the appealed reports (post-validation cleanup; the admin screen shows them in
+   * its appeal review). Written by the poster, so like post bodies they stay in Japanese in both
+   * display languages.
+   * @type {SampleAppeal[]}
+   */
+  const appeals = [
+    { targetId: 'p-108', authorId: 'u-hoshizora', at: '2026-11-15T09:12+09:00', body: '参加費のない有志の観望会の案内で、宣伝の意図はありません。外部へのリンクも載せていないので、表示を再開してください。' },
+  ];
+
+  /**
    * Reply notices (task 8.1, 6.9 and 6.10), newest reply first. Each one follows the comment
    * trees: someone else's live, direct reply (replyId) to a comment of the recipient (commentId);
    * the replier and the datetime come from the reply. Every such reply to a comment of the member
@@ -695,6 +705,7 @@
     events,
     posts,
     reports,
+    appeals,
     notices,
     starChart,
     starChartDaytime,
