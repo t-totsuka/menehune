@@ -39,3 +39,7 @@ d3-celestial は採用せず（d3 v3 依存・SSR 非対応・保守停滞）、
 ## Constraints
 - データライセンス: CC BY-SA の星表（HYG 等）や Stellarium skyculture を使う場合は継承義務を確認・表示
 - モバイルでも描画性能が十分であること
+
+## ui-mockups で決めた暫定の値・前提（機能の仕様で確定する）
+- 太陽は光線 8 本の付いた円（月の円・惑星のひし形と形で区別、色 `--color-event-sun`）に名前を添える。参照：`mockups/README.md`「星図」、`mockups/assets/js/components/sky.js`
+- 昼間（太陽が地平線の上）の見本：恒星を隠さず淡い参考表示（`--color-text-muted`）で描き、図の下と代替テキストに「昼間は明るい星も肉眼では見えません（参考表示）。」と添える。隠すか淡く出すかはハイフィのレビューの論点。参照：`mockups/screens/star-chart.html?scenario=daytime`

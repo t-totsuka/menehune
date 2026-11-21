@@ -44,3 +44,9 @@ pnpm モノレポ（apps/web: Next.js App Router、apps/api: Hono または Fast
 ## Constraints
 - リポジトリと PGDATA は WSL の Linux ファイルシステム側に置く
 - 将来のクラウド移行を妨げない構成（環境変数による設定、12-factor）
+
+## ui-mockups で決めた暫定の値・前提（機能の仕様で確定する）
+- 配色（ハイフィは未承認の draft）：ライトは薄藍の明け方の背景 `--color-bg` #e2e6f6（dawn-100）、文字は濃紺 #0b1026（navy-900）、アクセントは藍 #2d3a8c（indigo-700）。ダークは濃紺の背景 #0b1026、アクセントは金 #f4d58a（gold-300）。参照：`mockups/README.md`「ハイフィの配色（タスク 8.2）」、`mockups/assets/css/tokens.css`
+- 8.2・8.3 で足した役割トークン：`--color-moon-lit`・`--color-moon-shadow`（月の図の光る側・暗い側。両テーマとも暗い側は濃紺）、`--color-decor-star`（背景の星。ライトは藍、ダークは金）。参照：`mockups/README.md`「ハイフィの装飾（タスク 8.3）」
+- 段階の規約（モック）：装飾は `data-decor`・`aria-hidden` のインライン SVG で、ワイヤーフレームでは `visibility: hidden`（場所は残す）。ハイフィだけの規則は `html:not([data-stage="wireframe"])` に書き、書体など配置に関わる値は段階で変えない。役割トークンを足したら `wireframe.css` にグレーの値も足す。製品に段階はないので、装飾の扱いだけを取り込むかを決める。参照：`.kiro/specs/ui-mockups/tasks.md` の Implementation Notes（1.7、8.3）
+- 未ログインの案内：ログイン画面以外の全画面で、ヘッダーと `<main>` の間に全幅の帯（`mk-guest-notice band`、領域名「ログインの案内」）を共通レイアウトとして置く。参照：`mockups/README.md`「全画面：未ログインの案内」

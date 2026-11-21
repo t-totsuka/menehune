@@ -42,3 +42,7 @@ reports / moderation_actions / appeals テーブルで状態遷移（表示 → 
 ## Constraints
 - 一時非表示中も投稿者本人には見え、状態が分かること
 - 閾値 n は設定値として変更可能
+
+## ui-mockups で決めた暫定の値・前提（機能の仕様で確定する）
+- `ReportQueueItem.reasonCounts`（理由ごとの件数）をモックの型に足した。1 件の通報で理由を 1 つ選ぶ前提（合計が通報件数になる）。本 spec で確かめる。参照：`mockups/types.d.ts`、`mockups/README.md`「管理」
+- 管理画面の通報キューは状態ごとの 4 列のかんばん：未対応＝open、一時非表示＝auto-hidden・hidden-by-admin、異議申し立ての審査＝appealed、対応済み＝restored・removed。新しい状態は足しておらず、異議の審査は 3 列目に統合した。参照：`mockups/README.md`「管理」、`mockups/screens/admin.html`
