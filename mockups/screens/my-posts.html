@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="screen.my-posts.title">自分の投稿</title>
+  <script src="../assets/js/theme-boot.js"></script>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/wireframe.css">
+  <link rel="stylesheet" href="../assets/css/review.css">
+</head>
+<body data-screen-id="my-posts">
+  <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
+  <main class="l-container l-stack">
+    <h1 data-i18n="screen.my-posts.title">自分の投稿</h1>
+    <!-- Guests get a one-line reason (the notice with the login link is the band above <main>,
+         task 8.1) instead of the list. For members the page script at the end lists
+         the viewer's own posts (SampleDataSet.viewerIds.member, every status including deleted,
+         target date newest first) as cards with the status icons; empty and fetch-error replace
+         the list. Task 8.1 (wireframe review): one column, newest target date first, visibility
+         and status as icons (mk-post-card meta="icons") explained by the legend below, and the
+         number of comments next to them (comment-count). Task 8.1 (6.10): the reply notices
+         (mk-notice-list) are in the section #notices that the header links to; the list follows
+         the scenario (empty: no notices, fetch-error: the notices error). Task 8.1 (later review
+         note: own posts first): the posts region comes first and the notices follow it, stacked
+         on narrow screens and side by side from 960px (posts : notices = 5 : 2, .screen-my-posts).
+         Task 8.1 (later review note: paging, provisional): both lists page by 30 (mk-pager below
+         each list; nothing with 30 items or fewer). The scenario many-items adds the extra sample
+         items (75 posts, 40 notices) so that paging can be reviewed. After a page change the
+         list's heading gets focus (tabindex="-1"). -->
+    <div data-when-auth="guest" data-guest-prompt>
+      <p data-i18n="screen.my-posts.login-required">自分の投稿の一覧を見るには、ログインしてください。</p>
+    </div>
+
+    <div class="screen-my-posts" data-when-auth="member" data-member-content>
+      <section class="l-stack screen-my-posts-posts" aria-labelledby="my-posts-posts-heading">
+        <h2 id="my-posts-posts-heading" tabindex="-1" data-i18n="screen.my-posts.posts-heading">投稿の一覧</h2>
+        <p data-when-scenario="default empty many-items">
+          <a class="button" href="post-edit.html?auth=member" data-i18n="screen.my-posts.new-post">新しく投稿する</a>
+        </p>
+        <!-- The legend repeats the visibility icon shapes of posts.js (VISIBILITY_SHAPES); the
+             review spec checks that they stay equal. It is the explanation for keyboard and touch
+             users, since the icons' title tooltip only appears on mouse hover. -->
+        <details class="screen-my-posts-legend" data-icon-legend data-when-scenario="default many-items">
+          <summary data-i18n="screen.my-posts.icon-legend">アイコンの見方</summary>
+          <ul>
+            <li data-legend-icon="visibility-guests">
+              <span class="mk-post-card__icon" aria-hidden="true"><svg class="mk-post-card__icon-svg" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5"/><ellipse cx="8" cy="8" rx="2.75" ry="6.5"/><path d="M1.5 8h13"/></svg></span>
+              <span data-i18n="post-card.visibility.guests">公開範囲：ログインしていない人にも公開</span>
+            </li>
+            <li data-legend-icon="visibility-members">
+              <span class="mk-post-card__icon" aria-hidden="true"><svg class="mk-post-card__icon-svg" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7.5" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg></span>
+              <span data-i18n="post-card.visibility.members">公開範囲：ログインしたユーザのみ</span>
+            </li>
+            <li data-legend-icon="status-public">
+              <span class="screen-my-posts-legend__symbol" data-legend-symbol aria-hidden="true">●</span>
+              <span data-i18n="post.status.public">公開中</span>
+            </li>
+            <li data-legend-icon="status-members-only">
+              <span class="screen-my-posts-legend__symbol" data-legend-symbol aria-hidden="true">◆</span>
+              <span data-i18n="post.status.members-only">ログインユーザのみ</span>
+            </li>
+          </ul>
+          <p data-i18n="screen.my-posts.icon-legend-note">一時非表示と削除済みは、アイコンにせず文字で示します。</p>
+        </details>
+        <p class="screen-error" role="alert" data-when-scenario="fetch-error" data-i18n="error.fetch">データを取得できませんでした。時間をおいてもう一度お試しください。</p>
+        <p class="text-muted" data-my-posts-empty data-when-scenario="empty" data-i18n="screen.my-posts.empty">まだ投稿していません。</p>
+        <ul class="screen-post-list screen-my-posts-list" data-my-posts data-when-scenario="default many-items" data-i18n-attr="aria-label:screen.my-posts.list-label"></ul>
+        <mk-pager data-my-posts-pager label-key="pager.posts-label" page-size="30" total="0" data-when-scenario="default many-items"></mk-pager>
+      </section>
+
+      <section class="l-stack" id="notices" aria-labelledby="my-posts-notices-heading">
+        <h2 id="my-posts-notices-heading" tabindex="-1" data-i18n="notice.label">お知らせ</h2>
+        <p class="field-hint" data-i18n="screen.my-posts.notices-hint">自分のコメントに返信がつくと、ここにお知らせします。</p>
+        <mk-notice-list page-size="30"></mk-notice-list>
+      </section>
+    </div>
+  </main>
+  <mk-site-footer></mk-site-footer>
+  <script src="../data/screens.js"></script>
+  <script src="../data/glossary.js"></script>
+  <script src="../data/sample-data.js"></script>
+  <script src="../assets/i18n/messages.ja.js"></script>
+  <script src="../assets/i18n/messages.en.js"></script>
+  <script src="../assets/js/mock-state.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/components/base.js"></script>
+  <script src="../assets/js/components/shell.js"></script>
+  <script src="../assets/js/components/almanac.js"></script>
+  <script src="../assets/js/components/sky.js"></script>
+  <script src="../assets/js/components/posts.js"></script>
+  <script src="../assets/js/components/location.js"></script>
+  <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // My posts page script (task 5.4). Runs before DOMContentLoaded, so the review shell and the
+    // i18n runtime process the nodes it adds.
+    // - Lists every post of SampleDataSet.viewerIds.member, also hidden and deleted ones (the
+    //   card's status badge tells them apart). Task 8.1: sorted by the target date the card shows
+    //   (newest first; ties by postedAt, newest first, then by id, so the order is deterministic),
+    //   and each card shows the visibility setting and the status as icons (meta="icons") and,
+    //   unless the post is deleted, the number of its comments (comment-count: the whole tree,
+    //   replies included, deleted comments left out).
+    //   Unless deleted, an edit link to post-edit.html?post=ID follows the card.
+    // - The edit links get an accessible name with the target date on every mock:change.
+    // - Task 8.1 (paging, provisional size 30): the list shows one page; the mk-pager below it
+    //   gets the total and the page. The scenario many-items adds SampleDataSet.paging.posts (75
+    //   own posts in all). A page change (mk-page-change) rebuilds the list and focuses the list's
+    //   heading; so does a page change of the notices (mk-notice-list page-size="30") for its own
+    //   heading. A scenario change goes back to page 1; a language change keeps the page.
+    (function () {
+      const sample = window.MockSample;
+      const list = document.querySelector('[data-my-posts]');
+      const pager = document.querySelector('[data-my-posts-pager]');
+      if (list === null || pager === null) return;
+      const size = Number.parseInt(pager.getAttribute('page-size') ?? '', 10) || window.MockPaging.PAGE_SIZE;
+      /** @param {ScenarioId} scenario */
+      const postsOf = (scenario) => (scenario === 'many-items' ? [...sample.posts, ...sample.paging.posts] : sample.posts)
+        .filter((p) => p.authorId === sample.viewerIds.member)
+        .sort((a, b) => b.targetDate.localeCompare(a.targetDate)
+          || Date.parse(b.postedAt) - Date.parse(a.postedAt)
+          || a.id.localeCompare(b.id));
+      let page = 1;
+      /** @type {ScenarioId | null} */
+      let shownScenario = null;
+      const labelEditLinks = () => {
+        for (const a of list.querySelectorAll('a[data-edit-date]')) {
+          const date = window.MockI18n.formatDate(a.getAttribute('data-edit-date') ?? '', 'date-long');
+          a.setAttribute('aria-label', window.MockI18n.t('screen.my-posts.edit-label', { date }));
+        }
+      };
+      /** @param {ScenarioId} scenario */
+      const show = (scenario) => {
+        const posts = postsOf(scenario);
+        page = window.MockPaging.clampPage(page, posts.length, size);
+        shownScenario = scenario;
+        const items = window.MockPaging.pageItems(posts, page, size).map((post) => {
+          const item = document.createElement('li');
+          item.className = 'screen-my-post';
+          item.setAttribute('data-my-post', post.id);
+          const card = document.createElement('mk-post-card');
+          card.setAttribute('post-id', post.id);
+          card.setAttribute('meta', 'icons');
+          card.setAttribute('comment-count', '');
+          item.append(card);
+          if (post.status !== 'deleted') {
+            const meta = document.createElement('div');
+            meta.className = 'screen-my-post__meta';
+            const edit = document.createElement('a');
+            edit.setAttribute('href', `post-edit.html?auth=member&post=${post.id}`);
+            edit.setAttribute('data-i18n', 'button.edit');
+            edit.setAttribute('data-edit-date', post.targetDate);
+            meta.append(edit);
+            item.append(meta);
+          }
+          return item;
+        });
+        list.replaceChildren(...items);
+        pager.setAttribute('total', String(posts.length));
+        pager.setAttribute('page', String(page));
+      };
+      show(window.MockState.get().scenario);
+      document.addEventListener('mock:change', (event) => {
+        if (event.detail.scenario !== shownScenario) {
+          page = 1;
+          show(event.detail.scenario);
+          window.MockI18n.apply(list);
+        }
+        labelEditLinks();
+      });
+      pager.addEventListener('mk-page-change', (event) => {
+        if (!(event instanceof CustomEvent)) return;
+        page = Number(event.detail.page) || 1;
+        show(window.MockState.get().scenario);
+        window.MockI18n.apply(list);
+        labelEditLinks();
+        document.getElementById('my-posts-posts-heading')?.focus();
+      });
+      const notices = document.querySelector('#notices mk-notice-list');
+      notices?.addEventListener('mk-page-change', () => {
+        document.getElementById('my-posts-notices-heading')?.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

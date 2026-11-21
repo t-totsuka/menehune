@@ -262,8 +262,11 @@ sequenceDiagram
 | 6.1, 6.4 | 投稿本文とコメントツリー、削除済みの表示 | PostComponents（mk-comment-tree） | `CommentNode` | — |
 | 6.2, 6.3 | 投稿作成・編集の入力と入力エラー | post-edit.html、LocationComponents（mk-precision-picker） | `ScenarioId`（`validation-error`） | — |
 | 6.5, 6.8 | 未ログインでの非公開投稿、閲覧のみの表示 | ShellComponents（mk-guest-notice）、MockState | `AuthState`、`ScenarioId`（`private-blocked`） | 状態解決 |
-| 6.6 | 自分の投稿一覧と状態 | my-posts.html、PostComponents（mk-post-card）、ShellComponents（mk-status-badge） | `PostStatus` | — |
+| 6.6 | 自分の投稿一覧と状態 | my-posts.html、PostComponents（mk-post-card）、ShellComponents（mk-status-badge、mk-pager） | `PostStatus`、`ScenarioId`（`many-items`） | — |
 | 6.7 | いいねの件数と状態 | PostComponents（mk-like-button） | `LikeState` | — |
+| 6.9 | ログイン中のヘッダーに未読のお知らせの件数と、お知らせへの導線 | ShellComponents（mk-site-header）、SampleData | `ReplyNotice`、`AuthState` | 状態解決 |
+| 6.10 | 自分の投稿一覧のお知らせの一覧と空状態 | my-posts.html、PostComponents（mk-notice-list）、SampleData | `ReplyNotice`、`ScenarioId`（`empty`、`fetch-error`） | 状態解決 |
+| 6.11 | 返信のお知らせを受け取るかの設定 | settings.html | — | — |
 | 7.1 | 公開精度 5 段階の選択 | LocationComponents（mk-precision-picker） | `LocationPrecision` | — |
 | 7.2, 7.3, 7.4, 7.5, 7.6 | 地域名と地図、出没、天気、取得失敗、位置なし | LocationComponents（mk-location-panel、mk-map-sample、mk-weather）、AlmanacComponents（mk-rise-set） | `PostLocation`、`WeatherSnapshot` | — |
 | 8.1 | ログイン画面 | login.html | — | — |
@@ -305,10 +308,10 @@ sequenceDiagram
 | I18nRuntime | Core | 文言の適用と日付の書式 | 11.1, 11.2, 11.7 | MessageDictionaries (P0), MockState (P0) | Service |
 | ReviewShell | Review | ツールバー、戻り導線、段階バナー、条件表示 | 1.3, 2.3, 3.3〜3.5 | MockState (P0), ScreenRegistry (P0) | Service |
 | MockElement 基底 | Parts | 部品の共通の振る舞い | 2.4 | MockState (P0), I18nRuntime (P0) | Service |
-| ShellComponents | Parts | ヘッダー、フッター、閲覧のみの案内、状態バッジ、管理帯 | 3.2, 3.6, 6.5, 6.8, 8.4, 9.4, 11.2, 13.3 | MockElement (P0) | — |
+| ShellComponents | Parts | ヘッダー、フッター、閲覧のみの案内、状態バッジ、管理帯 | 3.2, 3.6, 6.5, 6.8, 6.9, 8.4, 9.4, 11.2, 13.3 | MockElement (P0) | — |
 | AlmanacComponents | Parts | カレンダー、暦の要約、出没、天文現象の一覧 | 4.1〜4.7, 7.3, 12.3, 13.3 | MockElement (P0), SampleData (P0) | — |
 | SkyComponents | Parts | 全天図のサンプル | 5.1〜5.5, 13.4 | MockElement (P0), SampleData (P0) | — |
-| PostComponents | Parts | 投稿カード、コメントツリー、いいね、通報 | 6.1, 6.4, 6.6, 6.7, 8.3, 8.4, 12.4 | MockElement (P0), SampleData (P0) | — |
+| PostComponents | Parts | 投稿カード、コメントツリー、いいね、通報、返信のお知らせ | 6.1, 6.4, 6.6, 6.7, 6.10, 8.3, 8.4, 12.4 | MockElement (P0), SampleData (P0) | — |
 | LocationComponents | Parts | 位置パネル、地図、天気、精度選択 | 6.2, 7.1〜7.6, 8.2, 13.4 | MockElement (P0), SampleData (P0) | — |
 | Screens | Pages | 15 画面のマークアップ | 3.1〜3.6, 4〜8 全般 | Parts (P0), ReviewShell (P0) | — |
 | CatalogPages | Pages | 一覧、幅プレビュー、部品・トークン・用語集・a11y のページ | 1.5, 2.2, 2.4, 10.5, 11.3, 11.4, 11.7, 12.1, 13.4 | ScreenRegistry (P0), GlossaryMeta (P0) | — |
@@ -343,7 +346,9 @@ type AuthState = 'guest' | 'member' | 'admin';
 type ScenarioId =
   | 'default' | 'empty' | 'fetch-error' | 'validation-error'
   | 'private-blocked' | 'hidden-own' | 'hidden-other'
-  | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday';
+  | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday'
+  | 'many-items'    // 8.1：自分の投稿のページングを確かめるため、件数の多いサンプルを足す
+  | 'daytime';      // 最終検証の是正（5.2）：星図を昼間の見本にして、太陽の描き方を示す
 type ScreenAccess = 'public' | 'member' | 'admin';
 
 interface StageReview {
@@ -366,7 +371,8 @@ type ScreenRegistry = readonly ScreenEntry[];
 ```
 
 **Implementation Notes**
-- 画面ごとの主なシナリオ（初期値）：calendar-month は `provisional-holiday`。astro-events と my-posts は `empty`、`fetch-error`。post-detail は `private-blocked`、`hidden-own`、`hidden-other`、`deleted-comment`、`no-location`、`weather-failed`。post-edit は `validation-error`。admin は `empty`
+- 画面ごとの主なシナリオ（初期値）：calendar-month は `provisional-holiday`。astro-events と my-posts は `empty`、`fetch-error`（my-posts では、投稿の一覧とお知らせの両方が空状態・取得エラーになる。8.1）。my-posts だけ `many-items` も選べ、`SampleDataSet.paging` の見本（投稿 71 件、既読のお知らせ 37 件）を足して、30 件ごとのページ送り（mk-pager）を確かめられる（8.1）。post-detail は `private-blocked`、`hidden-own`、`hidden-other`、`deleted-comment`、`no-location`、`weather-failed`。post-edit は `validation-error`。admin は `empty`
+- star-chart は `daytime` も選べ、星図と日時・地点の入力欄を `SampleDataSet.starChartDaytime`（同じ地点の 2026-11-16 12:00）にして、太陽の描き方を確かめられる（最終検証の是正、5.2）。既定の表示（20:00、承認済みのワイヤーフレーム）は変えない
 - 検証：`check-registry.mjs` が ID の網羅、ファイルの存在、不変条件、`scenarios[0] === 'default'` を検査する
 
 #### MessageDictionaries と GlossaryMeta
@@ -436,6 +442,7 @@ interface AlmanacDay {
   readonly zassetsuKeys: readonly MessageKey[];
   readonly holiday?: Holiday;
   readonly eventIds: readonly string[];
+  readonly riseSet: RiseSet;                  // サンプル地点のその日の日月の出没（mk-rise-set の date 指定で使う）
 }
 type AstroEventKind =
   | 'moon-phase' | 'moon-apsis' | 'moon-declination' | 'planet-conjunction'
@@ -460,7 +467,10 @@ interface SamplePost {
   readonly comments: readonly CommentNode[];
 }
 type ReportReason = 'spam' | 'harassment' | 'inappropriate' | 'personal-info' | 'other';
-interface ReportQueueItem { readonly targetId: string; readonly targetType: 'post' | 'comment'; readonly reportCount: number; readonly reasons: readonly ReportReason[]; readonly state: 'open' | 'auto-hidden' | 'hidden-by-admin' | 'appealed' | 'restored' | 'removed'; }
+// 返信のお知らせ（6.9、6.10、8.1）。commentId は recipientId のコメント、replyId はそれへのほかの人の直接の返信（削除済みでない）。
+// 返信した人と日時は返信のコメントから読む。削除済みの返信にはお知らせを出さない
+interface ReplyNotice { readonly id: string; readonly recipientId: string; readonly postId: string; readonly commentId: string; readonly replyId: string; readonly read: boolean; }
+interface ReportQueueItem { readonly targetId: string; readonly targetType: 'post' | 'comment'; readonly reportCount: number; readonly reasons: readonly ReportReason[]; readonly reasonCounts: Readonly<Partial<Record<ReportReason, number>>>; readonly state: 'open' | 'auto-hidden' | 'hidden-by-admin' | 'appealed' | 'restored' | 'removed'; }
 
 interface StarChartSample {
   readonly observedAt: IsoDateTime; readonly placeLabel: string;
@@ -470,14 +480,23 @@ interface StarChartSample {
   readonly bodies: readonly { readonly kind: 'sun' | 'moon' | 'planet'; readonly nameKey: MessageKey; readonly az: number; readonly alt: number }[];
 }
 
+type PostDetailScenarioId = Extract<ScenarioId,
+  'default' | 'private-blocked' | 'hidden-own' | 'hidden-other' | 'deleted-comment' | 'no-location' | 'weather-failed'>;
+// 位置なし（location が undefined）は地図・出没・天気を出さない。位置ありで weather が undefined は「天気の取得失敗」を表す
+
 interface SampleDataSet {
   readonly today: IsoDate;                       // 2026-11-16 に固定
   readonly users: readonly SampleUser[];
-  readonly almanac: readonly AlmanacDay[];        // 2026-11 の全日と 2027 年の祝日の例
+  readonly almanac: readonly AlmanacDay[];        // 2026-11 と 2027-03 の全日、閏月の例 1 日
+  readonly kouStarts: readonly { readonly key: MessageKey; readonly start: IsoDate }[]; // サンプルの日を含む各候の始まりの日（昇順。日詳細の七十二候の日数、8.1）
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];
+  readonly notices: readonly ReplyNotice[];      // 返信のお知らせ（返信の新しい順。member の自分に未読 2 件・既読 1 件、admin は 0 件、8.1）
+  readonly viewerIds: Readonly<Record<Exclude<AuthState, 'guest'>, string>>;   // ログイン時の「自分」（likedByMe、hidden-own、自分の投稿一覧の判定に使う）
+  readonly postDetailScenarios: Readonly<Record<PostDetailScenarioId, string>>; // 投稿詳細のシナリオごとに表示する投稿 ID
   readonly starChart: StarChartSample;
+  readonly starChartDaytime: StarChartSample;     // 同じ地点・同じ日の 12:00（太陽が南の空の約 35°）。mk-star-chart の sample="daytime" と、星図の画面のシナリオ daytime で使う（5.2）
 }
 ```
 
@@ -497,16 +516,16 @@ interface SampleDataSet {
 **Responsibilities & Constraints**
 - 命名は `--{category}-{role}[-{variant}]` とする。category は color、font、font-size、font-weight、line-height、space、radius、shadow、border、bp
 - 色は 2 層にする。素材の色（`--palette-navy-900` など）と、役割の色（`--color-bg`、`--color-surface`、`--color-text`、`--color-text-muted`、`--color-accent`、`--color-link`、`--color-border`、`--color-focus`）。部品は役割の色だけを参照する
-- 意味を持つ色（10.3）：`--color-holiday`、`--color-sunday`、`--color-saturday`、`--color-rokuyo-{taian|butsumetsu|…}`（`taian` と `butsumetsu` 以外は中立色を共有してよい）、`--color-event-{moon|planet|sun}`、`--color-status-{public|members-only|hidden|deleted}`、`--color-admin-band`、`--color-provisional`
+- 意味を持つ色（10.3）：`--color-holiday`、`--color-sunday`、`--color-saturday`、`--color-rokuyo-{taian|butsumetsu|…}`（`taian` と `butsumetsu` 以外は中立色を共有してよい）、`--color-event-{moon|planet|sun}`、`--color-status-{public|members-only|hidden|deleted}`、`--color-admin-band`、`--color-provisional`、`--color-moon-{lit|shadow}`（月の満ち欠けの図の光る側と暗い側。タスク 8.2）、`--color-decor-star`（背景の星の装飾。タスク 8.3）
 - テーマの定義：`:root` はライトの値。`@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {…} }` と `:root[data-theme="dark"] {…}` に、同じダークの値を書く
-- トーンの方針（初期案。ハイフィのレビューで確定）：ダークは濃紺の夜空（背景 #0b1026 前後）に、星を思わせる金色のアクセント。ライトは明け方の薄藍の背景に、濃紺の文字と藍のアクセントで、ライトでも夜空らしさを残す（9.5）
+- トーンの方針（タスク 8.2 で値を確定。ハイフィのレビューで調整する）：ダークは濃紺の夜空（背景 #0b1026）に、星を思わせる金色のアクセント（#f4d58a）。ライトは明け方の薄藍の背景（#e2e6f6）に、濃紺の文字（#0b1026）と藍のアクセント（#2d3a8c）で、ライトでも夜空らしさを残す（9.5）。月の満ち欠けの図は、両テーマとも暗い側を濃紺、光る側を明るい金色にする
 - 書体：本文は `system-ui` 系のゴシック、見出しは明朝（ヒラギノ明朝、游明朝、Noto Serif JP の順に指定）。Web フォントは使わない（2.6）
 - ブレークポイント：`--bp-sm: 600px`、`--bp-md: 960px`、`--bp-lg: 1280px`。CSS 変数はメディアクエリに使えないので、`@media` にはこれらと同じ数値を書き、check-tokens が一致を検査する
 
 **Contracts**: State [x]
 
 **Implementation Notes**
-- 検証：`contrast-pairs.json` に（前景、背景、最小比）を列挙する。本文の組は 4.5、大きな文字・アイコン・境界線・フォーカスの組は 3.0 とする。両テーマについて `check-contrast.mjs` で計算する
+- 検証：`contrast-pairs.json` に（前景、背景、最小比）を列挙する。本文の組は 4.5、大きな文字・アイコン・境界線・フォーカスの組は 3.0 とする。両テーマについて `check-contrast.mjs` で計算する。組は、ハイフィの全画面と部品で実際に塗られる前景と背景の組み合わせをすべて含める（タスク 8.2。3 つの面 bg・surface・surface-muted の上の文字・境界線・フォーカス、アクセントの上の文字と面の色、月の図の光る側と暗い側など）
 
 #### StageStyles（wireframe.css）
 - `html[data-stage="wireframe"]` の範囲で、役割の色をすべてグレースケールに再定義する。影とグラデーションは `none` にし、`[data-decor]` を付けた要素は非表示にする。画像・図は枠と対角線だけの占位表示にする（1.2）
@@ -632,30 +651,32 @@ abstract class MockElement extends HTMLElement {
 
 ```typescript
 interface SiteHeaderAttrs { readonly current?: 'calendar' | 'astro-events' | 'star-chart' | 'my-posts' | 'settings' | 'admin'; }
-interface MonthCalendarAttrs { readonly month: string; }            // YYYY-MM
+interface MonthCalendarAttrs { readonly month: string; readonly 'week-start'?: 'sun' | 'mon'; readonly nav?: ''; }  // month は YYYY-MM
 interface CommentTreeAttrs { readonly 'post-id': string; }
 ```
 
 | 要素 | ファイル | 主な属性 | 要件と表示の要点 |
 |------|----------|----------|------------------|
-| mk-site-header | shell.js | `current` | ロゴ、ナビ（カレンダー、天文現象、星図、マイ投稿）、言語切替、テーマ切替、ログイン状態の表示（3.2、9.4、11.2）。スマートフォン幅ではメニューを折りたたむ |
+| mk-site-header | shell.js | `current` | ロゴ、ナビ（カレンダー、天文現象、星図、マイ投稿）、言語切替、テーマ切替、ログイン状態の表示（3.2、9.4、11.2）。スマートフォン幅ではメニューを折りたたむ。ログイン中は、ロゴの横（メニューを折りたたんでも見える位置）に、自分の未読の `ReplyNotice` の件数を文字で示すお知らせへのリンク（「お知らせ（未読 2 件）」、自分の投稿の `#notices`）を出す。未読 0 件は件数なしの「お知らせ」。シナリオには追従しない。未ログインでは出さない（6.9、8.1） |
 | mk-site-footer | shell.js | — | 出典表示とプライバシーポリシーへのリンク |
-| mk-guest-notice | shell.js | `variant` | 閲覧のみであることと、ログインへの導線（6.8）。非公開投稿を開いたときの案内（6.5） |
+| mk-guest-notice | shell.js | `variant`、`band` | 閲覧のみであることと、ログインへの導線（6.8）。非公開投稿を開いたときの案内（6.5）。`band` では、ヘッダーの直下に置く全幅の帯（名前付きの region）として描く（全画面共通の指摘、8.1） |
 | mk-status-badge | shell.js | `status` | 公開中、ログインユーザのみ、一時非表示、削除済みを、色と記号と文字で表示する（6.6、13.3） |
 | mk-admin-band | shell.js | — | 管理者専用であることを示す帯（3.6） |
-| mk-month-calendar | almanac.js | `month` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3） |
+| mk-pager | shell.js | `total`、`page`、`page-size`、`label-key` | 長い一覧のページ送り（自分の投稿用、8.1。opt-in）。名前の付いた `nav` に、範囲の文字（「31〜60件目 / 全75件」）、前へ・次へ（最初と最後のページでは disabled）、ページ番号（今のページに `aria-current="page"`）。押すと `page` を変えて `mk-page-change` を出し、一覧の側がそのページを出してフォーカスを移す。`total` が `page-size`（既定 30。暫定）以下なら何も出さない。計算は `window.MockPaging` |
+| mk-month-calendar | almanac.js | `month`、`week-start`、`nav`、`caption` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3）。`week-start="mon"` では月曜始まり（既定は日曜始まり）。`nav` では前の月・今月・次の月のボタンを置き、`month` を変えて `mk-month-change` を出す。サンプルデータのない日は日付と曜日だけを出し、その旨を注記する。`caption="hidden"` では PC の表の caption を読み上げ専用にする（見出しが年月を出す画面で、年月を 2 回見せないため）（月のカレンダーの画面用、ワイヤーフレームのレビューの指摘、8.1） |
 | mk-day-cell | almanac.js | `date`、`compact` | 日付、曜日、祝日（予定の表記つき）、六曜、旧暦、月齢。節気・候・雑節・天文現象の印は、記号と文字を併用する（4.1、4.2、4.6、13.3） |
-| mk-almanac-summary | almanac.js | `date`、`variant` | 日詳細用は全項目（4.3）、トップ用は要約（4.7） |
-| mk-rise-set | almanac.js | `date`、`post-id` | 日の出・日の入り・月の出・月の入り（4.3、7.3） |
-| mk-event-list | almanac.js | `from`、`to`、`kinds` | 天文現象の日時と種類の一覧、期間と種類の絞り込み UI、空状態、取得エラー（4.4、4.5、3.4、3.5） |
-| mk-star-chart | sky.js | `sample` | 天頂中心の円形の全天図（立体射影）と方位。恒星の大きさは等級に応じる。星座線、星座名、太陽・月・惑星。入力欄は画面側に置く。`viewBox` で幅に追従させる（5.1〜5.5、13.4） |
-| mk-post-card | posts.js | `post-id`、`variant` | 一覧用のカード（対象日、抜粋、状態バッジ、いいね数）（6.6） |
+| mk-almanac-summary | almanac.js | `date`、`variant`、`kou`、`hide-empty`、`hide-date` | 日詳細用は全項目（4.3）、トップ用は要約（4.7）。トップ用は月齢から描いた月の満ち欠けの図（`role="img"` と `aria-label`）を添える（ワイヤーフレームのレビューの指摘、8.1）。日詳細の画面だけに付ける opt-in（8.1）：`kou="period"` は七十二候を期間として毎日「候の名前（n日目）」で示し（`SampleDataSet.kouStarts`）、`hide-empty` は値のない項目を出さず、`hide-date` は見出しが日付なので要約の日付の行を出さない |
+| mk-rise-set | almanac.js | `date`、`post-id`、`chart` | 日の出・日の入り・月の出・月の入り（4.3、7.3）。`chart` では、0〜24 時の帯で太陽と月が地平線の上にある時間を図で示す（トップ用、8.1） |
+| mk-event-list | almanac.js | `from`、`to`、`kinds`、`filters`、`mark-past`、`relative-days` | 天文現象の日時と種類の一覧、期間と種類の絞り込み UI、空状態、取得エラー（4.4、4.5、3.4、3.5）。`filters="collapsed"` では絞り込みを閉じたアコーディオンにする（トップ用、8.1）。`mark-past` では、サンプルの今日より前の日付の現象に、日時の前に文字の印（「過去」／Past）と `data-past` を付ける（色だけに頼らない。天文現象一覧用、8.1）。`relative-days` では、日時の後ろの同じ欄に、サンプルの今日から日付単位で数えた「n日後」「今日」（英語は in n days／today、1 は in 1 day）の文字を出す。今日より前の現象には出さない（過去は `mark-past` の印で示す）。日時と一緒に読み上げられる（天文現象一覧とトップ用、8.1） |
+| mk-star-chart | sky.js | `sample` | 天頂中心の円形の全天図（立体射影）と方位。恒星の大きさは等級に応じる。星座線、星座名、太陽・月・惑星。天体は形でも区別する（月は円、惑星はひし形、太陽は短い光線の付いた円、13.3）。`sample` を省くと `starChart`（シナリオ `daytime` では `starChartDaytime`）、`sample="daytime"` は常に `starChartDaytime`。昼間（太陽が地平線の上）は恒星を淡い参考表示にし、図の下と代替テキストに注記（sky.daytime-note）を添える。入力欄は画面側に置く。`viewBox` で幅に追従させる（5.1〜5.5、13.4） |
+| mk-post-card | posts.js | `post-id`、`variant`、`meta`、`comment-count` | 一覧用のカード（対象日、抜粋、状態バッジ、いいね数）（6.6）。`meta="icons"` では、公開範囲（未ログインに公開するか）をアイコン（`role="img"`、`aria-label`、`title`）で添え、公開中・ログインユーザのみの状態バッジを記号だけにする（文字は読み上げ用に残す）。一時非表示と削除済みは文字のバッジのまま（自分の投稿用、8.1）。`comment-count` では、状態の行にコメントの件数を文字で添える（ツリー全体、返信を含む。6.4 で削除済みと表示するコメントは数えない。削除済みの投稿には出さない。自分の投稿用、8.1） |
 | mk-comment-tree | posts.js | `post-id` | 入れ子のコメント。字下げの上限は PC で 6 段、スマートフォンで 3 段。それより深いものは字下げせず、「↳ ○○さんへの返信」と表示する。削除済みは本文の代わりに「このコメントは削除されました」と出し、子は残す（6.1、6.4、12.4） |
 | mk-like-button | posts.js | `post-id` | 件数と、いいね済みかの状態。guest では件数のみ（6.7、6.8） |
 | mk-report-link | posts.js | `target-id` | 通報画面への導線。guest では表示しない（8.3） |
-| mk-precision-picker | location.js | `value` | 5 段階のラジオグループ。各段階に、他の人からの見え方の説明を添える（6.2、7.1、8.2） |
+| mk-notice-list | posts.js | `user-id`、`page-size` | 返信のお知らせの一覧（6.10、8.1）。`user-id` を省くとログイン中の自分（guest では何も出さない）。お知らせごとに、未読・既読の文字（色だけに頼らない）、返信の日時、返信した人、自分のコメントと返信の抜粋、投稿（投稿者と対象日）、返信への導線（その投稿の投稿詳細のシナリオと `#post-comments`。コメントごとのアンカーはない）。シナリオの `empty`（またはお知らせなし）で空状態、`fetch-error` で取得エラー。`many-items` では `SampleDataSet.paging` のお知らせを後ろに足す。`page-size` を付けると、その件数ごとのページに分け、一覧の下に mk-pager を置く（自分の投稿用、8.1） |
+| mk-precision-picker | location.js | `value`、`collapsed` | 5 段階のラジオグループ。各段階に、他の人からの見え方の説明を添える（6.2、7.1、8.2）。`collapsed` では閉じたアコーディオンにし、見出しに今の選択を出す（投稿作成・編集用、8.1） |
 | mk-location-panel | location.js | `post-id` | 地域名、地図、出没、天気をまとめる。`no-location` では出さない（7.2〜7.6） |
-| mk-map-sample | location.js | `precision` | インライン SVG の模式地図。exact はピン、fuzzed-1km は半径 1km の円、municipality・prefecture・country は範囲の塗りとズームの違いで示す（7.2、13.4） |
+| mk-map-sample | location.js | `precision`、`region`、`subject` | インライン SVG の模式地図。exact はピン、fuzzed-1km は半径 1km の円、municipality・prefecture・country は範囲の塗りとズームの違いで示す（7.2、13.4）。`subject="observer"` では、星図の観測地点の地図として、見える説明（「観測地点：{地域名}」）と代替テキスト（先頭に「星図の観測地点を示す地図。」）を出す（星図の画面用、8.1） |
 | mk-weather | location.js | `post-id` | 天候、気温、湿度、風速、観測時刻。`weather-failed` では取得できなかったことを表示する（7.4、7.5） |
 
 **Implementation Notes**
@@ -665,8 +686,8 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 ### Pages
 
 #### Screens
-- 骨格：`<body data-screen-id="{id}">` の中に、mk-site-header、`<main>`、mk-site-footer を置く。CSS は tokens、base、components、wireframe、review の順に、JS は theme-boot（head）、data、i18n 辞書、mock-state、i18n、components/base、各部品、review-shell の順に読み込む（すべて `defer` なしの classic script を body の末尾に置く。theme-boot だけ head）
-- 装飾要素には `data-decor` を付ける。状態で出し分ける要素には `data-when-auth` と `data-when-scenario` を付ける
+- 骨格：`<body data-screen-id="{id}">` の中に、mk-site-header、`<main>`、mk-site-footer を置く。ログイン以外の画面では、mk-site-header と `<main>` の間に、未ログインの案内の帯（`<mk-guest-notice band data-when-auth="guest">`）を置く（ワイヤーフレームのレビューの指摘、8.1）。CSS は tokens、base、components、wireframe、review の順に、JS は theme-boot（head）、data、i18n 辞書、mock-state、i18n、components/base、各部品、review-shell の順に読み込む（すべて `defer` なしの classic script を body の末尾に置く。theme-boot だけ head）
+- 装飾要素には `data-decor` を付ける（タスク 8.3 の背景の星、月相のアイコン、天文現象の種類のアイコンは、`data-decor` と `aria-hidden="true"` を付けたインラインの SVG。意味は必ず文字でも示す）。ワイヤーフレームの記号の上にハイフィのアイコンを重ねるときは、記号を DOM に残し、ハイフィ段階だけ（`html:not([data-stage="wireframe"])`）塗りを変える。配置に関わる値（書体を含む）は段階で変えない。状態で出し分ける要素には `data-when-auth` と `data-when-scenario` を付ける
 - 管理画面（admin.html）は mk-admin-band を持ち、guest と member では「権限がありません」の表示に切り替わる（3.6）
 - 出典表示とプライバシーポリシーは章立てと例文のみとする。プライバシーポリシーには取得項目（Google のアカウント識別子、表示名、任意の位置情報）の例を記載する
 

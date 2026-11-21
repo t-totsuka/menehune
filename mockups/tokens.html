@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>トークン一覧（モックアップ集）</title>
+  <script src="assets/js/theme-boot.js"></script>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/wireframe.css">
+  <!-- Review chrome only; always the last stylesheet and never referenced by product CSS. -->
+  <link rel="stylesheet" href="assets/css/review.css">
+  <!-- Catalog page: fixed Japanese copy (no dictionary keys); page-specific styles go in a <style> here. -->
+  <style>
+    /* Page chrome (table of contents, tables, swatch frames): gray literals like review.css.
+       The samples and usage examples use the product tokens. */
+    .tk-toc ol { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; margin: 0; padding-inline-start: 0; list-style-position: inside; }
+    .tk-table-wrap { max-width: 100%; overflow-x: auto; }
+    .tk-table-wrap:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+    .tk-table { border-collapse: collapse; min-width: 40rem; width: 100%; }
+    .tk-table caption { text-align: start; font-weight: 700; padding-block-end: 0.5rem; }
+    .tk-table th, .tk-table td { border: 1px solid #8a8a8a; padding: 0.5rem; text-align: start; vertical-align: middle; }
+    .tk-table thead th { background: #e6e6e6; color: #1a1a1a; }
+    .tk-table code { overflow-wrap: anywhere; }
+    .tk-name { white-space: nowrap; }
+    .tk-theme-cell { min-width: 12rem; }
+    .tk-theme-value { display: flex; align-items: center; gap: 0.5rem; }
+    .tk-theme-value + .tk-theme-value { margin-block-start: 0.25rem; }
+    .tk-chip { flex: none; display: inline-block; width: 2.5rem; height: 1.75rem; border: 1px solid #8a8a8a; border-radius: 4px; }
+    .tk-meta { display: grid; gap: 0.125rem; font-size: 0.8125rem; line-height: 1.4; }
+    .tk-ratio { display: grid; gap: 0.25rem; font-size: 0.8125rem; line-height: 1.4; }
+    .tk-ratio__sample { display: inline-block; padding: 0.125rem 0.5rem; border: 1px solid #8a8a8a; font-weight: 700; font-size: 1rem; }
+    .tk-ratio[data-pass="false"] strong { text-decoration: underline wavy; }
+    .tk-code { margin: 0; padding: 0.5rem; border: 1px solid #8a8a8a; overflow-wrap: anywhere; }
+    .tk-usage { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px dashed #8a8a8a; }
+    .tk-usage > h3 { margin: 0; }
+    .tk-themes { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); }
+
+    /* Samples: product tokens only. */
+    .tk-sample-text { margin: 0; }
+    .tk-sample-lines { margin: 0; max-width: 16rem; border-block: 1px dotted #8a8a8a; }
+    .tk-sample-bar { display: block; height: 0.75rem; background: var(--color-accent); }
+    .tk-sample-box { display: block; width: 4rem; height: 2.5rem; background: var(--color-surface-muted); border: var(--border-width-thin) solid var(--color-border-strong); }
+    .tk-sample-shadow { display: block; width: 6rem; height: 3rem; background: var(--color-surface); border-radius: var(--radius-md); margin: 0.5rem; }
+    .tk-sample-bp { position: relative; height: 1rem; background: #e6e6e6; }
+    .tk-sample-bp > span { position: absolute; inset-block: 0; inset-inline-start: 0; background: #555555; }
+
+    /* Color usage example: one panel per theme. The script sets the --color-* values of that
+       theme on the panel, so its contents use those values whatever the page theme is. */
+    .tk-demo { display: grid; gap: var(--space-sm); padding: var(--space-md); background: var(--color-bg); color: var(--color-text); border: 1px solid #8a8a8a; }
+    .tk-demo__title { margin: 0; font-family: var(--font-heading); font-size: var(--font-size-lg); }
+    .tk-demo__card { display: grid; gap: var(--space-sm); padding: var(--space-md); background: var(--color-surface); border: var(--border-width-thin) solid var(--color-border); border-radius: var(--radius-md); }
+    .tk-demo__muted { margin: 0; padding: var(--space-sm); background: var(--color-surface-muted); border-radius: var(--radius-sm); }
+    .tk-demo__focus { outline: var(--border-width-focus) solid var(--color-focus); outline-offset: var(--space-focus-offset); }
+    .tk-demo__labels { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-md); margin: 0; padding: 0; list-style: none; font-size: var(--font-size-sm); }
+    .tk-demo__band { padding-inline-start: var(--space-sm); border-inline-start: var(--border-width-focus) solid var(--color-admin-band); }
+
+    /* Usage examples of the other categories. */
+    .tk-article { display: grid; gap: var(--space-xs); max-width: 36rem; }
+    .tk-article h4 { margin: 0; font-family: var(--font-heading); font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); line-height: var(--line-height-tight); }
+    .tk-article p { margin: 0; font-family: var(--font-body); font-size: var(--font-size-md); font-weight: var(--font-weight-regular); line-height: var(--line-height-normal); }
+    .tk-article small { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+    .tk-article code { font-family: var(--font-mono); }
+    .tk-space-demo { display: grid; gap: var(--space-md); padding: var(--space-lg); background: var(--color-surface-muted); max-width: 24rem; }
+    .tk-space-demo > div { padding: var(--space-sm) var(--space-md); background: var(--color-surface); }
+    .tk-radius-demo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-md); }
+    .tk-radius-demo__card { padding: var(--space-md); background: var(--color-surface); border: var(--border-default); border-radius: var(--radius-lg); }
+    .tk-radius-demo__pill { padding: var(--space-2xs) var(--space-sm); border: var(--border-width-thin) solid var(--color-border-strong); border-radius: var(--radius-pill); font-size: var(--font-size-sm); }
+    .tk-border-demo { display: grid; gap: var(--space-md); max-width: 24rem; padding: var(--space-md); background: var(--color-surface); border: var(--border-default); }
+    .tk-shadow-demo { padding: var(--space-md); max-width: 24rem; background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-md); }
+  </style>
+</head>
+<body>
+  <nav class="mk-catalog-nav" aria-label="カタログ">
+    <ul class="mk-catalog-nav__list">
+      <li><a href="index.html">一覧</a></li>
+      <li><a href="viewer.html">幅プレビュー</a></li>
+      <li><a href="components.html">部品ギャラリー</a></li>
+      <li><a href="tokens.html" aria-current="page">トークン</a></li>
+      <li><a href="glossary.html">用語集</a></li>
+      <li><a href="a11y.html">アクセシビリティ</a></li>
+    </ul>
+  </nav>
+  <main class="l-container l-stack">
+    <h1>トークン一覧</h1>
+    <p class="text-muted">色・文字・余白などのデザイントークン（<code>assets/css/tokens.css</code>）を、見本と使用例で示すページです。一覧は、ページを開いたときにブラウザーが読み込んだ tokens.css の値から作ります。</p>
+    <p class="text-muted">色は、ライトとダークの値を並べて示します。見本と色の使用例は、ページのテーマや段階によらず、tokens.css のハイフィの値で表示します。ほかの使用例は、ページの現在のテーマと段階に従います。</p>
+
+    <nav class="tk-toc" aria-label="このページの目次">
+      <ol>
+        <li><a href="#tk-color">色（役割と意味）</a></li>
+        <li><a href="#tk-contrast">コントラスト比</a></li>
+        <li><a href="#tk-palette">素材の色</a></li>
+        <li><a href="#tk-font">書体</a></li>
+        <li><a href="#tk-font-size">文字の大きさ</a></li>
+        <li><a href="#tk-font-weight">文字の太さ</a></li>
+        <li><a href="#tk-line-height">行間</a></li>
+        <li><a href="#tk-space">余白</a></li>
+        <li><a href="#tk-radius">角丸</a></li>
+        <li><a href="#tk-border">境界線</a></li>
+        <li><a href="#tk-shadow">影</a></li>
+        <li><a href="#tk-bp">ブレークポイント</a></li>
+      </ol>
+    </nav>
+
+    <section id="tk-color" data-category="color" class="l-stack">
+      <h2>色（役割と意味）</h2>
+      <p>部品と画面は、役割の色（<code>--color-*</code>）だけを参照します。祝日、六曜、天文現象、投稿の状態などの意味を持つ色も、役割の名前で定義しています。各セルの背景は、そのテーマの <code>--color-bg</code> です。</p>
+      <div data-slot="color-role"></div>
+      <div data-slot="color-semantic"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <p>同じ部品を、ライトとダークの値で並べています。意味は色だけでなく文字でも示します。</p>
+        <div class="tk-themes">
+          <div class="tk-demo" data-demo-theme="light">
+            <p class="tk-demo__title">ライト</p>
+            <div class="tk-demo__card">
+              <p class="tk-sample-text">本文の文字（<code>--color-text</code>）。<a href="#tk-color">リンク</a>（<code>--color-link</code>）。</p>
+              <p class="tk-sample-text text-muted">補足の文字（<code>--color-text-muted</code>）</p>
+              <p class="tk-demo__muted">弱い面（<code>--color-surface-muted</code>）</p>
+              <div class="l-cluster">
+                <button type="button" tabindex="-1">主ボタン</button>
+                <button type="button" data-variant="secondary" tabindex="-1">副ボタン</button>
+                <span class="tk-demo__focus">フォーカス</span>
+              </div>
+              <p class="tk-sample-text" style="color: var(--color-error)">入力の誤り（<code>--color-error</code>）</p>
+            </div>
+            <ul class="tk-demo__labels">
+              <li style="color: var(--color-holiday)">祝日</li>
+              <li style="color: var(--color-sunday)">日曜</li>
+              <li style="color: var(--color-saturday)">土曜</li>
+              <li style="color: var(--color-rokuyo-taian)">大安</li>
+              <li style="color: var(--color-rokuyo-butsumetsu)">仏滅</li>
+              <li style="color: var(--color-rokuyo-sensho)">先勝</li>
+              <li style="color: var(--color-event-moon)">月</li>
+              <li style="color: var(--color-event-planet)">惑星</li>
+              <li style="color: var(--color-event-sun)">太陽</li>
+              <li style="color: var(--color-status-public)">公開中</li>
+              <li style="color: var(--color-status-members-only)">ログインユーザのみ</li>
+              <li style="color: var(--color-status-hidden)">一時非表示</li>
+              <li style="color: var(--color-status-deleted)">削除済み</li>
+              <li style="color: var(--color-provisional)">暫定</li>
+            </ul>
+            <p class="tk-sample-text tk-demo__band">管理帯（<code>--color-admin-band</code>）</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tk-contrast" class="l-stack">
+      <h2>コントラスト比</h2>
+      <p>検査ツール（<code>tools/contrast-pairs.json</code>、<code>npm run check:contrast</code>）と同じ組み合わせについて、両テーマのコントラスト比を示します。本文の組の基準は 4.5:1、大きな文字・アイコン・境界線・フォーカスの組の基準は 3:1 です。</p>
+      <div data-slot="contrast"></div>
+    </section>
+
+    <section id="tk-palette" data-category="palette" class="l-stack">
+      <h2>素材の色</h2>
+      <p>素材の色（<code>--palette-*</code>）は、役割の色の値の元です。部品は素材の色を直接参照しません。見本は、ライトとダークの背景の上に置いています。</p>
+      <div data-slot="palette"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <p>役割の色は、テーマごとに素材の色を参照します。表の「参照している役割」の列に、その素材の色を使う役割を示しています。</p>
+        <pre class="tk-code"><code>:root { --color-accent: var(--palette-indigo-700); }
+:root[data-theme="dark"] { --color-accent: var(--palette-gold-300); }
+.button { background-color: var(--color-accent); }</code></pre>
+      </div>
+    </section>
+
+    <section id="tk-font" data-category="font" class="l-stack">
+      <h2>書体</h2>
+      <p>本文はゴシック、見出しは明朝です。Web フォントは使いません。</p>
+      <div data-slot="font"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <div class="tk-article">
+          <h4>しし座流星群が極大</h4>
+          <p>今夜は月明かりが少なく、流星を観察しやすい条件です。（本文：<code>--font-body</code>）</p>
+          <small>見出し：<code>--font-heading</code>、コード：<code>--font-mono</code></small>
+        </div>
+      </div>
+    </section>
+
+    <section id="tk-font-size" data-category="font-size" class="l-stack">
+      <h2>文字の大きさ</h2>
+      <div data-slot="font-size"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <div class="tk-article">
+          <h4>11月17日(火) 大安</h4>
+          <p>見出しは <code>--font-size-xl</code>、本文は <code>--font-size-md</code> です。</p>
+          <small>補足は <code>--font-size-sm</code> です。</small>
+        </div>
+        <pre class="tk-code"><code>h1 { font-size: var(--font-size-2xl); }
+@media (min-width: 960px) { h1 { font-size: var(--font-size-3xl); } }</code></pre>
+      </div>
+    </section>
+
+    <section id="tk-font-weight" data-category="font-weight" class="l-stack">
+      <h2>文字の太さ</h2>
+      <div data-slot="font-weight"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <div class="tk-article">
+          <h4>見出しは <code>--font-weight-bold</code></h4>
+          <p>本文は <code>--font-weight-regular</code>、ボタンの文字は <code>--font-weight-medium</code> です。</p>
+        </div>
+        <div class="l-cluster"><button type="button" tabindex="-1">ボタン</button></div>
+      </div>
+    </section>
+
+    <section id="tk-line-height" data-category="line-height" class="l-stack">
+      <h2>行間</h2>
+      <div data-slot="line-height"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <div class="tk-article">
+          <h4>見出しは <code>--line-height-tight</code> で、行を詰めて組みます</h4>
+          <p>本文は <code>--line-height-normal</code> です。日本語の長い文章でも読みやすいように、行と行の間を広めに取っています。入力欄とボタンは <code>--line-height-control</code> です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tk-space" data-category="space" class="l-stack">
+      <h2>余白</h2>
+      <div data-slot="space"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <div class="tk-space-demo">
+          <div>外側の余白：<code>--space-lg</code></div>
+          <div>要素の間：<code>--space-md</code></div>
+          <div>内側の余白：<code>--space-sm</code> と <code>--space-md</code></div>
+        </div>
+        <p>フォーカスの枠と要素の間は <code>--space-focus-offset</code> です。</p>
+      </div>
+    </section>
+
+    <section id="tk-radius" data-category="radius" class="l-stack">
+      <h2>角丸</h2>
+      <div data-slot="radius"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <div class="tk-radius-demo">
+          <button type="button" tabindex="-1">ボタン（sm）</button>
+          <span class="tk-radius-demo__card">カード（lg）</span>
+          <span class="tk-radius-demo__pill">バッジ（pill）</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="tk-border" data-category="border" class="l-stack">
+      <h2>境界線</h2>
+      <div data-slot="border"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <div class="tk-border-demo">
+          <span>枠（<code>--border-default</code>）</span>
+          <label class="field">入力欄（<code>--border-width-thin</code>）<input type="text" value="三鷹市" tabindex="-1" readonly></label>
+          <span class="tk-demo__focus">フォーカスの枠（<code>--border-width-focus</code>）</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="tk-shadow" data-category="shadow" class="l-stack">
+      <h2>影</h2>
+      <p>影の色は <code>--color-shadow</code> で、テーマに従います。ワイヤーフレームの段階では影を表示しません。</p>
+      <div data-slot="shadow"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <div class="tk-shadow-demo">浮き上がったカード（<code>--shadow-md</code>）</div>
+      </div>
+    </section>
+
+    <section id="tk-bp" data-category="bp" class="l-stack">
+      <h2>ブレークポイント</h2>
+      <p>CSS の変数は <code>@media</code> に使えないので、<code>@media</code> には同じ数値を書きます（<code>npm run check:tokens</code> が一致を検査します）。</p>
+      <div data-slot="bp"></div>
+      <div class="tk-usage" data-usage>
+        <h3>使用例</h3>
+        <ul>
+          <li>600px 未満：ヘッダーがメニューボタンに、月のカレンダーが小さな格子と要約パネルに切り替わり、コメントの字下げが 3 段までになる</li>
+          <li>600px 以上：ページの左右の余白が <code>--space-lg</code> になる</li>
+          <li>960px 以上：見出しが大きくなり、投稿詳細の位置パネルなどが横並びになる</li>
+          <li>1280px：ページの本文の最大幅（<code>.l-container</code>）</li>
+        </ul>
+        <pre class="tk-code"><code>@media (width &lt; 600px) { … }
+@media (min-width: 960px) { … }
+.l-container { max-width: var(--bp-lg); }</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="data/screens.js"></script>
+  <script src="data/glossary.js"></script>
+  <script src="data/sample-data.js"></script>
+  <script src="assets/i18n/messages.ja.js"></script>
+  <script src="assets/i18n/messages.en.js"></script>
+  <script src="assets/js/mock-state.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/components/base.js"></script>
+  <script src="assets/js/components/shell.js"></script>
+  <script src="assets/js/components/almanac.js"></script>
+  <script src="assets/js/components/sky.js"></script>
+  <script src="assets/js/components/posts.js"></script>
+  <script src="assets/js/components/location.js"></script>
+  <script src="assets/js/review-shell.js"></script>
+  <script>
+    // Token page (10.5). Lists the custom properties of tokens.css by category with samples,
+    // the light and dark values of every color side by side, and the contrast ratios of the
+    // pairs checked by tools/check-contrast.mjs.
+    // Stylesheet rules cannot be read on file:// (cssRules throws), so the token names and values
+    // come from getComputedStyle of <html>, read once with data-theme forced to light and to dark
+    // and data-stage removed (hi-fi values); the attributes are restored right after.
+    (function () {
+      var html = document.documentElement;
+
+      // Longest prefix first, so --font-size-* is not filed under --font-*.
+      var CATEGORIES = ['font-size', 'font-weight', 'line-height', 'palette', 'color', 'font', 'space', 'radius', 'border', 'shadow', 'bp'];
+      var SIZE_ORDER = ['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', 'pill'];
+      var ROLE_ORDER = ['bg', 'surface', 'surface-muted', 'text', 'text-muted', 'accent', 'on-accent', 'link', 'border', 'border-strong', 'focus', 'error', 'shadow'];
+      var SEMANTIC = /^--color-(holiday|sunday|saturday|rokuyo-|event-|moon-|decor-|status-|admin-band|provisional)/;
+      var SEMANTIC_ORDER = ['holiday', 'sunday', 'saturday', 'rokuyo-', 'event-', 'moon-', 'decor-', 'status-', 'admin-band', 'provisional'];
+
+      // Copy of tools/contrast-pairs.json (file:// pages cannot fetch JSON). Every pair is checked
+      // in both themes. tests/tokens-page.spec.mjs fails when the two lists drift apart.
+      var THEMES = ['light', 'dark'];
+      var PAIR_GROUPS = [
+        ['--color-text', ['--color-bg', '--color-surface', '--color-surface-muted'], 4.5],
+        ['--color-text-muted', ['--color-bg', '--color-surface', '--color-surface-muted'], 4.5],
+        ['--color-link', ['--color-bg', '--color-surface', '--color-surface-muted'], 4.5],
+        ['--color-on-accent', ['--color-accent'], 4.5],
+        ['--color-error', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-holiday', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-sunday', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-saturday', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-rokuyo-taian', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-rokuyo-butsumetsu', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-rokuyo-sensho', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-rokuyo-tomobiki', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-rokuyo-senbu', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-rokuyo-shakku', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-event-moon', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-event-planet', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-event-sun', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-status-public', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-status-members-only', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-status-hidden', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-status-deleted', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-admin-band', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-provisional', ['--color-bg', '--color-surface'], 4.5],
+        ['--color-admin-band', ['--color-surface-muted'], 3],
+        ['--color-moon-lit', ['--color-moon-shadow'], 3],
+        ['--color-decor-star', ['--color-bg', '--color-surface'], 3],
+        ['--color-accent', ['--color-bg', '--color-surface'], 3],
+        ['--color-surface', ['--color-accent'], 3],
+        ['--color-border', ['--color-bg', '--color-surface', '--color-surface-muted'], 3],
+        ['--color-border-strong', ['--color-bg', '--color-surface', '--color-surface-muted'], 3],
+        ['--color-focus', ['--color-bg', '--color-surface', '--color-surface-muted'], 3]
+      ];
+      var PAIRS = [];
+      PAIR_GROUPS.forEach(function (g) {
+        g[1].forEach(function (bg) { PAIRS.push({ fg: g[0], bg: bg, min: g[2], themes: THEMES }); });
+      });
+
+      /** @param {string} name */
+      function categoryOf(name) {
+        for (var i = 0; i < CATEGORIES.length; i++) {
+          if (name.indexOf('--' + CATEGORIES[i] + '-') === 0) return CATEGORIES[i];
+        }
+        return null;
+      }
+
+      // ---- Read the values of both themes ----
+      function readTheme(theme) {
+        var savedTheme = html.getAttribute('data-theme');
+        var savedStage = html.getAttribute('data-stage');
+        html.setAttribute('data-theme', theme);
+        html.removeAttribute('data-stage');
+        var cs = getComputedStyle(html);
+        var values = {};
+        for (var i = 0; i < cs.length; i++) {
+          var name = cs[i];
+          if (name.indexOf('--') === 0 && categoryOf(name) !== null) values[name] = cs.getPropertyValue(name).trim();
+        }
+        if (savedTheme === null) html.removeAttribute('data-theme'); else html.setAttribute('data-theme', savedTheme);
+        if (savedStage === null) html.removeAttribute('data-stage'); else html.setAttribute('data-stage', savedStage);
+        return values;
+      }
+      var values = { light: readTheme('light'), dark: readTheme('dark') };
+      var names = Object.keys(values.light);
+
+      // ---- Color math (WCAG 2.1, same formula as tools/check-contrast.mjs) ----
+      function parseColor(raw) {
+        var s = String(raw).trim().toLowerCase();
+        var hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(s);
+        if (hex) {
+          var h = hex[1];
+          if (h.length <= 4) h = h.split('').map(function (c) { return c + c; }).join('');
+          return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
+        }
+        var rgb = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/.exec(s);
+        if (rgb) return { r: Number(rgb[1]), g: Number(rgb[2]), b: Number(rgb[3]) };
+        return null;
+      }
+      function luminance(c) {
+        var lin = function (v) { var x = v / 255; return x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); };
+        return 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b);
+      }
+      function contrast(a, b) {
+        var la = luminance(a);
+        var lb = luminance(b);
+        return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+      }
+
+      // ---- Ordering ----
+      function toPx(v) {
+        var m = /^(-?[\d.]+)(px|rem|em)?$/.exec(v);
+        if (!m) return NaN;
+        return m[2] === 'rem' || m[2] === 'em' ? Number(m[1]) * 16 : Number(m[1]);
+      }
+      function rankIn(list, suffix, startsWith) {
+        for (var i = 0; i < list.length; i++) {
+          if (startsWith ? suffix.indexOf(list[i]) === 0 : suffix === list[i]) return i;
+        }
+        return list.length;
+      }
+      function compare(category) {
+        return function (a, b) {
+          var sa = a.slice(category.length + 3);
+          var sb = b.slice(category.length + 3);
+          var d = 0;
+          if (category === 'color') {
+            var semA = SEMANTIC.test(a);
+            d = semA ? rankIn(SEMANTIC_ORDER, sa, true) - rankIn(SEMANTIC_ORDER, sb, true) : rankIn(ROLE_ORDER, sa, false) - rankIn(ROLE_ORDER, sb, false);
+          } else if (category === 'palette') {
+            var pa = /^(.*?)-?(\d*)$/.exec(sa) || ['', sa, ''];
+            var pb = /^(.*?)-?(\d*)$/.exec(sb) || ['', sb, ''];
+            d = pa[1] < pb[1] ? -1 : pa[1] > pb[1] ? 1 : Number(pb[2] || 0) - Number(pa[2] || 0);
+          } else if (category === 'font-weight' || category === 'line-height') {
+            d = Number(values.light[a]) - Number(values.light[b]);
+          } else if (category === 'shadow') {
+            d = rankIn(SIZE_ORDER, sa, false) - rankIn(SIZE_ORDER, sb, false);
+          } else {
+            var xa = toPx(values.light[a]);
+            var xb = toPx(values.light[b]);
+            if (isNaN(xa) !== isNaN(xb)) d = isNaN(xa) ? 1 : -1;
+            else if (!isNaN(xa)) d = xa - xb;
+          }
+          return d !== 0 ? d : a < b ? -1 : a > b ? 1 : 0;
+        };
+      }
+      function tokensOf(category, filter) {
+        return names.filter(function (n) { return categoryOf(n) === category && (!filter || filter(n)); }).sort(compare(category));
+      }
+
+      // ---- DOM helpers ----
+      function el(tag, attrs, children) {
+        var node = document.createElement(tag);
+        Object.keys(attrs || {}).forEach(function (k) { node.setAttribute(k, attrs[k]); });
+        (children || []).forEach(function (c) { node.append(c); });
+        return node;
+      }
+      function code(text) { return el('code', null, [text]); }
+      function table(caption, heads, rows) {
+        var t = el('table', { class: 'tk-table' }, [
+          el('caption', null, [caption]),
+          el('thead', null, [el('tr', null, heads.map(function (h) { return el('th', { scope: 'col' }, [h]); }))]),
+          el('tbody', null, rows)
+        ]);
+        return el('div', { class: 'tk-table-wrap', tabindex: '0', role: 'region', 'aria-label': caption }, [t]);
+      }
+      function fill(slot, node) {
+        var target = document.querySelector('[data-slot="' + slot + '"]');
+        if (target) target.append(node);
+      }
+      function paletteNameOf(value) {
+        var hit = names.filter(function (n) { return categoryOf(n) === 'palette' && values.light[n] === value; });
+        return hit.length > 0 ? hit[0] : null;
+      }
+
+      // ---- Colors: light and dark side by side ----
+      function colorCell(name, theme, showPalette) {
+        var value = values[theme][name];
+        var bg = values[theme]['--color-bg'];
+        var fg = values[theme]['--color-text'];
+        var chip = el('span', { class: 'tk-chip', 'data-swatch': '', 'aria-hidden': 'true' });
+        chip.style.background = value;
+        var meta = el('span', { class: 'tk-meta' }, [code(value)]);
+        var source = showPalette ? paletteNameOf(value) : null;
+        if (source) meta.prepend(code(source));
+        var cell = el('td', { class: 'tk-theme-cell', 'data-theme-value': theme, 'data-value': value }, [
+          el('span', { class: 'tk-theme-value' }, [chip, meta])
+        ]);
+        cell.style.background = bg;
+        cell.style.color = fg;
+        return cell;
+      }
+      function colorRows(list, showPalette, extra) {
+        return list.map(function (name) {
+          var cells = [el('th', { scope: 'row', class: 'tk-name' }, [code(name)]), colorCell(name, 'light', showPalette), colorCell(name, 'dark', showPalette)];
+          if (extra) cells.push(extra(name));
+          return el('tr', { 'data-token': name }, cells);
+        });
+      }
+      fill('color-role', table('役割の色', ['トークン', 'ライト', 'ダーク'], colorRows(tokensOf('color', function (n) { return !SEMANTIC.test(n); }), true)));
+      fill('color-semantic', table('意味を持つ色', ['トークン', 'ライト', 'ダーク'], colorRows(tokensOf('color', function (n) { return SEMANTIC.test(n); }), true)));
+
+      var roleNames = tokensOf('color');
+      fill('palette', table('素材の色', ['トークン', 'ライトの背景で', 'ダークの背景で', '参照している役割'], colorRows(tokensOf('palette'), false, function (name) {
+        var users = [];
+        THEMES.forEach(function (theme) {
+          roleNames.forEach(function (r) {
+            if (values[theme][r] === values.light[name]) users.push(r + '（' + (theme === 'light' ? 'ライト' : 'ダーク') + '）');
+          });
+        });
+        return el('td', null, users.length > 0 ? [el('span', { class: 'tk-meta' }, users.map(code))] : ['なし']);
+      })));
+
+      // The color usage example: one panel per theme, with that theme's --color-* values set on it.
+      var lightDemo = document.querySelector('[data-demo-theme="light"]');
+      if (lightDemo && lightDemo.parentNode) {
+        var darkDemo = /** @type {HTMLElement} */ (lightDemo.cloneNode(true));
+        darkDemo.setAttribute('data-demo-theme', 'dark');
+        var title = darkDemo.querySelector('.tk-demo__title');
+        if (title) title.textContent = 'ダーク';
+        lightDemo.parentNode.append(darkDemo);
+        [lightDemo, darkDemo].forEach(function (panel) {
+          var theme = panel.getAttribute('data-demo-theme') || 'light';
+          roleNames.forEach(function (n) { /** @type {HTMLElement} */ (panel).style.setProperty(n, values[theme][n]); });
+        });
+      }
+
+      // ---- Contrast ratios ----
+      var contrastRows = PAIRS.map(function (pair) {
+        var cells = pair.themes.map(function (theme) {
+          var fgValue = values[theme][pair.fg];
+          var bgValue = values[theme][pair.bg];
+          var fg = parseColor(fgValue);
+          var bg = parseColor(bgValue);
+          if (!fg || !bg) return el('td', { 'data-theme-ratio': theme }, ['計算できません']);
+          var ratio = contrast(fg, bg).toFixed(2);
+          var pass = Number(ratio) >= pair.min;
+          var sample = el('span', { class: 'tk-ratio__sample', 'aria-hidden': 'true' }, ['Aa あ']);
+          sample.style.color = fgValue;
+          sample.style.background = bgValue;
+          if (pair.fg.indexOf('border') >= 0 || pair.fg === '--color-focus' || pair.fg === '--color-accent') sample.style.borderColor = fgValue;
+          return el('td', { 'data-theme-ratio': theme, 'data-ratio': ratio }, [
+            el('span', { class: 'tk-ratio', 'data-pass': String(pass) }, [
+              sample,
+              el('span', null, [el('strong', null, [ratio + ':1']), '　', pass ? '○ 合格' : '× 不合格'])
+            ])
+          ]);
+        });
+        return el('tr', { 'data-fg': pair.fg, 'data-bg': pair.bg, 'data-min': String(pair.min) }, [
+          el('th', { scope: 'row', class: 'tk-name' }, [code(pair.fg)]),
+          el('td', { class: 'tk-name' }, [code(pair.bg)]),
+          el('td', null, [pair.min + ':1'])
+        ].concat(cells));
+      });
+      fill('contrast', table('前景と背景の組み合わせ', ['前景', '背景', '基準', 'ライト', 'ダーク'], contrastRows));
+
+      // ---- Other categories: value and sample ----
+      function valueCell(name) {
+        var light = values.light[name];
+        var dark = values.dark[name];
+        if (light === dark) return el('td', null, [code(light)]);
+        return el('td', null, [
+          el('div', { class: 'tk-theme-value', 'data-theme-value': 'light', 'data-value': light }, ['ライト：', code(light)]),
+          el('div', { class: 'tk-theme-value', 'data-theme-value': 'dark', 'data-value': dark }, ['ダーク：', code(dark)])
+        ]);
+      }
+      var SAMPLE_TEXT = '星と暦 Aa 123';
+      var samples = {
+        'font': function (n) { var p = el('p', { class: 'tk-sample-text' }, ['星と暦 しし座流星群 Aa 123']); p.style.fontFamily = 'var(' + n + ')'; return p; },
+        'font-size': function (n) { var p = el('p', { class: 'tk-sample-text' }, [SAMPLE_TEXT]); p.style.fontSize = 'var(' + n + ')'; return p; },
+        'font-weight': function (n) { var p = el('p', { class: 'tk-sample-text' }, [SAMPLE_TEXT]); p.style.fontWeight = 'var(' + n + ')'; return p; },
+        'line-height': function (n) {
+          var p = el('p', { class: 'tk-sample-lines' }, ['行間の見本です。二行目以降の行と行の間隔を確かめます。']);
+          p.style.lineHeight = 'var(' + n + ')';
+          return p;
+        },
+        'space': function (n) { var s = el('span', { class: 'tk-sample-bar' }); s.style.width = 'var(' + n + ')'; return s; },
+        'radius': function (n) { var s = el('span', { class: 'tk-sample-box' }); s.style.borderRadius = 'var(' + n + ')'; return s; },
+        'border': function (n) {
+          var s = el('span', { class: 'tk-sample-box' });
+          if (n.indexOf('--border-width-') === 0) s.style.border = 'var(' + n + ') solid var(--color-border-strong)';
+          else s.style.border = 'var(' + n + ')';
+          return s;
+        },
+        'shadow': function (n) { var s = el('span', { class: 'tk-sample-shadow' }); s.style.boxShadow = 'var(' + n + ')'; return s; },
+        'bp': function (n) {
+          var px = toPx(values.light[n]);
+          var bar = el('span');
+          bar.style.width = Math.min(100, (px / 1440) * 100) + '%';
+          var active = window.matchMedia('(min-width: ' + px + 'px)').matches;
+          return el('div', null, [
+            el('div', { class: 'tk-sample-bp', 'aria-hidden': 'true' }, [bar]),
+            el('span', { class: 'tk-meta' }, [(px / 1440 * 100).toFixed(0) + '%（1440px を 100% とした長さ）。この幅以上か：' + (active ? 'はい' : 'いいえ')])
+          ]);
+        }
+      };
+      ['font', 'font-size', 'font-weight', 'line-height', 'space', 'radius', 'border', 'shadow', 'bp'].forEach(function (category) {
+        var rows = tokensOf(category).map(function (name) {
+          return el('tr', { 'data-token': name }, [
+            el('th', { scope: 'row', class: 'tk-name' }, [code(name)]),
+            valueCell(name),
+            el('td', null, [samples[category](name)])
+          ]);
+        });
+        var heading = document.querySelector('[data-category="' + category + '"] h2');
+        fill(category, table(heading ? heading.textContent || category : category, ['トークン', '値', '見本'], rows));
+      });
+    })();
+  </script>
+</body>
+</html>

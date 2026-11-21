@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="screen.top.title">トップ</title>
+  <script src="../assets/js/theme-boot.js"></script>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/wireframe.css">
+  <link rel="stylesheet" href="../assets/css/review.css">
+</head>
+<body data-screen-id="top">
+  <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
+  <!-- Task 8.1 (wireframe review of 2026-11-19): posts are the main content. From 960px the
+       page has two columns 1:3; the narrow one holds today's almanac and the upcoming events, the
+       wide one the posts. Reading order (and the phone layout) is today, posts, events. The guest
+       notice is the band above <main> (cross-screen note of the same day). -->
+  <main class="l-container screen-top">
+    <h1 class="visually-hidden" data-i18n="screen.top.title">トップ</h1>
+    <!-- Task 8.3: decorative stars behind the top of the page (hidden on the wireframe stage). -->
+    <svg class="mk-starfield" data-decor aria-hidden="true" focusable="false">
+      <circle class="mk-starfield__star" cx="2%" cy="20%" r="1.2"></circle>
+      <circle class="mk-starfield__star" cx="8%" cy="70%" r="0.8"></circle>
+      <svg x="14%" y="35%" overflow="visible"><path class="mk-starfield__star" d="M0 -3.6 L0.8 -0.8 L3.6 0 L0.8 0.8 L0 3.6 L-0.8 0.8 L-3.6 0 L-0.8 -0.8 Z"></path></svg>
+      <circle class="mk-starfield__star" cx="21%" cy="85%" r="1"></circle>
+      <circle class="mk-starfield__star" cx="29%" cy="15%" r="0.9"></circle>
+      <circle class="mk-starfield__star" cx="36%" cy="60%" r="1.3"></circle>
+      <svg x="44%" y="22%" overflow="visible"><path class="mk-starfield__star" d="M0 -3 L0.7 -0.7 L3 0 L0.7 0.7 L0 3 L-0.7 0.7 L-3 0 L-0.7 -0.7 Z"></path></svg>
+      <circle class="mk-starfield__star" cx="51%" cy="80%" r="0.8"></circle>
+      <circle class="mk-starfield__star" cx="58%" cy="40%" r="1.1"></circle>
+      <circle class="mk-starfield__star" cx="66%" cy="12%" r="0.9"></circle>
+      <svg x="73%" y="66%" overflow="visible"><path class="mk-starfield__star" d="M0 -3.6 L0.8 -0.8 L3.6 0 L0.8 0.8 L0 3.6 L-0.8 0.8 L-3.6 0 L-0.8 -0.8 Z"></path></svg>
+      <circle class="mk-starfield__star" cx="80%" cy="28%" r="1.2"></circle>
+      <circle class="mk-starfield__star" cx="88%" cy="78%" r="0.9"></circle>
+      <circle class="mk-starfield__star" cx="95%" cy="18%" r="1"></circle>
+    </svg>
+
+    <section class="screen-section screen-top-side screen-top-today l-stack" aria-labelledby="top-today">
+      <h2 id="top-today"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.top.today">今日の暦</span></h2>
+      <mk-almanac-summary date="2026-11-16" variant="brief"></mk-almanac-summary>
+      <div class="l-stack screen-top-rise-set">
+        <h3 data-i18n="screen.top.rise-set">今日の日の出・日の入りと月の出・月の入り</h3>
+        <p class="screen-top-basis" data-i18n="screen.top.rise-set-basis">東京を基準にした時刻です。</p>
+        <mk-rise-set date="2026-11-16" chart></mk-rise-set>
+      </div>
+      <p class="l-cluster">
+        <a href="day-detail.html?date=2026-11-16" data-when-auth="guest" data-i18n="calendar.open-day-detail">この日の詳細を見る</a>
+        <a href="day-detail.html?date=2026-11-16&amp;auth=member" data-when-auth="member" data-i18n="calendar.open-day-detail">この日の詳細を見る</a>
+        <a href="calendar-month.html" data-when-auth="guest" data-i18n="screen.top.open-calendar">月のカレンダーを見る</a>
+        <a href="calendar-month.html?auth=member" data-when-auth="member" data-i18n="screen.top.open-calendar">月のカレンダーを見る</a>
+      </p>
+    </section>
+
+    <section class="screen-section screen-top-posts l-stack" aria-labelledby="top-posts">
+      <h2 id="top-posts"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.top.posts">新しい投稿</span></h2>
+      <p data-when-auth="member">
+        <a class="button" href="post-edit.html?auth=member" data-i18n="button.post">投稿する</a>
+      </p>
+      <ul class="screen-post-list">
+        <li><mk-post-card post-id="p-107"></mk-post-card></li>
+        <li><mk-post-card post-id="p-101"></mk-post-card></li>
+        <li><mk-post-card post-id="p-105"></mk-post-card></li>
+        <li><mk-post-card post-id="p-106"></mk-post-card></li>
+        <li><mk-post-card post-id="p-102"></mk-post-card></li>
+      </ul>
+    </section>
+
+    <section class="screen-section screen-top-side screen-top-events l-stack" aria-labelledby="top-events">
+      <h2 id="top-events"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.top.events">今日と直近の天文現象</span></h2>
+      <!-- Task 8.1 (wireframe review of 2026-11-19): relative-days shows 「n日後」 / 「今日」 after each
+           datetime; mark-past labels the past events shown when the period start is moved earlier. -->
+      <mk-event-list from="2026-11-16" to="2026-11-30" filters="collapsed" mark-past relative-days></mk-event-list>
+      <p>
+        <a href="astro-events.html" data-when-auth="guest" data-i18n="screen.top.all-events">天文現象の一覧を見る</a>
+        <a href="astro-events.html?auth=member" data-when-auth="member" data-i18n="screen.top.all-events">天文現象の一覧を見る</a>
+      </p>
+    </section>
+  </main>
+  <mk-site-footer></mk-site-footer>
+  <script src="../data/screens.js"></script>
+  <script src="../data/glossary.js"></script>
+  <script src="../data/sample-data.js"></script>
+  <script src="../assets/i18n/messages.ja.js"></script>
+  <script src="../assets/i18n/messages.en.js"></script>
+  <script src="../assets/js/mock-state.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/components/base.js"></script>
+  <script src="../assets/js/components/shell.js"></script>
+  <script src="../assets/js/components/almanac.js"></script>
+  <script src="../assets/js/components/sky.js"></script>
+  <script src="../assets/js/components/posts.js"></script>
+  <script src="../assets/js/components/location.js"></script>
+  <script src="../assets/js/review-shell.js"></script>
+</body>
+</html>

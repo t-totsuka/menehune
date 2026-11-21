@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="screen.day-detail.title">日の詳細</title>
+  <script src="../assets/js/theme-boot.js"></script>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/wireframe.css">
+  <link rel="stylesheet" href="../assets/css/review.css">
+</head>
+<body data-screen-id="day-detail">
+  <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
+  <!-- Task 8.1 (wireframe review of 2026-11-19): as on the top page, the posts are the main
+       content. From 960px the page has two columns 1:2 below the title and the back link; the
+       narrow left one holds the day's almanac and the rise / set times, the wide right one the
+       posts. Reading order (and the phone layout) is almanac, rise / set, posts. -->
+  <main class="l-container screen-day-detail">
+    <!-- Task 8.1 (second review round): the heading is the date itself ("日付が1つしかないのは自明");
+         the screen name stays in <title>. The date comes from ?date=YYYY-MM-DD (the page script at
+         the end sets the heading's data-i18n-date and every [data-day-date]). -->
+    <h1 data-i18n-date="2026-11-16" data-date-style="date-long" data-day-heading>2026年11月16日(月)</h1>
+    <p>
+      <a href="calendar-month.html" data-calendar-link data-when-auth="guest" data-i18n="screen.day-detail.back-to-calendar">月のカレンダーに戻る</a>
+      <a href="calendar-month.html?auth=member" data-calendar-link data-when-auth="member" data-i18n="screen.day-detail.back-to-calendar">月のカレンダーに戻る</a>
+    </p>
+
+    <section class="screen-section screen-day-detail-side l-stack" aria-labelledby="day-almanac">
+      <h2 id="day-almanac"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.day-detail.almanac">暦</span></h2>
+      <!-- Task 8.1: the 候 with its day count, no "none" items, no second date line (opt-ins). -->
+      <mk-almanac-summary data-day-date date="2026-11-16" variant="full" kou="period" hide-empty hide-date></mk-almanac-summary>
+    </section>
+
+    <section class="screen-section screen-day-detail-side l-stack" aria-labelledby="day-rise-set">
+      <h2 id="day-rise-set"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.day-detail.rise-set">日の出・日の入り、月の出・月の入り</span></h2>
+      <mk-rise-set data-day-date date="2026-11-16"></mk-rise-set>
+      <p class="text-muted" data-i18n="screen.day-detail.rise-set-note">架空のサンプル地点（東京付近）での時刻です。</p>
+    </section>
+
+    <section class="screen-section screen-day-detail-posts l-stack" aria-labelledby="day-posts">
+      <!-- Task 8.1: "「この日の投稿」も投稿は自明なので不要": the heading is not shown but stays for
+           the outline and as the region's name. -->
+      <h2 id="day-posts" class="visually-hidden"><span data-i18n="screen.day-detail.posts">投稿</span></h2>
+      <p data-when-auth="member" data-day-new-post>
+        <a class="button" href="post-edit.html?auth=member" data-i18n="screen.day-detail.new-post">投稿する</a>
+      </p>
+      <ul class="screen-post-list" data-day-posts></ul>
+      <p class="text-muted" data-day-posts-empty data-i18n="empty.posts">まだ投稿はありません。</p>
+    </section>
+  </main>
+  <mk-site-footer></mk-site-footer>
+  <script src="../data/screens.js"></script>
+  <script src="../data/glossary.js"></script>
+  <script src="../data/sample-data.js"></script>
+  <script src="../assets/i18n/messages.ja.js"></script>
+  <script src="../assets/i18n/messages.en.js"></script>
+  <script src="../assets/js/mock-state.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/components/base.js"></script>
+  <script src="../assets/js/components/shell.js"></script>
+  <script src="../assets/js/components/almanac.js"></script>
+  <script src="../assets/js/components/sky.js"></script>
+  <script src="../assets/js/components/posts.js"></script>
+  <script src="../assets/js/components/location.js"></script>
+  <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Day detail page script (task 5.1). Runs before DOMContentLoaded, so the review shell and the
+    // i18n runtime process the nodes it adds.
+    // - ?date=YYYY-MM-DD picks the day; a date without a sample row falls back to
+    //   SampleDataSet.today with a warning. The h1 shows that date (task 8.1).
+    // - Posts tied to the day: public ones for everyone, members-only ones for members only
+    //   (data-when-auth); hidden / deleted posts are not listed (my-posts shows the viewer's own).
+    // - The create-post entry point (members only) is offered from today on and carries the date;
+    //   the calendar link opens the provisional-holiday scenario for 2027-03.
+    (function () {
+      const sample = window.MockSample;
+      const today = sample.today;
+      const requested = new URLSearchParams(window.location.search).get('date');
+      let date = today;
+      if (requested !== null) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(requested) && sample.almanac.some((d) => d.date === requested)) date = requested;
+        else console.warn(`[day-detail] no sample for date=${requested}; showing ${today}`);
+      }
+      for (const el of document.querySelectorAll('[data-day-date]')) el.setAttribute('date', date);
+      for (const el of document.querySelectorAll('[data-day-heading]')) el.setAttribute('data-i18n-date', date);
+
+      for (const a of document.querySelectorAll('a[data-calendar-link]')) {
+        const url = new URL(a.getAttribute('href') || 'calendar-month.html', window.location.href);
+        if (date.startsWith('2027-03-')) url.searchParams.set('scenario', 'provisional-holiday');
+        a.setAttribute('href', url.href);
+      }
+
+      const newPost = document.querySelector('[data-day-new-post]');
+      if (newPost !== null) {
+        const link = newPost.querySelector('a');
+        if (date < today) newPost.remove();
+        else if (link !== null) {
+          const url = new URL(link.getAttribute('href') || 'post-edit.html', window.location.href);
+          url.searchParams.set('date', date);
+          link.setAttribute('href', url.href);
+        }
+      }
+
+      const posts = sample.posts
+        .filter((p) => p.targetDate === date && (p.status === 'public' || p.status === 'members-only'))
+        .sort((a, b) => Date.parse(b.postedAt) - Date.parse(a.postedAt));
+      const list = document.querySelector('[data-day-posts]');
+      const empty = document.querySelector('[data-day-posts-empty]');
+      if (list !== null) {
+        for (const post of posts) {
+          const item = document.createElement('li');
+          if (!post.guestVisible) item.setAttribute('data-when-auth', 'member');
+          const card = document.createElement('mk-post-card');
+          card.setAttribute('post-id', post.id);
+          item.append(card);
+          list.append(item);
+        }
+        if (posts.length === 0) list.remove();
+        else if (!posts.some((p) => p.guestVisible)) list.setAttribute('data-when-auth', 'member');
+      }
+      if (empty !== null) {
+        if (posts.some((p) => p.guestVisible)) empty.remove();
+        else if (posts.length > 0) empty.setAttribute('data-when-auth', 'guest');
+      }
+    })();
+  </script>
+</body>
+</html>

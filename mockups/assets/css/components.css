@@ -1,0 +1,2459 @@
+/* Product styles for the mk-* components and page layouts (tokens only; no literal colors or sizes).
+   Loaded after base.css and before wireframe.css. Rules are added by the task 4 component tasks.
+   Wrapping rule (base.css): no fixed widths/heights on text; buttons and badges may wrap. */
+
+/* ---- MockElement hosts (Light DOM) ---- */
+mk-site-header,
+mk-site-footer,
+mk-guest-notice,
+mk-admin-band {
+  display: block;
+}
+
+mk-status-badge {
+  display: inline-block;
+}
+
+/* Missing sample id: a visible error, deliberately unlike the product look. */
+.mk-missing-sample {
+  display: inline-block;
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-sm);
+  border: var(--border-width-thick) dashed var(--color-error);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-error);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+/* ---- mk-site-header ---- */
+.mk-header {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--color-surface);
+  border-block-end: var(--border-default);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Hi-fi decorations (task 8.3) ----
+   Every decoration is [data-decor] + aria-hidden, so the wireframe stage hides it without moving
+   anything (wireframe.css). Colors are tokens checked against their background at 3:1
+   (contrast-pairs.json). Nothing animates (prefers-reduced-motion needs no special case). */
+
+/* Background starfield: an absolutely positioned SVG under the content of its box (the box is
+   position: relative + isolation: isolate, the field sits at z-index -1 above the box's own
+   background). It never takes pointer events and never widens the page. */
+.mk-starfield {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--color-decor-star);
+}
+
+.mk-starfield__star {
+  fill: var(--color-decor-star);
+}
+
+/* Event-kind icon before the kind's name (mk-event-list): stroke and fill follow currentColor,
+   which is the tone of the event (moon / planet) on the row's surface. */
+.mk-event__icon {
+  display: inline-block;
+  inline-size: var(--font-size-md);
+  block-size: var(--font-size-md);
+  margin-inline-end: var(--space-xs);
+  vertical-align: middle;
+  color: var(--color-event-planet);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.mk-event[data-tone="moon"] .mk-event__icon {
+  color: var(--color-event-moon);
+}
+
+.mk-event__icon .mk-event__icon-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Moon-phase icon over the phase symbol (calendar cells, legend, almanac): the symbol keeps its
+   box and stays the wireframe's mark; on the hi-fi stage it is transparent and the icon, drawn
+   with the moon figure's colors (dark disc, lit part, strong outline), takes its place. */
+.mk-day-cell__phase[data-phase-icon] {
+  position: relative;
+}
+
+.mk-phase-icon {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: var(--font-size-md);
+  block-size: var(--font-size-md);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+html:not([data-stage="wireframe"]) .mk-day-cell__phase[data-phase-icon] > .mk-day-cell__phase-glyph {
+  color: transparent;
+}
+
+/* Moon icon next to the moon age (day detail's almanac, days without a named phase). */
+.mk-moon-icon {
+  display: inline-block;
+  inline-size: var(--font-size-md);
+  block-size: var(--font-size-md);
+  margin-inline-end: var(--space-xs);
+  vertical-align: middle;
+}
+
+.mk-phase-icon__disc {
+  fill: var(--color-moon-shadow);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+
+.mk-phase-icon__lit {
+  fill: var(--color-moon-lit);
+  stroke: none;
+}
+
+.mk-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-lg);
+  max-width: var(--bp-lg);
+  margin-inline: auto;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+}
+
+.mk-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.mk-header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.mk-header__logo-mark {
+  color: var(--color-accent);
+}
+
+.mk-header__toggle {
+  display: none;
+}
+
+.mk-header__menu {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-lg);
+}
+
+.mk-header__nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-header__nav a[aria-current="page"],
+.mk-header__account a[aria-current="page"] {
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+  text-decoration-thickness: var(--border-width-thick);
+}
+
+.mk-header__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  margin-inline-start: auto;
+}
+
+.mk-header__account {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+}
+
+.mk-header__user {
+  font-weight: var(--font-weight-medium);
+}
+
+/* Task 8.1 (6.9): the link to the notices sits in the bar, so it stays visible when the menu is
+   collapsed. The unread count is text ("お知らせ（未読 2 件）"); bold only adds to it. */
+.mk-header__notices {
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.mk-header__notices:not([data-unread="0"]) {
+  font-weight: var(--font-weight-bold);
+}
+
+/* Segmented switch (language / theme): the pressed option is filled and gets a check mark,
+   so the selection does not depend on color alone. */
+.mk-switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.mk-switch__label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-switch button {
+  padding-inline: var(--space-sm);
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.mk-switch button[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.mk-switch button[aria-pressed="true"]::before {
+  content: "✓" / "";
+}
+
+@media (min-width: 600px) {
+  .mk-header__inner {
+    padding-inline: var(--space-lg);
+  }
+}
+
+/* Phone width: the menu collapses behind the toggle button. */
+@media (width < 600px) {
+  .mk-header__bar {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+
+  .mk-header__notices {
+    margin-inline-start: auto;
+  }
+
+  .mk-header__toggle {
+    display: inline-flex;
+  }
+
+  .mk-header__menu {
+    display: none;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    padding-block: var(--space-sm);
+    border-block-start: var(--border-default);
+  }
+
+  .mk-header__menu[data-open] {
+    display: flex;
+  }
+
+  .mk-header__nav ul {
+    flex-direction: column;
+  }
+
+  .mk-header__tools {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-inline-start: 0;
+  }
+}
+
+/* ---- mk-site-footer ---- */
+.mk-footer {
+  margin-block-start: var(--space-2xl);
+  background-color: var(--color-surface);
+  border-block-start: var(--border-default);
+}
+
+.mk-footer__inner {
+  display: grid;
+  gap: var(--space-sm);
+  max-width: var(--bp-lg);
+  margin-inline: auto;
+  padding-block: var(--space-lg);
+  padding-inline: var(--space-md);
+}
+
+.mk-footer__nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-footer__note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+@media (min-width: 600px) {
+  .mk-footer__inner {
+    padding-inline: var(--space-lg);
+  }
+}
+
+/* ---- mk-guest-notice ---- */
+.mk-guest-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-md);
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.mk-guest-notice__login {
+  font-weight: var(--font-weight-medium);
+}
+
+/* Band variant (task 8.1): full width right below the site header, the content aligned with the
+   header and the page container. Same colors as the boxed notice (text and link on surface-muted). */
+.mk-guest-band {
+  border-block-end: var(--border-default);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.mk-guest-band__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-md);
+  max-width: var(--bp-lg);
+  margin-inline: auto;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+}
+
+.mk-guest-band__inner .mk-guest-notice__text {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 600px) {
+  .mk-guest-band__inner {
+    padding-inline: var(--space-lg);
+  }
+}
+
+/* ---- mk-status-badge: color + symbol + text (13.3) ---- */
+.mk-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-sm);
+  border: var(--border-width-thin) solid currentColor;
+  border-radius: var(--radius-pill);
+  color: var(--color-status-public);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-control);
+}
+
+.mk-status-badge[data-status="members-only"] {
+  color: var(--color-status-members-only);
+}
+
+.mk-status-badge[data-status="hidden"] {
+  color: var(--color-status-hidden);
+}
+
+.mk-status-badge[data-status="deleted"] {
+  color: var(--color-status-deleted);
+  border-style: dashed;
+}
+
+/* ---- mk-admin-band (3.6) ---- */
+.mk-admin-band {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-md);
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border-block: var(--border-width-focus) solid var(--color-admin-band);
+  background-color: var(--color-surface);
+  color: var(--color-admin-band);
+}
+
+.mk-admin-band__label {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-admin-band__description {
+  color: var(--color-text);
+}
+
+/* ---- mk-month-calendar / mk-day-cell (4.1, 4.2, 4.6, 12.3, 13.3) ----
+   Meaning never rests on color alone: holidays carry their name (or the 祝 mark), provisional
+   holidays a "予定" text label (compact: dashed frame), weekdays their header / weekday text,
+   marks a symbol plus text, today a text label, the selected day a thick frame. */
+mk-month-calendar,
+mk-day-cell {
+  display: block;
+}
+
+/* Month navigation (task 8.1, `nav`) and the note about days without sample rows. */
+.mk-calendar__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-block-end: var(--space-md);
+}
+
+.mk-calendar__note {
+  margin-block: 0 var(--space-sm);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-calendar__grid {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.mk-calendar__grid caption {
+  padding-block-end: var(--space-sm);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  text-align: start;
+}
+
+.mk-calendar__grid th {
+  padding: var(--space-xs);
+  border-block-end: var(--border-width-thick) solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.mk-calendar__grid th[data-weekday="sun"] {
+  color: var(--color-sunday);
+}
+
+.mk-calendar__grid th[data-weekday="sat"] {
+  color: var(--color-saturday);
+}
+
+.mk-calendar__grid td {
+  padding: var(--space-xs);
+  border: var(--border-default);
+  vertical-align: top;
+}
+
+.mk-calendar__grid td.mk-calendar__blank {
+  background-color: var(--color-surface-muted);
+}
+
+.mk-calendar__grid td[aria-current="date"] {
+  outline: var(--border-width-thick) solid var(--color-accent);
+  outline-offset: calc(-1 * var(--border-width-thick));
+}
+
+/* Layout switch: full grid from 600px, compact grid + summary below. */
+.mk-calendar__compact {
+  display: none;
+}
+
+@media (width < 600px) {
+  .mk-calendar__grid[data-layout="full"] {
+    display: none;
+  }
+
+  .mk-calendar__compact {
+    display: grid;
+    gap: var(--space-md);
+  }
+}
+
+.mk-calendar__grid--compact td {
+  padding: 0;
+}
+
+/* Hi-fi (task 8.3, review point of 8.2): the cell around the date button is painted like the
+   button, so a short button does not leave a two-tone cell. Paint only; the wireframe keeps its
+   approved look. */
+html:not([data-stage="wireframe"]) .mk-calendar__grid--compact td:not(.mk-calendar__blank) {
+  background-color: var(--color-surface);
+}
+
+.mk-calendar__day {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-2xs);
+  border: 0;
+  border-radius: 0;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Compact grid: the selected day gets the thick frame; today a filled date (shape, plus the
+   today text in the label and the summary panel). */
+.mk-calendar__grid--compact td[aria-current="date"] {
+  outline: none;
+}
+
+.mk-calendar__grid--compact td[aria-selected="true"] {
+  outline: var(--border-width-focus) solid var(--color-accent);
+  outline-offset: calc(-1 * var(--border-width-focus));
+}
+
+.mk-calendar__grid--compact td[aria-selected="true"] .mk-calendar__day {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-calendar__grid--compact td[aria-current="date"] .mk-day-cell__num {
+  padding-inline: var(--space-xs);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.mk-calendar__summary {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.mk-calendar__summary .mk-day-cell {
+  font-size: var(--font-size-sm);
+}
+
+.mk-calendar__detail-link {
+  font-weight: var(--font-weight-medium);
+}
+
+/* mk-day-cell (full) */
+.mk-day-cell {
+  display: grid;
+  gap: var(--space-2xs);
+  align-content: start;
+  min-width: 0;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  overflow-wrap: anywhere;
+}
+
+.mk-day-cell__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2xs) var(--space-xs);
+}
+
+.mk-day-cell__date {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.mk-day-cell__date:hover {
+  text-decoration: underline;
+}
+
+.mk-day-cell__num {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-day-cell__weekday {
+  font-size: var(--font-size-xs);
+}
+
+.mk-day-cell[data-weekday="sun"] .mk-day-cell__num,
+.mk-day-cell[data-weekday="sun"] .mk-day-cell__weekday {
+  color: var(--color-sunday);
+}
+
+.mk-day-cell[data-weekday="sat"] .mk-day-cell__num,
+.mk-day-cell[data-weekday="sat"] .mk-day-cell__weekday {
+  color: var(--color-saturday);
+}
+
+.mk-day-cell[data-holiday] .mk-day-cell__num,
+.mk-day-cell[data-holiday] .mk-day-cell__weekday {
+  color: var(--color-holiday);
+}
+
+.mk-day-cell__today {
+  padding-inline: var(--space-xs);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-day-cell__holiday {
+  color: var(--color-holiday);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-day-cell__provisional {
+  display: inline-block;
+  padding-inline: var(--space-xs);
+  border: var(--border-width-thin) dashed currentColor;
+  border-radius: var(--radius-sm);
+  color: var(--color-provisional);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-day-cell__rokuyo {
+  color: var(--color-rokuyo-sensho);
+}
+
+.mk-day-cell__rokuyo[data-rokuyo="taian"] { color: var(--color-rokuyo-taian); }
+.mk-day-cell__rokuyo[data-rokuyo="butsumetsu"] { color: var(--color-rokuyo-butsumetsu); }
+.mk-day-cell__rokuyo[data-rokuyo="tomobiki"] { color: var(--color-rokuyo-tomobiki); }
+.mk-day-cell__rokuyo[data-rokuyo="sakimake"] { color: var(--color-rokuyo-senbu); }
+.mk-day-cell__rokuyo[data-rokuyo="shakko"] { color: var(--color-rokuyo-shakku); }
+
+.mk-day-cell__lunar,
+.mk-day-cell__moon {
+  color: var(--color-text-muted);
+}
+
+.mk-day-cell__phase {
+  color: var(--color-event-moon);
+}
+
+.mk-day-cell__marks {
+  display: grid;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-mark {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  color: var(--color-text);
+}
+
+.mk-mark__symbol {
+  flex: none;
+  color: var(--color-accent);
+}
+
+.mk-mark[data-tone="moon"],
+.mk-mark__symbol[data-tone="moon"] {
+  color: var(--color-event-moon);
+}
+
+.mk-mark[data-tone="planet"],
+.mk-mark__symbol[data-tone="planet"] {
+  color: var(--color-event-planet);
+}
+
+.mk-mark[data-tone] .mk-mark__symbol {
+  color: inherit;
+}
+
+/* mk-day-cell (compact): date, holiday mark, moon phase and mark symbols only. */
+.mk-day-cell[data-compact] {
+  justify-items: center;
+  text-align: center;
+}
+
+.mk-day-cell[data-compact] .mk-day-cell__num {
+  font-size: var(--font-size-md);
+}
+
+.mk-day-cell__holiday-mark {
+  padding-inline: var(--space-2xs);
+  border: var(--border-width-thin) solid currentColor;
+  border-radius: var(--radius-sm);
+  color: var(--color-holiday);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-day-cell__holiday-mark[data-provisional] {
+  border-style: dashed;
+  color: var(--color-provisional);
+}
+
+.mk-day-cell__mark-symbols {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2xs);
+}
+
+/* Sample layout of standalone cells on the catalog page. */
+.mk-cell-samples {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--space-2xl) * 4), 1fr));
+  gap: var(--space-md);
+}
+
+.mk-calendar__summary-title {
+  font-size: var(--font-size-md);
+}
+
+/* Legend under the compact grid (phone width only, inside .mk-calendar__compact). */
+.mk-calendar__legend {
+  display: grid;
+  gap: var(--space-xs);
+  font-size: var(--font-size-sm);
+}
+
+.mk-calendar__legend-title {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-calendar__legend-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-calendar__legend-list li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+/* ---- mk-almanac-summary / mk-rise-set / mk-event-list (3.4, 3.5, 4.3, 4.4, 4.5, 4.7, 7.3) ----
+   Every value is text: missing values say "なし", the provisional holiday has its text label,
+   event kinds are written out (the tone border only repeats it). */
+mk-almanac-summary,
+mk-rise-set,
+mk-event-list {
+  display: block;
+  min-width: 0;
+}
+
+.mk-almanac-summary {
+  display: grid;
+  gap: var(--space-xs);
+  overflow-wrap: anywhere;
+}
+
+.mk-almanac-summary__date {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-almanac-summary__items,
+.mk-rise-set {
+  display: grid;
+  gap: var(--space-2xs) var(--space-md);
+  margin: 0;
+}
+
+.mk-almanac-summary__item,
+.mk-rise-set__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--space-sm);
+  align-items: baseline;
+  padding-block: var(--space-2xs);
+  border-block-end: var(--border-width-thin) solid var(--color-border);
+}
+
+.mk-almanac-summary__item dt,
+.mk-rise-set__item dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-almanac-summary__item dd,
+.mk-rise-set__item dd {
+  margin: 0;
+  min-width: 0;
+}
+
+/* Brief (top page): compact label / value pairs that wrap side by side. */
+.mk-almanac-summary[data-variant="brief"] .mk-almanac-summary__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+}
+
+.mk-almanac-summary[data-variant="brief"] .mk-almanac-summary__item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding-block: 0;
+  border-block-end: 0;
+}
+
+.mk-almanac-summary__item[data-item="holiday"] .mk-almanac-summary__holiday {
+  color: var(--color-holiday);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-almanac-summary__provisional {
+  padding-inline: var(--space-2xs);
+  border: var(--border-width-thin) dashed currentColor;
+  border-radius: var(--radius-sm);
+  color: var(--color-provisional);
+  font-size: var(--font-size-sm);
+}
+
+.mk-almanac-summary__none,
+.mk-rise-set__item[data-none] dd {
+  color: var(--color-text-muted);
+}
+
+.mk-almanac-summary__events {
+  display: grid;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-almanac-summary__events li[data-tone="moon"] {
+  color: var(--color-event-moon);
+}
+
+.mk-almanac-summary__events li[data-tone="planet"] {
+  color: var(--color-event-planet);
+}
+
+.mk-rise-set {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--space-2xl) * 3), 1fr));
+}
+
+.mk-rise-set__item time {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.mk-rise-set__item[data-body="sun"] dt::before,
+.mk-rise-set__item[data-body="moon"] dt::before {
+  margin-inline-end: var(--space-2xs);
+}
+
+.mk-rise-set__item[data-body="sun"] dt::before {
+  content: "☀";
+  color: var(--color-event-sun);
+}
+
+.mk-rise-set__item[data-body="moon"] dt::before {
+  content: "☽";
+  color: var(--color-event-moon);
+}
+
+/* Brief summary (top page, task 8.1): the moon figure beside the label / value pairs. */
+.mk-almanac-summary__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.mk-almanac-summary__body > .mk-almanac-summary__items {
+  flex: 1 1 0;
+  min-width: min(100%, calc(var(--space-2xl) * 3));
+}
+
+/* Moon figure: the dark part is a night-navy disc with a strong outline, the lit part a bright gold
+   (--color-moon-lit on --color-moon-shadow, 3:1), so the lit side reads as the bright one in both
+   themes (task 8.2; in light the surface-colored dark side used to read as the lit side). */
+.mk-moon-figure {
+  flex: none;
+  inline-size: calc(var(--space-2xl) * 2);
+  aspect-ratio: 1;
+}
+
+.mk-moon__svg,
+.mk-rise-set-chart__svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.mk-moon__disc {
+  fill: var(--color-moon-shadow);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.5;
+}
+
+.mk-moon__lit {
+  fill: var(--color-moon-lit);
+  stroke: none;
+}
+
+/* Rise / set chart (mk-rise-set chart): a 0-24h track, one row per body labelled with text. */
+mk-rise-set[chart] {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.mk-rise-set-chart {
+  inline-size: 100%;
+  aspect-ratio: 300 / 74;
+}
+
+.mk-rise-set-chart__track {
+  fill: var(--color-surface);
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.mk-rise-set-chart__tick {
+  stroke: var(--color-border);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.mk-rise-set-chart__hour,
+.mk-rise-set-chart__label {
+  fill: var(--color-text);
+}
+
+.mk-rise-set-chart__span[data-body="sun"] {
+  fill: var(--color-event-sun);
+}
+
+.mk-rise-set-chart__span[data-body="moon"] {
+  fill: var(--color-event-moon);
+}
+
+.mk-event-list {
+  display: grid;
+  gap: var(--space-md);
+  overflow-wrap: anywhere;
+}
+
+.mk-event-list__filters {
+  display: grid;
+  gap: var(--space-md);
+}
+
+@media (min-width: 960px) {
+  .mk-event-list__filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+}
+
+.mk-event-list__period,
+.mk-event-list__kinds {
+  min-width: 0;
+}
+
+/* filters="collapsed" (top page, task 8.1): a quiet accordion that starts closed. */
+.mk-event-list__filter-toggle {
+  display: grid;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.mk-event-list__filter-summary {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.mk-event-list__dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.mk-event-list__date {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mk-event-list__kind-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.mk-event-list__kind-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: var(--font-weight-regular);
+}
+
+.mk-event-list__count {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-event-list__items {
+  display: grid;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-event {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2xs) var(--space-md);
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-sm);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-event-planet);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.mk-event[data-tone="moon"] {
+  border-inline-start-color: var(--color-event-moon);
+}
+
+@media (min-width: 600px) {
+  .mk-event {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2fr);
+    align-items: baseline;
+  }
+}
+
+.mk-event__at {
+  font-variant-numeric: tabular-nums;
+}
+
+.mk-event__kind {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-event__title {
+  font-weight: var(--font-weight-medium);
+}
+
+/* mark-past (task 8.1, astro-events and top): a text label before the datetime; the item is muted on
+   top of that, never by colour alone. */
+.mk-event[data-past] {
+  border-inline-start-style: dashed;
+}
+
+.mk-event[data-past] .mk-event__at,
+.mk-event[data-past] .mk-event__title {
+  color: var(--color-text-muted);
+}
+
+.mk-event__past {
+  display: inline-block;
+  padding-inline: var(--space-xs);
+  border: var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+/* relative-days (task 8.1, astro-events and top): the distance from today, as text after the datetime.
+   It keeps the body colour on past rows too, and does not break inside "in 5 days". */
+.mk-event__relative {
+  display: inline-block;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+.mk-event-list__empty {
+  padding: var(--space-md);
+  border: var(--border-width-thin) dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.mk-event-list__error {
+  padding: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-error);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-error);
+}
+
+/* ---- mk-star-chart (task 4.4): SVG colors via classes that reference tokens ---- */
+mk-star-chart {
+  display: block;
+}
+
+.mk-star-chart {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+}
+
+/* Non-focusable wrapper that owns the box (data-figure). Square, never wider than its container
+   or the viewport height. */
+.mk-star-chart__figure {
+  inline-size: min(100%, 80vh);
+  max-inline-size: 100%;
+  aspect-ratio: 1;
+}
+
+.mk-star-chart__svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.mk-star-chart__caption {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.mk-star-chart__sky {
+  fill: var(--color-bg);
+  stroke: none;
+}
+
+.mk-star-chart__horizon {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 1.5;
+}
+
+.mk-star-chart__line {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.mk-star-chart__star {
+  fill: var(--color-text);
+}
+
+.mk-star-chart__star-label,
+.mk-star-chart__constellation,
+.mk-star-chart__body-label,
+.mk-star-chart__cardinal {
+  font-family: var(--font-body);
+}
+
+/* SVG label font sizes are viewBox user units set by sky.js (they scale with the chart and feed
+   its label layout), so no font-size is declared for them here. */
+
+/* Labels inside the sky disc get a halo in the sky color so crossing lines stay readable. */
+.mk-star-chart__star-label,
+.mk-star-chart__constellation,
+.mk-star-chart__body-label {
+  paint-order: stroke;
+  stroke: var(--color-bg);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.mk-star-chart__star-label {
+  fill: var(--color-text);
+}
+
+.mk-star-chart__constellation {
+  fill: var(--color-text-muted);
+  font-style: italic;
+}
+
+.mk-star-chart__cardinal {
+  fill: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-star-chart__body-label {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-star-chart__body[data-kind="moon"] .mk-star-chart__body-mark,
+.mk-star-chart__body[data-kind="moon"] .mk-star-chart__body-label {
+  fill: var(--color-event-moon);
+}
+
+.mk-star-chart__body[data-kind="planet"] .mk-star-chart__body-mark,
+.mk-star-chart__body[data-kind="planet"] .mk-star-chart__body-label {
+  fill: var(--color-event-planet);
+}
+
+.mk-star-chart__body[data-kind="sun"] .mk-star-chart__body-mark,
+.mk-star-chart__body[data-kind="sun"] .mk-star-chart__body-label {
+  fill: var(--color-event-sun);
+}
+
+/* The sun's own mark (final-validation remediation of 5.2): a disc with eight short rays, so it
+   differs from the planets' diamond and the moon's plain circle by shape, not only by color. */
+.mk-star-chart__sun-rays {
+  fill: none;
+  stroke: var(--color-event-sun);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+/* Daytime (the sun above the horizon): the stars stay as a pale reference; the note says so. */
+.mk-star-chart[data-daytime] .mk-star-chart__star {
+  fill: var(--color-text-muted);
+}
+
+.mk-star-chart__note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+/* ---- mk-post-card / mk-comment-tree / mk-like-button / mk-report-link (6.1, 6.4, 6.6, 6.7, 6.8, 8.3, 12.4) ---- */
+mk-post-card,
+mk-comment-tree {
+  display: block;
+  min-width: 0;
+}
+
+mk-like-button,
+mk-report-link {
+  display: inline-block;
+  min-width: 0;
+}
+
+/* Sample layout of the cards on the catalog page. */
+.mk-post-card-samples {
+  display: grid;
+  gap: var(--space-md);
+}
+
+@media (min-width: 960px) {
+  .mk-post-card-samples {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mk-post-card {
+  display: grid;
+  gap: var(--space-xs);
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  overflow-wrap: anywhere;
+}
+
+.mk-post-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.mk-post-card__date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-sm);
+  margin: 0;
+  min-width: 0;
+}
+
+.mk-post-card__date-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-post-card__link {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-post-card__excerpt {
+  margin: 0;
+}
+
+.mk-post-card[data-variant="compact"] {
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-sm);
+}
+
+.mk-post-card[data-variant="compact"] .mk-post-card__excerpt {
+  font-size: var(--font-size-sm);
+}
+
+.mk-post-card__likes {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-post-card__like-symbol {
+  margin-inline-end: var(--space-xs);
+}
+
+/* meta="icons" (task 8.1, my-posts): the visibility setting as an outlined icon and the status
+   badge in one row. Public / members-only badges ([data-icon]) show their symbol only; the text
+   stays for assistive technology (same clipping as .visually-hidden in base.css) and the title
+   explains it on hover. Shapes and symbols differ, so the state does not depend on colour. */
+.mk-post-card__icons {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.mk-post-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs);
+  border: var(--border-width-thin) solid currentColor;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  line-height: 0;
+}
+
+/* comment-count (task 8.1, my-posts): the number of comments as plain text in the status row. */
+.mk-post-card__comments {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.mk-post-card__icon-svg {
+  inline-size: var(--font-size-md);
+  block-size: var(--font-size-md);
+}
+
+.mk-post-card__icons mk-status-badge[data-icon] .mk-status-badge {
+  padding-inline: var(--space-sm);
+}
+
+.mk-post-card__icons mk-status-badge[data-icon] .mk-status-badge__text {
+  position: absolute;
+  inline-size: var(--border-width-thin);
+  block-size: var(--border-width-thin);
+  margin: calc(-1 * var(--border-width-thin));
+  padding: 0;
+  overflow: hidden;
+  clip-path: circle(0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Like: a toggle for logged-in viewers (pressed = filled, plus the filled heart symbol, so the
+   state does not depend on color alone); a plain count for guests. */
+.mk-like {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.mk-like[data-readonly] {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+button.mk-like[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.mk-report-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-size: var(--font-size-sm);
+}
+
+/* Comment tree: each reply list is indented by one step with a guide line, up to 6 levels on PC
+   and 3 levels below 600px. Deeper lists (data-flat) are not indented further, and their
+   comments show whom they reply to instead, so the body keeps a readable width. */
+.mk-comment-tree {
+  overflow-wrap: anywhere;
+}
+
+.mk-comment-tree__list,
+.mk-comment__replies {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-comment__replies {
+  margin-block-start: var(--space-sm);
+  padding-inline-start: var(--space-lg);
+  border-inline-start: var(--border-width-thick) solid var(--color-border);
+}
+
+.mk-comment__replies[data-flat="all"] {
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+.mk-comment {
+  min-width: 0;
+}
+
+.mk-comment__box {
+  display: grid;
+  gap: var(--space-2xs);
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.mk-comment[data-deleted] > .mk-comment__box {
+  border-style: dashed;
+}
+
+.mk-comment__reply-to,
+.mk-comment__meta,
+.mk-comment__body,
+.mk-comment__deleted {
+  margin: 0;
+}
+
+.mk-comment__reply-to {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-comment__reply-to[data-scope="phone"] {
+  display: none;
+}
+
+.mk-comment__reply-mark {
+  margin-inline-end: var(--space-xs);
+}
+
+.mk-comment__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+.mk-comment__author {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-comment__at {
+  color: var(--color-text-muted);
+}
+
+.mk-comment__deleted {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.mk-comment__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+.mk-comment-tree__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+@media (width < 600px) {
+  .mk-comment__replies {
+    padding-inline-start: var(--space-md);
+  }
+
+  .mk-comment__replies[data-flat] {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+
+  .mk-comment__reply-to[data-scope="phone"] {
+    display: block;
+  }
+}
+
+/* ---- mk-notice-list (task 8.1; 6.10): reply notices. Unread and read are told apart by the
+   text label first; the thick start border and the bold summary only add to it. ---- */
+mk-notice-list {
+  display: block;
+  min-width: 0;
+}
+
+.mk-notice-list {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-notice {
+  display: grid;
+  gap: var(--space-2xs);
+  min-width: 0;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  overflow-wrap: anywhere;
+}
+
+.mk-notice[data-read="false"] {
+  border-inline-start: var(--border-width-focus) solid var(--color-border-strong);
+}
+
+.mk-notice p {
+  margin: 0;
+}
+
+.mk-notice__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+.mk-notice__state {
+  padding-inline: var(--space-xs);
+  border: var(--border-width-thin) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-notice[data-read="true"] .mk-notice__state {
+  border-style: dashed;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.mk-notice__at {
+  color: var(--color-text-muted);
+}
+
+.mk-notice[data-read="false"] .mk-notice__summary {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-notice__quote,
+.mk-notice__post {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-notice__label {
+  margin-inline-end: var(--space-xs);
+}
+
+.mk-notice-list__empty {
+  padding: var(--space-md);
+  border: var(--border-width-thin) dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.mk-notice-list__error {
+  padding: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-error);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-error);
+}
+
+/* ---- mk-precision-picker (task 4.6; 6.2, 7.1, 8.2): a fieldset radio group with descriptions ---- */
+mk-precision-picker {
+  display: block;
+}
+
+.mk-precision-picker {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.mk-precision-picker__options {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+/* Radio in the first column; the label and its description share the second. */
+.mk-precision-picker__option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  row-gap: var(--space-2xs);
+  align-items: baseline;
+  padding: var(--space-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+/* The chosen level is marked by a thicker accent edge as well as the filled radio. */
+.mk-precision-picker__option:has(input:checked) {
+  border-color: var(--color-accent);
+  box-shadow: inset var(--border-width-focus) 0 0 var(--color-accent);
+}
+
+.mk-precision-picker__option input {
+  margin: 0;
+}
+
+.mk-precision-picker__label {
+  font-weight: var(--font-weight-bold);
+}
+
+.mk-precision-picker__description {
+  grid-column: 2;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* `collapsed` (task 8.1, post-edit): the radio group folds into a <details>; the summary shows the
+   control's name and the current choice. */
+.mk-precision-picker__toggle {
+  display: grid;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.mk-precision-picker__summary {
+  font-weight: var(--font-weight-medium);
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+/* ---- mk-map-sample (task 4.6; 7.2, 13.4): schematic SVG map, colors via token classes ---- */
+mk-map-sample {
+  display: block;
+}
+
+.mk-map {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+/* Non-focusable wrapper that owns the box (data-figure); keeps the 8:5 viewBox ratio. */
+.mk-map__figure {
+  inline-size: 100%;
+  aspect-ratio: 8 / 5;
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.mk-map__svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.mk-map__caption {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.mk-map__water {
+  fill: var(--color-bg);
+}
+
+.mk-map__land {
+  fill: var(--color-surface);
+}
+
+.mk-map__road {
+  stroke: var(--color-border);
+  stroke-width: 2;
+}
+
+.mk-map__road--major {
+  stroke-width: 6;
+}
+
+.mk-map__boundary {
+  stroke: var(--color-border);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+/* Shaded area: translucent accent fill plus a solid accent outline (3:1 against land and water). */
+.mk-map__region {
+  fill: var(--color-accent);
+  fill-opacity: 0.22;
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.mk-map__radius {
+  fill: var(--color-accent);
+  fill-opacity: 0.18;
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+  stroke-dasharray: 8 5;
+}
+
+.mk-map__pin-body {
+  fill: var(--color-accent);
+  stroke: var(--color-surface);
+  stroke-width: 1.5;
+}
+
+.mk-map__pin-dot {
+  fill: var(--color-surface);
+}
+
+.mk-map__scale-bar {
+  stroke: var(--color-text);
+  stroke-width: 2;
+}
+
+/* The scale label size is an SVG attribute (viewBox units), so it scales with the map. */
+.mk-map__scale-label {
+  fill: var(--color-text);
+  font-family: var(--font-body);
+  paint-order: stroke;
+  stroke: var(--color-surface);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+/* Catalog only (components.html): the map samples side by side on wide screens. */
+.mk-map-samples {
+  display: grid;
+  gap: var(--space-md);
+}
+
+@media (min-width: 960px) {
+  .mk-map-samples {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- mk-location-panel / mk-weather (task 4.7; 7.2-7.6): region and map, rise / set, weather ----
+   Every value is text; the weather failure is a message with an error-colored border (same look as
+   mk-event-list's fetch error). Posts without location render nothing. */
+mk-location-panel,
+mk-weather {
+  display: block;
+  min-width: 0;
+}
+
+.mk-location-panel {
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.mk-location-panel__title {
+  margin: 0;
+}
+
+.mk-location-panel__body,
+.mk-location-panel__details,
+.mk-location-panel__block {
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.mk-location-panel__block {
+  gap: var(--space-xs);
+}
+
+.mk-location-panel__block h4 {
+  margin: 0;
+}
+
+/* Wide screens: the map beside the rise / set and weather. */
+@media (min-width: 960px) {
+  .mk-location-panel__body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.mk-weather {
+  display: grid;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+
+.mk-weather__condition {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.mk-weather__values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.mk-weather__value {
+  overflow-wrap: anywhere;
+}
+
+.mk-weather__observed {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.mk-weather__error {
+  margin: 0;
+  padding: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-error);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-error);
+}
+
+/* ---- Screen layouts (task 5.1: top, monthly calendar, day detail) ---- */
+/* Decorative star before section headings (data-decor: hidden on the wireframe stage). */
+.screen-decor {
+  color: var(--color-accent);
+}
+
+/* Lists of post cards on the screens. */
+.screen-post-list {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 960px) {
+  .screen-post-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Top page (task 8.1, wireframe review): one column in reading order (notice, today, posts,
+   events) on narrow screens; from 960px two columns 1:3 with the posts in the wide column
+   spanning every row, and the side items stacked in the narrow one. The narrow column does not
+   shrink below 15rem so the figures and the event list stay legible at 960px. */
+.screen-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  align-content: start;
+  /* The hidden h1 no longer spaces the content from the header. */
+  padding-block-start: var(--space-lg);
+  /* Box of the starfield behind the top of the page (task 8.3). */
+  position: relative;
+  isolation: isolate;
+}
+
+/* Top page starfield (task 8.3): a band behind the first headings, on the page background;
+   the cards (surface) cover it. Out of the grid flow (absolute). */
+.screen-top > .mk-starfield {
+  block-size: calc(var(--space-2xl) * 2);
+}
+
+@media (min-width: 960px) {
+  .screen-top {
+    grid-template-columns: minmax(min(100%, calc(var(--space-2xl) * 5)), 1fr) minmax(0, 3fr);
+    grid-template-rows: auto 1fr;
+    align-items: start;
+  }
+
+  .screen-top-side {
+    grid-column: 1;
+  }
+
+  .screen-top-posts {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  /* Rows of the side column: today's almanac hugs its content, the events take the rest. The
+     guest notice is the band above <main> (task 8.1), not a row of this grid. */
+  .screen-top-today { grid-row: 1; }
+  .screen-top-events { grid-row: 2; }
+
+  /* The narrow column is phone-sized: event rows and filters use one column there. */
+  .screen-top-side .mk-event,
+  .screen-top-side .mk-event-list__filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.screen-top-basis {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Day detail (task 8.1, wireframe review): one column in DOM order (title, back link, almanac,
+   rise / set, posts) on narrow screens; from 960px the title and the back link span the page and
+   two columns 1:2 follow, the posts in the wide right column spanning both rows of the narrow
+   left one (almanac, rise / set). The narrow column does not shrink below 15rem, as on the top
+   page. */
+.screen-day-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-content: start;
+}
+
+@media (min-width: 960px) {
+  .screen-day-detail {
+    grid-template-columns: minmax(min(100%, calc(var(--space-2xl) * 5)), 1fr) minmax(0, 2fr);
+    grid-template-rows: auto auto auto 1fr;
+    column-gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .screen-day-detail > :not(.screen-day-detail-side, .screen-day-detail-posts) {
+    grid-column: 1 / -1;
+  }
+
+  .screen-day-detail-side {
+    grid-column: 1;
+  }
+
+  .screen-day-detail-posts {
+    grid-column: 2;
+    grid-row: 3 / span 2;
+  }
+}
+
+/* Star chart screen (task 5.2): the date-time and place fields, side by side from 600px. */
+.screen-chart-inputs {
+  display: grid;
+  gap: var(--space-md);
+}
+
+@media (min-width: 600px) {
+  .screen-chart-inputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Star chart screen (task 8.1, wireframe review): the map of the observing location follows the
+   chart in one column on narrow screens (centred like the chart, at most 24rem wide so it does not
+   outgrow the chart between 600px and 960px). From 960px (follow-up reviews: 両端, the chart fixed
+   and the map variable with a fixed gap) the chart column is as wide as the chart figure
+   (min(80vh, the width left for the --space-lg gap and a 15rem map)), so the figure's own rule
+   min(column, 80vh) fills it at the left edge; the map takes all the remaining width up to the
+   right edge and keeps its 8:5 figure (height follows width). The 15rem floor keeps the map
+   usable where the width is tight (960px, very tall screens); there the chart gives way. */
+.screen-star-chart-sky {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-items: start;
+}
+
+.screen-star-chart-map {
+  inline-size: 100%;
+  max-inline-size: calc(var(--space-2xl) * 8);
+  justify-self: center;
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .screen-star-chart-sky {
+    --screen-star-chart-size: min(80vh, calc(100% - var(--space-lg) - var(--space-2xl) * 5));
+    grid-template-columns: var(--screen-star-chart-size) minmax(calc(var(--space-2xl) * 5), 1fr);
+    column-gap: var(--space-lg);
+  }
+
+  .screen-star-chart-map {
+    max-inline-size: none;
+  }
+}
+
+/* Post detail screen (task 5.3). */
+
+/* Post detail content (task 8.1, wireframe review): one column in DOM order (post, comments,
+   location) on narrow screens; from 960px the post and its comments sit side by side at 2:1 (the
+   follow-up review asked for a narrower comments column), the comments column never below 15rem
+   so the member form and the deep tree stay usable, and the location panel (region, map, rise /
+   set, weather) spans both below them. The wrappers the page script toggles (`[data-post-view]`,
+   `[data-location-section]`) set no display, so `hidden` still applies; a hidden location simply leaves the second row empty. */
+.screen-post-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-content: start;
+}
+
+@media (min-width: 960px) {
+  .screen-post-detail {
+    grid-template-columns: minmax(0, 2fr) minmax(min(100%, calc(var(--space-2xl) * 5)), 1fr);
+    column-gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .screen-post-detail > [data-location-section] {
+    grid-column: 1 / -1;
+  }
+
+  /* In the narrower comments column (about 296px at 960px), one reply step is --space-sm instead
+     of --space-lg, so a comment at the deepest indented level (6) keeps about 236px instead of
+     140px (12.4). Deeper levels (data-flat="all") stay unindented. Screen-scoped, so the
+     gallery and other screens keep the component's own step. */
+  .screen-post-detail mk-comment-tree .mk-comment__replies:not([data-flat="all"]) {
+    padding-inline-start: var(--space-sm);
+  }
+}
+
+.screen-post-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.screen-post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-lg);
+  margin: 0;
+}
+
+.screen-post-meta > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.screen-post-meta dt {
+  color: var(--color-text-muted);
+}
+
+.screen-post-meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.screen-post-body {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Notices that stand in for a hidden post, or tell its author about the hidden status. */
+.screen-notice {
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.screen-notice p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Post create / edit screen (task 5.4). */
+/* A checkbox with its label on one row and the hint below the label. */
+.screen-check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  row-gap: var(--space-2xs);
+  align-items: baseline;
+}
+
+.screen-check input {
+  margin: 0;
+}
+
+.screen-check .field-hint {
+  grid-column: 2;
+  margin: 0;
+}
+
+.screen-form .field p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The post body (task 8.1, wireframe review): a large editing area across the full form width
+   (at least 15rem tall, 24rem from 960px). */
+.screen-post-body {
+  inline-size: 100%;
+  min-block-size: calc(var(--space-2xl) * 5);
+}
+
+@media (min-width: 960px) {
+  .screen-post-body {
+    min-block-size: calc(var(--space-2xl) * 8);
+  }
+}
+
+/* Error summary at the top of the form and the screen-level fetch error (my posts). */
+.screen-error-summary,
+.screen-error {
+  margin: 0;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-error);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-error);
+  overflow-wrap: anywhere;
+}
+
+.screen-error-summary p,
+.screen-error-summary ul {
+  margin: 0;
+}
+
+.screen-error-summary a {
+  color: var(--color-error);
+}
+
+/* My posts screen (task 5.4): a card with its edit link below. Task 8.1 (wireframe review): one
+   column at every width so the order by date reads top to bottom (the shared .screen-post-list
+   keeps two columns from 960px on top and day-detail). */
+@media (min-width: 960px) {
+  .screen-post-list.screen-my-posts-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* My posts layout (task 8.1, later review note "「自分の投稿」を優先", 2:1 to 3:1 on PC): one column
+   in DOM order (the posts region, then the notices #notices) on narrow screens; from 960px (the
+   PC breakpoint of the other two-column screens) the posts on the left and the notices on the
+   right at 5:2, so posts / notices is 2.5 at every PC width (main is at most --bp-lg wide). The
+   notices column has a 15rem floor (at 960px it is about 254px, above the floor, so the ratio
+   holds there too). */
+.screen-my-posts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-content: start;
+}
+
+.screen-my-posts > * {
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .screen-my-posts {
+    grid-template-columns: minmax(0, 5fr) minmax(min(100%, calc(var(--space-2xl) * 5)), 2fr);
+    column-gap: var(--space-lg);
+    align-items: start;
+  }
+}
+
+/* The icon legend of my-posts (task 8.1): a closed <details> under the create-post button. */
+.screen-my-posts-legend ul {
+  display: grid;
+  gap: var(--space-xs);
+  margin-block: var(--space-sm) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-my-posts-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.screen-my-posts-legend__symbol {
+  display: inline-flex;
+  justify-content: center;
+  min-inline-size: var(--space-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.screen-my-posts-legend p {
+  margin-block: var(--space-sm) 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.screen-my-post {
+  display: grid;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.screen-my-post__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2xs) var(--space-md);
+}
+
+.screen-my-post__meta p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+/* Settings screen (task 5.5): radio groups with each option on its own row. */
+.screen-choices {
+  display: grid;
+  gap: var(--space-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Login screen (task 5.5): the sign-in button with a neutral round mark (no logo image). */
+.screen-signin__mark {
+  flex: none;
+  inline-size: var(--space-md);
+  block-size: var(--space-md);
+  border: var(--border-width-thick) solid var(--color-on-accent);
+  border-radius: var(--radius-pill);
+}
+
+.screen-info-list {
+  margin: 0;
+  padding-inline-start: var(--space-lg);
+}
+
+.screen-info-list li {
+  overflow-wrap: anywhere;
+}
+
+/* Report and appeal screens (task 5.6): the reported or appealed content, set apart in a box. */
+.screen-target {
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.screen-target p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.screen-target__body {
+  white-space: pre-line;
+}
+
+/* Admin screen (task 5.7; 3.6): the admin UI sits in a frame in the admin role color, so it is
+   told apart from the general screens together with mk-admin-band. */
+.screen-admin {
+  padding-block-start: var(--space-md);
+  border-block-start: var(--border-width-focus) solid var(--color-admin-band);
+}
+
+.screen-admin-list {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-admin-item {
+  min-width: 0;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: var(--border-default);
+  border-inline-start: var(--border-width-focus) solid var(--color-admin-band);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.screen-admin-item h4,
+.screen-admin-item p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Task 8.1 (review "表示をKANBAN形式にしたい"): the report queue as a board, one column per status
+   group. Stacked below 600px (no inner horizontal scroll), 2 x 2 from 600px, side by side from
+   960px. Columns align at the top; each column is a muted panel holding the cards. */
+.screen-admin-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-md);
+}
+
+@media (min-width: 600px) {
+  .screen-admin-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .screen-admin-board {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.screen-admin-column {
+  min-width: 0;
+  padding: var(--space-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-muted);
+}
+
+.screen-admin-column h3,
+.screen-admin-column > p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Task 8.1 (review "通報件数・理由は見やすくしたい"): the count is a large bold line at the top of
+   the card, and the reasons are chips with per-reason counts (text, not colour). */
+.screen-admin-count {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.screen-admin-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-admin-reason {
+  min-width: 0;
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  overflow-wrap: anywhere;
+}
+
+.screen-admin-reason [data-reason-times] {
+  font-weight: var(--font-weight-bold);
+}
+
+/* mk-pager (task 8.1, my-posts paging; opt-in): the range text, then one wrapping row of
+   previous / page / next buttons in the secondary look. The current page is told apart by
+   aria-current, bold text and a thick border (not colour alone); a disabled step keeps its text
+   with the muted look of base.css and a dashed border. Wraps at 320px instead of scrolling. */
+.mk-pager {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.mk-pager__range {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.mk-pager__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-pager__step,
+.mk-pager__page {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  padding-inline: var(--space-sm);
+}
+
+.mk-pager__page {
+  min-width: calc(var(--space-md) * 2.5);
+}
+
+.mk-pager__page[aria-current="page"] {
+  border-width: var(--border-width-thick);
+  font-weight: var(--font-weight-bold);
+  cursor: default;
+}
+
+.mk-pager__step:disabled {
+  border-style: dashed;
+  background-color: var(--color-surface-muted);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}

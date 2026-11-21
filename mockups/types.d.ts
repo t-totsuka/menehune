@@ -1,0 +1,563 @@
+// Contracts for every data file, runtime service, component and check tool in the mockups.
+// This is a global (script) declaration file: it has no top-level import/export so that
+// classic <script> files can reference these types from JSDoc without imports.
+// Source of truth: .kiro/specs/ui-mockups/design.md "Components and Interfaces".
+// `any` is forbidden in this file and in every type-checked JS file.
+
+/* ------------------------------------------------------------------ */
+/* Data: ScreenRegistry (data/screens.js -> window.MockScreens)        */
+/* ------------------------------------------------------------------ */
+
+type StageId = 'wireframe' | 'hifi';
+type ReviewStatus = 'draft' | 'in-review' | 'changes-requested' | 'approved';
+type ScreenId =
+  | 'top' | 'calendar-month' | 'day-detail' | 'astro-events' | 'star-chart'
+  | 'post-detail' | 'post-edit' | 'my-posts' | 'settings' | 'login'
+  | 'report' | 'appeal' | 'admin' | 'attribution' | 'privacy';
+type AuthState = 'guest' | 'member' | 'admin';
+type ScenarioId =
+  | 'default' | 'empty' | 'fetch-error' | 'validation-error'
+  | 'private-blocked' | 'hidden-own' | 'hidden-other'
+  | 'deleted-comment' | 'no-location' | 'weather-failed' | 'provisional-holiday'
+  /** Task 8.1 (my-posts): adds SampleDataSet.paging so that the lists page (mk-pager) */
+  | 'many-items'
+  /** Final-validation remediation (5.2, star-chart): the daytime sample, so that the chart shows how the sun is drawn */
+  | 'daytime';
+type ScreenAccess = 'public' | 'member' | 'admin';
+
+interface StageReview {
+  readonly status: ReviewStatus;
+  /** ISO 8601 date */
+  readonly reviewedAt?: string;
+  /** Summary of review findings */
+  readonly notes?: readonly string[];
+}
+
+/**
+ * Invariant (checked by tools/check-registry.mjs):
+ * review.hifi.status !== 'draft' implies review.wireframe.status === 'approved',
+ * and scenarios[0] === 'default'. The file is always screens/{id}.html.
+ */
+interface ScreenEntry {
+  readonly id: ScreenId;
+  readonly titleKey: MessageKey;
+  readonly access: ScreenAccess;
+  /** Login states that can be switched on this screen */
+  readonly authStates: readonly AuthState[];
+  /** The first element must be 'default' */
+  readonly scenarios: readonly ScenarioId[];
+  readonly review: Readonly<Record<StageId, StageReview>>;
+}
+
+type ScreenRegistry = readonly ScreenEntry[];
+
+/* ------------------------------------------------------------------ */
+/* Data: MessageDictionaries and GlossaryMeta                           */
+/* ------------------------------------------------------------------ */
+
+type LocaleId = 'ja' | 'en';
+/** Format /^[a-z0-9-]+(\.[a-z0-9-]+)+$/ (checked by tools/check-i18n.mjs) */
+type MessageKey = string;
+/** Placeholders use the `{name}` form */
+type MessageDictionary = Readonly<Record<MessageKey, string>>;
+/** The ja and en key sets must be identical */
+type MessageDictionaries = Readonly<Record<LocaleId, MessageDictionary>>;
+
+type GlossaryCategory =
+  | 'ui' | 'rokuyo' | 'sekki' | 'kou' | 'zassetsu' | 'lunar-month'
+  | 'moon-phase' | 'astro-event' | 'holiday' | 'location' | 'weather' | 'moderation';
+type TranslationPolicy =
+  /** Meaning-based translation (e.g. 二十四節気 -> 24 Solar Terms) */
+  | 'translation'
+  /** Transliteration (e.g. 大安 -> Taian) */
+  | 'transliteration'
+  /** Transliteration plus translation (e.g. Taian (Great Peace)) */
+  | 'both'
+  /** Standard English, e.g. astronomy terms (e.g. Opposition) */
+  | 'standard';
+
+/** The glossary holds no copy; it only annotates dictionary keys. */
+interface GlossaryEntry {
+  readonly key: MessageKey;
+  readonly category: GlossaryCategory;
+  readonly policy: TranslationPolicy;
+  readonly note?: Readonly<Record<LocaleId, string>>;
+}
+
+type GlossaryMeta = readonly GlossaryEntry[];
+
+/* ------------------------------------------------------------------ */
+/* Data: SampleData (data/sample-data.js -> window.MockSample)          */
+/* ------------------------------------------------------------------ */
+
+/** YYYY-MM-DD */
+type IsoDate = string;
+/** ISO 8601 with offset */
+type IsoDateTime = string;
+
+interface Holiday { readonly key: MessageKey; readonly provisional: boolean; }
+interface AlmanacDay {
+  readonly date: IsoDate;
+  readonly rokuyoKey: MessageKey;
+  readonly lunar: { readonly month: number; readonly day: number; readonly leap: boolean };
+  /** One decimal place */
+  readonly moonAge: number;
+  /** Only on new moon, first quarter, full moon and last quarter */
+  readonly moonPhaseKey?: MessageKey;
+  readonly sekkiKey?: MessageKey;
+  /** Only on the first day of a kou */
+  readonly kouKey?: MessageKey;
+  readonly zassetsuKeys: readonly MessageKey[];
+  readonly holiday?: Holiday;
+  readonly eventIds: readonly string[];
+  /** Rise/set times of that day at the fictional sample point near Tokyo (mk-rise-set with `date`) */
+  readonly riseSet: RiseSet;
+}
+/** A kou (72 microseasons) and its first day */
+interface KouStart { readonly key: MessageKey; readonly start: IsoDate; }
+type AstroEventKind =
+  | 'moon-phase' | 'moon-apsis' | 'moon-declination' | 'planet-conjunction'
+  | 'planet-opposition' | 'planet-elongation' | 'close-approach';
+interface AstroEvent {
+  readonly id: string;
+  readonly kind: AstroEventKind;
+  readonly at: IsoDateTime;
+  readonly titleKey: MessageKey;
+  readonly bodies: readonly string[];
+}
+interface RiseSet {
+  readonly sunrise?: IsoDateTime;
+  readonly sunset?: IsoDateTime;
+  readonly moonrise?: IsoDateTime;
+  readonly moonset?: IsoDateTime;
+}
+
+type PostStatus = 'public' | 'members-only' | 'hidden' | 'deleted';
+interface SampleUser { readonly id: string; readonly displayName: string; readonly isAdmin: boolean; }
+interface CommentNode {
+  readonly id: string;
+  readonly authorId: string;
+  readonly body: string;
+  readonly at: IsoDateTime;
+  readonly deleted: boolean;
+  readonly children: readonly CommentNode[];
+}
+interface LikeState { readonly count: number; readonly likedByMe: boolean; }
+
+type LocationPrecision = 'exact' | 'fuzzed-1km' | 'municipality' | 'prefecture' | 'country';
+interface MapFrame {
+  readonly zoom: 'street' | 'district' | 'city' | 'prefecture' | 'country';
+  readonly showPin: boolean;
+  readonly showRadiusKm?: number;
+}
+interface PostLocation {
+  readonly precision: LocationPrecision;
+  readonly regionLabel: string;
+  readonly mapFrame: MapFrame;
+  readonly riseSet: RiseSet;
+}
+interface WeatherSnapshot {
+  readonly conditionKey: MessageKey;
+  readonly temperatureC: number;
+  readonly humidityPct: number;
+  readonly windMps: number;
+  readonly observedAt: IsoDateTime;
+}
+
+interface SamplePost {
+  readonly id: string;
+  readonly authorId: string;
+  readonly targetDate: IsoDate;
+  readonly postedAt: IsoDateTime;
+  readonly body: string;
+  readonly status: PostStatus;
+  readonly guestVisible: boolean;
+  /** undefined: the post has no location (no map, rise/set or weather; the no-location case) */
+  readonly location?: PostLocation;
+  /**
+   * Only present together with `location`. `location` present and `weather` undefined means the
+   * weather could not be fetched (the weather-failed case).
+   */
+  readonly weather?: WeatherSnapshot;
+  readonly likes: LikeState;
+  readonly comments: readonly CommentNode[];
+}
+type ReportReason = 'spam' | 'harassment' | 'inappropriate' | 'personal-info' | 'other';
+type ReportQueueState = 'open' | 'auto-hidden' | 'hidden-by-admin' | 'appealed' | 'restored' | 'removed';
+interface ReportQueueItem {
+  readonly targetId: string;
+  readonly targetType: 'post' | 'comment';
+  readonly reportCount: number;
+  /** Distinct reasons, most frequent first */
+  readonly reasons: readonly ReportReason[];
+  /** Reports per reason (each report names one reason): keys equal `reasons`, values add up to `reportCount` (task 8.1) */
+  readonly reasonCounts: Readonly<Partial<Record<ReportReason, number>>>;
+  readonly state: ReportQueueState;
+}
+/**
+ * A reply notice (task 8.1, 6.9 and 6.10): someone replied to a comment of `recipientId`.
+ * Derived from the comment trees: `commentId` is the recipient's comment in post `postId` and
+ * `replyId` a direct, not deleted reply to it by another user; the replier and the datetime are
+ * read from that reply. `read` tells unread from read. A deleted reply gives no notice.
+ */
+interface ReplyNotice {
+  readonly id: string;
+  readonly recipientId: string;
+  readonly postId: string;
+  readonly commentId: string;
+  readonly replyId: string;
+  readonly read: boolean;
+}
+
+interface StarChartStar { readonly az: number; readonly alt: number; readonly mag: number; readonly nameKey?: MessageKey; }
+interface StarChartLabel { readonly az: number; readonly alt: number; readonly nameKey: MessageKey; }
+interface StarChartBody { readonly kind: 'sun' | 'moon' | 'planet'; readonly nameKey: MessageKey; readonly az: number; readonly alt: number; }
+interface StarChartSample {
+  readonly observedAt: IsoDateTime;
+  readonly placeLabel: string;
+  readonly stars: readonly StarChartStar[];
+  /** Pairs of indexes into `stars` */
+  readonly constellationLines: readonly (readonly [number, number])[];
+  readonly constellationLabels: readonly StarChartLabel[];
+  readonly bodies: readonly StarChartBody[];
+}
+
+/** Scenarios of the post-detail screen that are tied to one sample post. */
+type PostDetailScenarioId = Extract<ScenarioId,
+  | 'default' | 'private-blocked' | 'hidden-own' | 'hidden-other'
+  | 'deleted-comment' | 'no-location' | 'weather-failed'>;
+
+interface SampleDataSet {
+  /** Fixed to 2026-11-16 */
+  readonly today: IsoDate;
+  readonly users: readonly SampleUser[];
+  /**
+   * User id of "me" for each logged-in AuthState (the member viewer owns hidden-own posts and
+   * is the subject of LikeState.likedByMe; the admin viewer is the single admin user).
+   */
+  readonly viewerIds: Readonly<Record<Exclude<AuthState, 'guest'>, string>>;
+  /** Post id shown by post-detail for each scenario */
+  readonly postDetailScenarios: Readonly<Record<PostDetailScenarioId, string>>;
+  /** Every day of 2026-11 and 2027-03 (provisional holidays), plus one leap-month example day */
+  readonly almanac: readonly AlmanacDay[];
+  /**
+   * First day of every kou covering a sample day, ascending (task 8.1, day-detail `kou="period"`):
+   * the kouKey days plus the kou that started before the first day of a sample run
+   */
+  readonly kouStarts: readonly KouStart[];
+  readonly events: readonly AstroEvent[];
+  readonly posts: readonly SamplePost[];
+  readonly reports: readonly ReportQueueItem[];
+  /** Reply notices, newest reply first (task 8.1, 6.9 and 6.10); the admin viewer has none */
+  readonly notices: readonly ReplyNotice[];
+  readonly starChart: StarChartSample;
+  /**
+   * The same observer and date at 12:00 JST (5.2: how the sun is drawn): mk-star-chart sample="daytime",
+   * and the star-chart screen in the scenario `daytime`.
+   */
+  readonly starChartDaytime: StarChartSample;
+  /**
+   * Extra items of the scenario `many-items` (task 8.1, my-posts paging): own posts of the member
+   * viewer (older than every shared own post) and read notices on them. Not part of `posts` /
+   * `notices`, so no other screen lists them; components still find these posts by id
+   */
+  readonly paging: SamplePagingExtra;
+}
+
+/** Task 8.1: the extra sample items of the scenario `many-items` */
+interface SamplePagingExtra {
+  readonly posts: readonly SamplePost[];
+  readonly notices: readonly ReplyNotice[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Core: MockState                                                      */
+/* ------------------------------------------------------------------ */
+
+type ThemePreference = 'system' | 'light' | 'dark';
+interface MockStateSnapshot {
+  readonly stage: StageId;
+  readonly lang: LocaleId;
+  readonly theme: ThemePreference;
+  readonly auth: AuthState;
+  readonly scenario: ScenarioId;
+  /** undefined on catalog pages */
+  readonly screenId?: ScreenId;
+}
+type MockStatePatch = Partial<Omit<MockStateSnapshot, 'screenId'>>;
+type MockStateWarning = { readonly kind: 'unknown-param'; readonly param: string; readonly value: string };
+
+/**
+ * Resolution order: URL params, stored values (stage, lang, theme only), defaults
+ * (hifi, ja, system, guest, default). Every change dispatches
+ * CustomEvent<MockStateSnapshot>('mock:change') on document.
+ */
+interface MockStateService {
+  get(): MockStateSnapshot;
+  update(patch: MockStatePatch): MockStateSnapshot;
+  warnings(): readonly MockStateWarning[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Core: I18nRuntime                                                    */
+/* ------------------------------------------------------------------ */
+
+type DateStyle = 'date-long' | 'date-short' | 'weekday' | 'time' | 'datetime' | 'month-year';
+type MessageArgs = Readonly<Record<string, string | number>>;
+
+/**
+ * Markup: data-i18n="key", data-i18n-args='{"n":3}',
+ * data-i18n-attr="aria-label:key1;title:key2",
+ * data-i18n-date="2026-11-16" data-date-style="date-long".
+ * Missing keys render as ⟦key⟧ with a console warning. Dates use Asia/Tokyo, 24-hour.
+ */
+interface I18nRuntime {
+  register(locale: LocaleId, dict: MessageDictionary): void;
+  t(key: MessageKey, args?: MessageArgs): string;
+  formatDate(value: IsoDate | IsoDateTime, style: DateStyle): string;
+  /** Processes [data-i18n], [data-i18n-attr] and [data-i18n-date] */
+  apply(root: ParentNode): void;
+}
+
+/* ------------------------------------------------------------------ */
+/* Review: ReviewShell                                                  */
+/* ------------------------------------------------------------------ */
+
+interface ReviewShellService {
+  /** Called once on DOMContentLoaded */
+  mount(): void;
+  /** Hides elements whose [data-when-auth] / [data-when-scenario] do not match */
+  applyConditions(snapshot: MockStateSnapshot): void;
+}
+
+/* ------------------------------------------------------------------ */
+/* Parts: MockElement base and presentational attributes                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Shape of the MockElement base class implemented in assets/js/components/base.js.
+ * Declared as an interface (not a class) so that base.js can define the real
+ * `class MockElement extends HTMLElement` in the same global scope without a
+ * duplicate-identifier conflict. Every member is public (JSDoc @protected would make the class
+ * unassignable to MockElementConstructor); render/sample/t/el/missingSample are meant to be called
+ * only by the element itself and its subclasses.
+ */
+interface MockElementContract extends HTMLElement {
+  /**
+   * Abstract: every subclass overrides it and renders into Light DOM via this.replaceChildren(...).
+   * The base implementation throws.
+   */
+  render(state: MockStateSnapshot): void;
+  /** Returns window.MockSample */
+  sample(): SampleDataSet;
+  /** window.MockI18n.t in the current language */
+  t(key: MessageKey, args?: MessageArgs): string;
+  /**
+   * Builds an element: attributes from `attrs` (null for none), children appended in order
+   * (strings become text nodes).
+   */
+  el<K extends keyof HTMLElementTagNameMap>(
+    tag: K,
+    attrs?: Readonly<Record<string, string>> | null,
+    ...children: readonly (Node | string)[]
+  ): HTMLElementTagNameMap[K];
+  /** Visible error for a sample id that does not exist (error.missing-sample, [data-missing-sample="{id}"]) */
+  missingSample(id: string): HTMLElement;
+  /**
+   * Re-renders with `state`, keeping keyboard focus on the element with the same
+   * [data-mk-focus] value inside this element when it was focused before.
+   */
+  refresh(state: MockStateSnapshot): void;
+  /** First render and subscription to mock:change */
+  connectedCallback(): void;
+  /** Unsubscribes from mock:change */
+  disconnectedCallback(): void;
+}
+
+/** Abstract constructor type of the MockElement base class. */
+type MockElementConstructor = abstract new () => MockElementContract;
+
+/** Diagram parts (star chart, map) expose alt text for role="img" + aria-label. */
+interface DescribableElement {
+  describe(state: MockStateSnapshot): string;
+}
+
+/** HTML boolean attribute: the attribute being present (any value, usually '') means true. */
+type BooleanAttr = string;
+
+/**
+ * While logged in, the header bar also links to the notices of my-posts (#notices) with the number
+ * of unread ReplyNotice of the viewer as text (task 8.1, 6.9); no attribute is needed
+ */
+interface SiteHeaderAttrs { readonly current?: 'calendar' | 'astro-events' | 'star-chart' | 'my-posts' | 'settings' | 'admin'; }
+type SiteFooterAttrs = Readonly<Record<string, never>>;
+/** `band` (boolean, task 8.1) renders the full-width band placed right after mk-site-header on every screen but login */
+interface GuestNoticeAttrs { readonly variant?: 'read-only' | 'private-post'; readonly band?: ''; }
+interface StatusBadgeAttrs { readonly status: PostStatus; }
+type AdminBandAttrs = Readonly<Record<string, never>>;
+
+/**
+ * `month` is YYYY-MM. `week-start="mon"` (task 8.1) starts the week on Monday (default Sunday).
+ * `nav` (boolean, task 8.1) adds previous / this / next month buttons that change `month` and
+ * fire a bubbling CustomEvent<{ month: string }>('mk-month-change').
+ * `caption="hidden"` (task 8.1, calendar-month) keeps the PC table's caption for screen readers only.
+ */
+interface MonthCalendarAttrs { readonly month: string; readonly 'week-start'?: 'sun' | 'mon'; readonly nav?: ''; readonly caption?: 'hidden'; }
+interface DayCellAttrs { readonly date: IsoDate; readonly compact?: BooleanAttr; }
+/**
+ * Opt-ins of task 8.1 (day-detail): `kou="period"` shows the current kou on every day with its day
+ * count; `hide-empty` leaves out the items without a value instead of showing almanac.none;
+ * `hide-date` leaves out the date line (the page heading shows it)
+ */
+interface AlmanacSummaryAttrs {
+  readonly date: IsoDate; readonly variant?: 'full' | 'brief';
+  readonly kou?: 'period'; readonly 'hide-empty'?: ''; readonly 'hide-date'?: '';
+}
+/** `chart` (boolean, task 8.1) adds the 0-24h chart of when the sun and the moon are up */
+interface RiseSetAttrs { readonly date?: IsoDate; readonly 'post-id'?: string; readonly chart?: ''; }
+/** `kinds` is a space-separated list of AstroEventKind; `filters="collapsed"` (task 8.1) folds the filters into a closed accordion;
+ *  `mark-past` (task 8.1) labels the events dated before the sample's today; `relative-days` (task 8.1) adds each event's
+ *  distance from the sample's today in calendar days ("n日後" / "今日"; none for past events) after its datetime */
+interface EventListAttrs { readonly from?: IsoDate; readonly to?: IsoDate; readonly kinds?: string; readonly filters?: 'collapsed'; readonly 'mark-past'?: ''; readonly 'relative-days'?: ''; }
+
+/**
+ * `sample` selects a star chart sample: omitted means SampleDataSet.starChart, or
+ * SampleDataSet.starChartDaytime in the scenario `daytime`; `daytime` always means
+ * SampleDataSet.starChartDaytime; any other value is an unknown sample id
+ */
+interface StarChartAttrs { readonly sample?: 'daytime' | string; }
+
+/**
+ * `meta="icons"` (task 8.1, my-posts) shows the visibility setting as an icon and the public /
+ * members-only status badge as its symbol only (hidden / deleted keep their text).
+ * `comment-count` (boolean, task 8.1, my-posts) adds the number of comments in the post's tree
+ * (replies included, deleted comments left out) to the status row; deleted posts show none
+ */
+interface PostCardAttrs {
+  readonly 'post-id': string; readonly variant?: 'list' | 'compact'; readonly meta?: 'icons';
+  readonly 'comment-count'?: '';
+}
+interface CommentTreeAttrs { readonly 'post-id': string; }
+interface LikeButtonAttrs { readonly 'post-id': string; }
+interface ReportLinkAttrs { readonly 'target-id': string; }
+/**
+ * Task 8.1 (6.10): the reply notices of `user-id` (omitted: the viewer, SampleDataSet.viewerIds[auth];
+ * guests without `user-id` get nothing). Follows the scenario: `empty` shows the empty state,
+ * `fetch-error` the notices error
+ */
+interface NoticeListAttrs {
+  readonly 'user-id'?: string;
+  /**
+   * Task 8.1 (my-posts): items per page (a positive integer); the list then shows one page and an
+   * mk-pager below it (nothing when the notices fit on one page). Omitted: every notice, no pager
+   */
+  readonly 'page-size'?: string;
+}
+/**
+ * Task 8.1 (my-posts paging): `total` items, the current `page` (1-based, clamped; default 1),
+ * `page-size` (default MockPaging.PAGE_SIZE = 30, provisional) and `label-key` (MessageKey of the
+ * nav's accessible name). Renders nothing when total <= page-size. The buttons set `page` and fire
+ * a bubbling CustomEvent<{ page: number }>('mk-page-change')
+ */
+interface PagerAttrs { readonly total: string; readonly page?: string; readonly 'page-size'?: string; readonly 'label-key': MessageKey; }
+
+/** `collapsed` (boolean, task 8.1) folds the radio group into a closed accordion whose summary shows the current choice */
+interface PrecisionPickerAttrs { readonly value?: LocationPrecision; readonly collapsed?: ''; }
+interface LocationPanelAttrs { readonly 'post-id': string; }
+/**
+ * `region` overrides the region name (Japanese free text); omitted means the first sample post with that precision.
+ * `subject="observer"` (task 8.1, star chart) labels the map as the star chart's observing location (caption and alt text)
+ */
+interface MapSampleAttrs { readonly precision: LocationPrecision; readonly region?: string; readonly subject?: 'observer'; }
+interface WeatherAttrs { readonly 'post-id': string; }
+
+/** Element name -> attribute contract. */
+interface MockElementAttrsMap {
+  'mk-site-header': SiteHeaderAttrs;
+  'mk-site-footer': SiteFooterAttrs;
+  'mk-guest-notice': GuestNoticeAttrs;
+  'mk-status-badge': StatusBadgeAttrs;
+  'mk-admin-band': AdminBandAttrs;
+  'mk-pager': PagerAttrs;
+  'mk-month-calendar': MonthCalendarAttrs;
+  'mk-day-cell': DayCellAttrs;
+  'mk-almanac-summary': AlmanacSummaryAttrs;
+  'mk-rise-set': RiseSetAttrs;
+  'mk-event-list': EventListAttrs;
+  'mk-star-chart': StarChartAttrs;
+  'mk-post-card': PostCardAttrs;
+  'mk-comment-tree': CommentTreeAttrs;
+  'mk-like-button': LikeButtonAttrs;
+  'mk-report-link': ReportLinkAttrs;
+  'mk-notice-list': NoticeListAttrs;
+  'mk-precision-picker': PrecisionPickerAttrs;
+  'mk-location-panel': LocationPanelAttrs;
+  'mk-map-sample': MapSampleAttrs;
+  'mk-weather': WeatherAttrs;
+}
+type MockElementName = keyof MockElementAttrsMap;
+
+/* ------------------------------------------------------------------ */
+/* Tools: CheckScripts configuration                                    */
+/* ------------------------------------------------------------------ */
+
+type ThemeBlock = 'light' | 'dark';
+/** One element of tools/contrast-pairs.json */
+interface ContrastPair {
+  /** e.g. '--color-text' */
+  readonly fg: string;
+  /** e.g. '--color-bg' */
+  readonly bg: string;
+  readonly min: 4.5 | 3;
+  readonly themes: readonly ThemeBlock[];
+}
+/** A rule inside tools/check-tokens.mjs */
+interface TokenCheckRule {
+  readonly id: 'color-literal' | 'length-literal' | 'media-breakpoint';
+  readonly pattern: RegExp;
+  /** e.g. 'assets/css/base.css' */
+  readonly appliesTo: readonly string[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Globals registered by the classic scripts                            */
+/* ------------------------------------------------------------------ */
+
+interface Window {
+  /** data/screens.js */
+  MockScreens: ScreenRegistry;
+  /** data/glossary.js */
+  MockGlossary: GlossaryMeta;
+  /** data/sample-data.js */
+  MockSample: SampleDataSet;
+  /** assets/i18n/messages.{locale}.js register here before i18n.js loads */
+  MockMessages: Partial<Record<LocaleId, MessageDictionary>>;
+  /** assets/js/mock-state.js */
+  MockState: MockStateService;
+  /** assets/js/i18n.js */
+  MockI18n: I18nRuntime;
+  /** assets/js/review-shell.js */
+  MockReviewShell: ReviewShellService;
+  /** assets/js/components/base.js */
+  MockElement: MockElementConstructor;
+  /** assets/js/components/shell.js (task 8.1): pure paging logic of mk-pager */
+  MockPaging: MockPagingService;
+}
+
+/** Task 8.1 (my-posts paging): pages are 1-based; out-of-range pages are clamped */
+interface MockPagingService {
+  /** Items per page (30; provisional, review note "暫定的に") */
+  readonly PAGE_SIZE: number;
+  /** Number of pages (at least 1) */
+  pageCount(total: number, size: number): number;
+  /** An integer page within 1..pageCount (NaN and below 1 -> 1) */
+  clampPage(page: number, total: number, size: number): number;
+  /** 1-based numbers of the first and last item of the page ({ from: 0, to: 0 } when total is 0) */
+  pageRange(total: number, page: number, size: number): { readonly from: number; readonly to: number };
+  /** The items of the page, in order */
+  pageItems<T>(items: readonly T[], page: number, size: number): T[];
+}
+
+interface DocumentEventMap {
+  'mock:change': CustomEvent<MockStateSnapshot>;
+}

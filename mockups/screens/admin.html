@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="screen.admin.title">管理</title>
+  <script src="../assets/js/theme-boot.js"></script>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/wireframe.css">
+  <link rel="stylesheet" href="../assets/css/review.css">
+</head>
+<body data-screen-id="admin">
+  <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
+  <main class="l-container l-stack">
+    <h1 data-i18n="screen.admin.title">管理</h1>
+    <!-- Admin only (3.6): guests and members get the no-permission notice; the admin gets the band,
+         the report queue and the appeal review inside a frame in the admin role color. The page
+         script at the end fills both lists from MockSample.reports; the `empty` scenario shows the
+         empty states instead. The actions are mocks that only change the displayed state. -->
+    <div data-when-auth="guest member" data-no-permission>
+      <div class="screen-notice l-stack" role="note">
+        <p data-i18n="error.no-permission">このページを表示する権限がありません。</p>
+        <p data-i18n="screen.admin.no-permission-hint">管理画面は、管理者のアカウントでログインしたときだけ表示できます。</p>
+        <p><a href="top.html" data-i18n="screen.admin.to-top">トップへ戻る</a></p>
+      </div>
+    </div>
+
+    <div class="screen-admin l-stack" data-when-auth="admin" data-admin-content>
+      <mk-admin-band></mk-admin-band>
+      <!-- Task 8.1 (review "表示をKANBAN形式にしたい"): the report queue is a board with one column
+           per group of ReportQueueState values (no new states): 未対応 = open; 一時非表示 =
+           auto-hidden, hidden-by-admin; 異議申し立ての審査 = appealed (the appeal review of 8.6);
+           対応済み = restored, removed. Each card keeps its precise state. Side by side from 960px,
+           2 x 2 from 600px, stacked below (no inner horizontal scroll). The page script fills the
+           lists, the counts and the per-column empty messages, and moves a card on an action. -->
+      <section class="l-stack" aria-labelledby="admin-queue" data-report-queue>
+        <h2 id="admin-queue" data-i18n="screen.admin.queue">通報キュー</h2>
+        <p data-i18n="screen.admin.queue-intro">通報された投稿とコメントです。</p>
+        <p class="field-hint" data-i18n="screen.admin.board-hint">状態ごとに列に分けています。</p>
+        <div class="screen-admin-board" data-board>
+          <section class="screen-admin-column l-stack" aria-labelledby="admin-column-open" data-column="open">
+            <h3 id="admin-column-open"><span data-i18n="screen.admin.column.open">未対応</span><span data-column-count></span></h3>
+            <ul class="screen-admin-list" data-column-list></ul>
+            <p class="text-muted" data-column-empty hidden data-i18n="screen.admin.column.open.empty">対応が必要な通報はありません。</p>
+          </section>
+          <section class="screen-admin-column l-stack" aria-labelledby="admin-column-hidden" data-column="hidden">
+            <h3 id="admin-column-hidden"><span data-i18n="screen.admin.column.hidden">一時非表示</span><span data-column-count></span></h3>
+            <ul class="screen-admin-list" data-column-list></ul>
+            <p class="text-muted" data-column-empty hidden data-i18n="screen.admin.column.hidden.empty">一時非表示の通報はありません。</p>
+          </section>
+          <section class="screen-admin-column l-stack" aria-labelledby="admin-column-appealed" data-column="appealed" data-appeal-review>
+            <h3 id="admin-column-appealed"><span data-i18n="screen.admin.column.appealed">異議申し立ての審査</span><span data-column-count></span></h3>
+            <p class="field-hint" data-i18n="screen.admin.appeals-intro">一時非表示になった投稿の投稿者から、異議が申し立てられています。内容を確認して、表示を再開するか削除するかを決めてください。</p>
+            <ul class="screen-admin-list" data-column-list></ul>
+            <p class="text-muted" data-column-empty hidden data-i18n="screen.admin.column.appealed.empty">審査を待っている異議申し立てはありません。</p>
+          </section>
+          <section class="screen-admin-column l-stack" aria-labelledby="admin-column-done" data-column="done">
+            <h3 id="admin-column-done"><span data-i18n="screen.admin.column.done">対応済み</span><span data-column-count></span></h3>
+            <ul class="screen-admin-list" data-column-list></ul>
+            <p class="text-muted" data-column-empty hidden data-i18n="screen.admin.column.done.empty">対応済みの通報はありません。</p>
+          </section>
+        </div>
+      </section>
+      <p class="field-hint" data-i18n="screen.admin.mock-note">このモックアップでは、操作しても保存されません。</p>
+    </div>
+  </main>
+  <mk-site-footer></mk-site-footer>
+  <script src="../data/screens.js"></script>
+  <script src="../data/glossary.js"></script>
+  <script src="../data/sample-data.js"></script>
+  <script src="../assets/i18n/messages.ja.js"></script>
+  <script src="../assets/i18n/messages.en.js"></script>
+  <script src="../assets/js/mock-state.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/components/base.js"></script>
+  <script src="../assets/js/components/shell.js"></script>
+  <script src="../assets/js/components/almanac.js"></script>
+  <script src="../assets/js/components/sky.js"></script>
+  <script src="../assets/js/components/posts.js"></script>
+  <script src="../assets/js/components/location.js"></script>
+  <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Admin page script (task 5.7, board in task 8.1). Builds one card per report of
+    // MockSample.reports into the board column of its state (the appealed column is the appeal
+    // review: its cards carry the appeal text and the restore / remove decisions). Texts are set
+    // as data-i18n (+ data-i18n-args) and translated by the i18n runtime. The mock actions keep
+    // the changed state per target in `states`, update the state label, drop the actions and move
+    // the card to the column of its new state (focus goes to its state label). On every
+    // mock:change the column counts and the per-column empty messages follow the scenario (the
+    // cards are data-when-scenario="default", so the `empty` scenario shows empty columns).
+    (function () {
+      const sample = window.MockSample;
+      /** @type {Record<string, string>} Appeal texts of the sample (free text by the author). */
+      const appealTexts = { 'p-108': '参加費のない有志の観望会の案内で、宣伝の意図はありません。外部へのリンクも載せていないので、表示を再開してください。' };
+      /** @type {Record<ReportQueueState, string>} Board column of each state. */
+      const columnOf = { open: 'open', 'auto-hidden': 'hidden', 'hidden-by-admin': 'hidden', appealed: 'appealed', restored: 'done', removed: 'done' };
+      /** @type {Map<string, ReportQueueState>} */
+      const states = new Map(sample.reports.map((r) => [r.targetId, r.state]));
+      let scenario = 'default';
+      /** @param {string} tag @param {Record<string, string>} attrs @param {(Node | string)[]} children */
+      const el = (tag, attrs, ...children) => {
+        const node = document.createElement(tag);
+        for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, value);
+        node.append(...children);
+        return node;
+      };
+      /** @param {number} count */
+      const countKey = (count) => count === 1 ? 'moderation.report-count-one' : 'moderation.report-count';
+      /** @param {readonly CommentNode[]} nodes @param {string} id @returns {CommentNode | undefined} */
+      const findComment = (nodes, id) => {
+        for (const c of nodes) { const hit = c.id === id ? c : findComment(c.children, id); if (hit) return hit; }
+        return undefined;
+      };
+      /** @param {ReportQueueItem} r */
+      const targetOf = (r) => r.targetType === 'post'
+        ? sample.posts.find((p) => p.id === r.targetId)
+        : sample.posts.map((p) => findComment(p.comments, r.targetId)).find((c) => c !== undefined);
+      /** @param {string} key @param {(Node | string)[]} content */
+      const meta = (key, ...content) => el('div', {}, el('dt', { 'data-i18n': key }), el('dd', {}, ...content));
+      /**
+       * Reason chip: "スパム・宣伝 ×3" on screen; screen readers get "スパム・宣伝 通報 3 件".
+       * @param {ReportReason} reason @param {number} n
+       */
+      const chip = (reason, n) => el('li', { class: 'screen-admin-reason', 'data-reason': reason },
+        el('span', { 'data-reason-name': '', 'data-i18n': `moderation.reason.${reason}` }), ' ',
+        el('span', { 'data-reason-times': '', 'aria-hidden': 'true', 'data-i18n': 'screen.admin.reason-times', 'data-i18n-args': JSON.stringify({ count: n }) }),
+        el('span', { class: 'visually-hidden', 'data-reason-times-label': '', 'data-i18n': countKey(n), 'data-i18n-args': JSON.stringify({ count: n }) }));
+      /** @param {ReportQueueItem} r */
+      const item = (r) => {
+        const appeal = r.state === 'appealed';
+        const target = targetOf(r);
+        if (target === undefined) console.warn(`[admin] report target ${r.targetId} is not in the sample`);
+        const author = sample.users.find((u) => u.id === target?.authorId)?.displayName ?? '';
+        const body = target === undefined || ('deleted' in target && target.deleted)
+          ? el('p', { class: 'screen-target__body text-muted', 'data-target-body': '', 'data-i18n': 'moderation.comment-deleted' })
+          : el('p', { class: 'screen-target__body', 'data-target-body': '' }, target.body);
+        // the count first, large and bold (task 8.1 "通報件数・理由は見やすくしたい")
+        const count = el('p', { class: 'screen-admin-count', 'data-report-count': '', 'data-i18n': countKey(r.reportCount), 'data-i18n-args': JSON.stringify({ count: r.reportCount }) });
+        const reasons = el('ul', { class: 'screen-admin-reasons', 'data-reasons': '', 'data-i18n-attr': 'aria-label:screen.admin.reasons' },
+          ...r.reasons.map((reason) => chip(reason, r.reasonCounts[reason] ?? 0)));
+        const state = el('span', { 'data-report-state': '', 'data-state-for': r.targetId, tabindex: '-1' });
+        const actions = appeal
+          ? [el('button', { type: 'button', 'data-decision': 'restore', 'data-i18n': 'screen.admin.restore' }), el('button', { type: 'button', 'data-decision': 'remove', 'data-i18n': 'screen.admin.remove' })]
+          : (r.state === 'open' ? [el('button', { type: 'button', 'data-hide-now': '', 'data-i18n': 'screen.admin.hide-now' })] : []);
+        const appealBox = el('div', { class: 'screen-target l-stack' },
+          el('p', { class: 'text-muted', 'data-i18n': 'screen.admin.appeal-text' }), el('p', { class: 'screen-target__body', 'data-appeal-text': '' }, appealTexts[r.targetId] ?? ''));
+        /** @type {Record<string, string>} */
+        const attrs = { class: 'screen-admin-item l-stack', 'data-queue-item': '', 'data-target-id': r.targetId, 'data-when-scenario': 'default' };
+        if (appeal) attrs['data-appeal-item'] = '';
+        return el('li', attrs,
+          el('h4', {}, el('span', { 'data-target-kind': '', 'data-i18n': `screen.report.kind.${r.targetType}` }), ' ', el('code', {}, r.targetId)),
+          count,
+          reasons,
+          body,
+          ...(appeal ? [appealBox] : []),
+          el('dl', { class: 'screen-post-meta' }, meta('screen.report.author', author), meta('screen.admin.state', state)),
+          ...(actions.length > 0 ? [el('p', { class: 'l-cluster' }, ...actions)] : []));
+      };
+      /** @param {string} id */
+      const listOf = (id) => document.querySelector(`[data-column="${columnOf[states.get(id) ?? 'open']}"] [data-column-list]`);
+      /** @param {string} id */
+      const show = (id) => {
+        const key = `moderation.state.${states.get(id)}`;
+        for (const node of document.querySelectorAll(`[data-state-for="${id}"]`)) {
+          node.setAttribute('data-i18n', key);
+          node.textContent = window.MockI18n.t(key);
+        }
+      };
+      // Column counts (text in the h3) and empty messages, for the current scenario.
+      const refresh = () => {
+        for (const column of document.querySelectorAll('[data-report-queue] [data-column]')) {
+          const n = scenario === 'empty' ? 0 : column.querySelectorAll('[data-column-list] > [data-queue-item]').length;
+          const label = column.querySelector('[data-column-count]');
+          if (label !== null) {
+            label.setAttribute('data-i18n', 'screen.admin.column-count');
+            label.setAttribute('data-i18n-args', JSON.stringify({ count: n }));
+            label.textContent = window.MockI18n.t('screen.admin.column-count', { count: n });
+          }
+          const empty = column.querySelector('[data-column-empty]');
+          if (empty instanceof HTMLElement) empty.hidden = n > 0;
+        }
+      };
+      for (const r of sample.reports) listOf(r.targetId)?.append(item(r));
+      for (const r of sample.reports) show(r.targetId);
+      document.addEventListener('mock:change', (e) => {
+        scenario = /** @type {CustomEvent<MockStateSnapshot>} */ (e).detail.scenario;
+        refresh();
+      });
+      document.querySelector('[data-admin-content]')?.addEventListener('click', (e) => {
+        const button = e.target instanceof Element ? e.target.closest('button') : null;
+        const li = button?.closest('li[data-target-id]');
+        const id = li?.getAttribute('data-target-id');
+        if (!button || !li || !id) return;
+        const decision = button.getAttribute('data-decision');
+        states.set(id, button.hasAttribute('data-hide-now') ? 'hidden-by-admin' : decision === 'restore' ? 'restored' : 'removed');
+        button.closest('p')?.remove();
+        show(id);
+        // the card moves to the column of its new state
+        listOf(id)?.append(li);
+        refresh();
+        const label = li.querySelector('[data-report-state]');
+        if (label instanceof HTMLElement) label.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

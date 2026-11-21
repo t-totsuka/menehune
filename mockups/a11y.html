@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>アクセシビリティの方針（モックアップ集）</title>
+  <script src="assets/js/theme-boot.js"></script>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/wireframe.css">
+  <!-- Review chrome only; always the last stylesheet and never referenced by product CSS. -->
+  <link rel="stylesheet" href="assets/css/review.css">
+  <!-- Catalog page: fixed Japanese copy (no dictionary keys); page-specific styles go in a <style> here. -->
+  <style>
+    /* Page chrome (tables, frames): gray literals like review.css. The samples use the product tokens. */
+    .ax-table-wrap { max-width: 100%; overflow-x: auto; }
+    .ax-table-wrap:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+    .ax-table { border-collapse: collapse; min-width: 40rem; width: 100%; }
+    .ax-table caption { text-align: start; font-weight: 700; padding-block-end: 0.5rem; }
+    .ax-table th, .ax-table td { border: 1px solid #8a8a8a; padding: 0.5rem; text-align: start; vertical-align: top; }
+    .ax-table thead th { background: #e6e6e6; color: #1a1a1a; }
+    .ax-table code { overflow-wrap: anywhere; }
+    .ax-policy { margin: 0; padding-inline-start: 1.5rem; }
+    .ax-policy li + li { margin-block-start: 0.25rem; }
+    .ax-example { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); align-items: start; }
+    .ax-figure { max-width: 24rem; min-width: 0; }
+    .ax-map { width: 14rem; max-width: 100%; }
+    .ax-alt { margin: 0; padding: 0.5rem 0.75rem; border: 1px dashed #8a8a8a; overflow-wrap: anywhere; }
+    .ax-alt-label { margin: 0 0 0.25rem; font-weight: 700; }
+    .ax-omitted { margin: 0; padding-inline-start: 1.5rem; }
+    .ax-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-block-start: 0.5rem; }
+
+    /* Focus samples: one panel per theme. The script sets that theme's --color-* values on the
+       panel, so its contents (and the real :focus-visible rule of base.css) use them whatever the
+       page theme is. */
+    .ax-themes { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); }
+    .ax-panel { display: grid; gap: var(--space-md); padding: var(--space-md); background: var(--color-bg); color: var(--color-text); border: 1px solid #8a8a8a; min-width: 0; }
+    .ax-panel h3, .ax-panel h4 { margin: 0; }
+    .ax-panel h4 { font-size: var(--font-size-md); }
+    .ax-panel__meta { margin: 0; font-size: var(--font-size-sm); color: var(--color-text-muted); overflow-wrap: anywhere; }
+    .ax-panel__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-md); }
+    .ax-panel label { display: inline-flex; align-items: center; gap: var(--space-xs); }
+    .ax-fake-input { display: inline-block; min-width: 8rem; color: var(--color-text-muted); background-color: var(--color-surface); border: var(--border-width-thin) solid var(--color-border-strong); border-radius: var(--radius-sm); padding-block: var(--space-xs); padding-inline: var(--space-sm); }
+    .ax-fake-link { color: var(--color-link); text-decoration: underline; }
+    /* Same as the :focus-visible rule of base.css, always shown. */
+    .ax-focus-shown { outline: var(--border-width-focus) solid var(--color-focus); outline-offset: var(--space-focus-offset); }
+  </style>
+</head>
+<body>
+  <nav class="mk-catalog-nav" aria-label="カタログ">
+    <ul class="mk-catalog-nav__list">
+      <li><a href="index.html">一覧</a></li>
+      <li><a href="viewer.html">幅プレビュー</a></li>
+      <li><a href="components.html">部品ギャラリー</a></li>
+      <li><a href="tokens.html">トークン</a></li>
+      <li><a href="glossary.html">用語集</a></li>
+      <li><a href="a11y.html" aria-current="page">アクセシビリティ</a></li>
+    </ul>
+  </nav>
+  <main class="l-container l-stack">
+    <h1>アクセシビリティの方針</h1>
+    <p class="text-muted">星図と地図の代替テキストの方針と記述例、両テーマのキーボードフォーカスの表示、色以外の手がかりで区別している箇所をまとめたページです（要件 13.3〜13.5）。記述例とフォーカスの見本は、このページに置いた実際の部品とトークンから作っています。</p>
+
+    <section class="l-stack" aria-labelledby="sec-alt">
+      <h2 id="sec-alt">星図と地図の代替テキスト</h2>
+      <h3>方針</h3>
+      <ul class="ax-policy" data-alt-policy>
+        <li>図（<code>&lt;svg&gt;</code>）に <code>role="img"</code> を付け、<code>aria-label</code> に文章の説明を入れます。説明は部品の <code>describe(state)</code> が、表示と同じデータから作ります。</li>
+        <li>図を包む、フォーカスできない要素にだけ <code>data-figure</code> を付けます（ワイヤーフレームの段階では中身が占位表示になりますが、説明は残ります）。</li>
+        <li>星図：日時と地点、図の向き（天頂が中心、上が北、左が東）、地平線より上にある天体と方角、主な明るい星と方角、見えている星座を、この順に書きます。高度が 0 度未満の天体は書きません。</li>
+        <li>星図のラベルは、重なると省きます。省いた名前も代替テキストには残します（下の「図では省いた名前」）。</li>
+        <li>地図：地域名、縮尺、地点の示し方（ピン、半径約 1 km の円、範囲の塗り）を書きます。正確な地点を出さない精度では、出していないことを明記します。地域名は利用者の自由記述なので、英語の表示でも訳しません。</li>
+        <li>星図の画面の観測地点の地図（<code>mk-map-sample subject="observer"</code>）は、先頭に「星図の観測地点を示す地図。」と書き、続けて上の地図の説明を書きます（厳密の精度では、ピンが観測地点を示すと書きます）。</li>
+        <li>文言は辞書のキー（<code>sky.describe.*</code>、<code>map.describe.{精度}</code>）から作り、表示中の言語に従います。レビュー用ツールバーで言語を切り替えると、下の記述例も切り替わります。</li>
+        <li>記述例の内容（13.4）は、段階ごとの人によるレビューで確認します。</li>
+      </ul>
+
+      <h3>星図の記述例</h3>
+      <div class="ax-example">
+        <div class="ax-figure">
+          <mk-star-chart id="a11y-star-chart"></mk-star-chart>
+        </div>
+        <div class="l-stack">
+          <div>
+            <p class="ax-alt-label">代替テキスト（<code>aria-label</code>）</p>
+            <p class="ax-alt" data-alt-example="star-chart"></p>
+          </div>
+          <div>
+            <p class="ax-alt-label">図では省いた名前（代替テキストには含まれます）</p>
+            <ul class="ax-omitted" data-alt-omitted></ul>
+            <p class="text-muted" data-alt-omitted-empty hidden>この言語では、省いた名前はありません。</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>地図の記述例</h3>
+      <div class="ax-table-wrap" tabindex="0" role="region" aria-label="地図の記述例の表">
+        <table class="ax-table">
+          <caption>位置の精度ごとの模式地図と代替テキスト</caption>
+          <thead>
+            <tr><th scope="col">精度</th><th scope="col">図</th><th scope="col">代替テキスト（<code>aria-label</code>）</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row"><code>exact</code></th><td><div class="ax-map"><mk-map-sample precision="exact"></mk-map-sample></div></td><td data-alt-example="map-exact"></td></tr>
+            <tr><th scope="row"><code>fuzzed-1km</code></th><td><div class="ax-map"><mk-map-sample precision="fuzzed-1km"></mk-map-sample></div></td><td data-alt-example="map-fuzzed-1km"></td></tr>
+            <tr><th scope="row"><code>municipality</code></th><td><div class="ax-map"><mk-map-sample precision="municipality"></mk-map-sample></div></td><td data-alt-example="map-municipality"></td></tr>
+            <tr><th scope="row"><code>prefecture</code></th><td><div class="ax-map"><mk-map-sample precision="prefecture"></mk-map-sample></div></td><td data-alt-example="map-prefecture"></td></tr>
+            <tr><th scope="row"><code>country</code></th><td><div class="ax-map"><mk-map-sample precision="country"></mk-map-sample></div></td><td data-alt-example="map-country"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="l-stack" aria-labelledby="sec-focus" id="focus-samples">
+      <h2 id="sec-focus">キーボードフォーカスの表示</h2>
+      <p>操作できる要素は、キーボードでフォーカスしたとき（<code>:focus-visible</code>）に、<code>--color-focus</code> の色、<code>--border-width-focus</code> の太さ、<code>--space-focus-offset</code> の間隔の外枠を出します（base.css）。下の 2 つの枠は、ページのテーマによらず、それぞれライトとダークのトークンの値で表示しています。値は表示中の段階のものです。「常に表示した見本」は外枠を固定で出したもので、フォーカスできません。「実際の要素」は Tab キーで移動して確かめられます。</p>
+      <div class="ax-themes">
+        <div class="ax-panel" data-focus-panel="light" role="group" aria-labelledby="focus-light-title">
+          <h3 id="focus-light-title">ライト</h3>
+          <p class="ax-panel__meta" data-focus-meta></p>
+          <h4>常に表示した見本</h4>
+          <div class="ax-panel__row">
+            <span class="button ax-focus-shown" data-focus-shown>ボタン</span>
+            <span class="ax-fake-link ax-focus-shown" data-focus-shown>リンク</span>
+            <span class="ax-fake-input ax-focus-shown" data-focus-shown>入力欄</span>
+          </div>
+          <h4>実際の要素</h4>
+          <div class="ax-panel__row">
+            <button type="button" data-focus-real>ボタン</button>
+            <a href="#focus-samples" data-focus-real>リンク</a>
+            <input type="text" aria-label="入力欄の見本（ライト）" placeholder="入力欄" data-focus-real>
+            <label><input type="checkbox" data-focus-real> チェックボックス</label>
+          </div>
+        </div>
+        <div class="ax-panel" data-focus-panel="dark" role="group" aria-labelledby="focus-dark-title">
+          <h3 id="focus-dark-title">ダーク</h3>
+          <p class="ax-panel__meta" data-focus-meta></p>
+          <h4>常に表示した見本</h4>
+          <div class="ax-panel__row">
+            <span class="button ax-focus-shown" data-focus-shown>ボタン</span>
+            <span class="ax-fake-link ax-focus-shown" data-focus-shown>リンク</span>
+            <span class="ax-fake-input ax-focus-shown" data-focus-shown>入力欄</span>
+          </div>
+          <h4>実際の要素</h4>
+          <div class="ax-panel__row">
+            <button type="button" data-focus-real>ボタン</button>
+            <a href="#focus-samples" data-focus-real>リンク</a>
+            <input type="text" aria-label="入力欄の見本（ダーク）" placeholder="入力欄" data-focus-real>
+            <label><input type="checkbox" data-focus-real> チェックボックス</label>
+          </div>
+        </div>
+      </div>
+      <p class="text-muted">フォーカスの色と背景のコントラスト比（3:1 以上）は、<a href="tokens.html">トークン一覧</a>のコントラストの表で確認できます。</p>
+    </section>
+
+    <section class="l-stack" aria-labelledby="sec-color">
+      <h2 id="sec-color">色以外で区別している箇所</h2>
+      <p>意味を持つ色には、必ず文字、記号、形、線のいずれかを添えます（13.3）。色は補助として使います。</p>
+      <div class="ax-table-wrap" tabindex="0" role="region" aria-label="色以外で区別している箇所の表">
+        <table class="ax-table">
+          <caption>箇所ごとの色以外の手がかり</caption>
+          <thead>
+            <tr><th scope="col">箇所</th><th scope="col">色以外の手がかり</th><th scope="col">部品・ページ</th></tr>
+          </thead>
+          <tbody>
+            <tr data-distinction="post-status">
+              <th scope="row">投稿の状態（公開中、ログインユーザのみ、一時非表示、削除済み）</th>
+              <td>状態ごとの記号と、状態名の文字。
+                <div class="ax-badges">
+                  <mk-status-badge status="public"></mk-status-badge>
+                  <mk-status-badge status="members-only"></mk-status-badge>
+                  <mk-status-badge status="hidden"></mk-status-badge>
+                  <mk-status-badge status="deleted"></mk-status-badge>
+                </div>
+              </td>
+              <td><code data-component="mk-status-badge">mk-status-badge</code>（shell.js）</td>
+            </tr>
+            <tr data-distinction="holiday">
+              <th scope="row">祝日</th>
+              <td>祝日名の文字。スマートフォン幅の小さな格子では「祝」の文字の印と、凡例</td>
+              <td><code data-component="mk-day-cell">mk-day-cell</code>、<code data-component="mk-month-calendar">mk-month-calendar</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="provisional-holiday">
+              <th scope="row">予定の祝日（未確定）</th>
+              <td>「予定」の文字と破線の枠。小さな格子では「祝」の印の枠が破線になり、凡例で説明する</td>
+              <td><code data-component="mk-day-cell">mk-day-cell</code>、<code data-component="mk-almanac-summary">mk-almanac-summary</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="weekday">
+              <th scope="row">日曜日と土曜日</th>
+              <td>カレンダーの列の曜日の見出しと、日のセルの曜日の文字</td>
+              <td><code data-component="mk-month-calendar">mk-month-calendar</code>、<code data-component="mk-day-cell">mk-day-cell</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="rokuyo">
+              <th scope="row">六曜</th>
+              <td>六曜名の文字（大安、仏滅などの色は補助）</td>
+              <td><code data-component="mk-day-cell">mk-day-cell</code>、<code data-component="mk-almanac-summary">mk-almanac-summary</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="marks">
+              <th scope="row">二十四節気、七十二候、雑節、天文現象の印</th>
+              <td>種類ごとの記号（◆ 節気、◇ 候、■ 雑節、★ 天文現象）と名称の文字。小さな格子では記号だけを出し、凡例で説明する</td>
+              <td><code data-component="mk-day-cell">mk-day-cell</code>、<code data-component="mk-month-calendar">mk-month-calendar</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="moon-phase">
+              <th scope="row">月の満ち欠け</th>
+              <td>月相の記号（● 新月、○ 満月など）と、月相の名前と月齢の文字。ハイフィ段階では記号の上に月相のアイコン（暗い円と、光る側の形。月の図と同じ明暗）を重ねる（装飾。意味は名前の文字と、小さな格子では凡例で伝える）</td>
+              <td><code data-component="mk-day-cell">mk-day-cell</code>、<code data-component="mk-almanac-summary">mk-almanac-summary</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="today">
+              <th scope="row">今日</th>
+              <td>「今日」の文字と太い枠、<code>aria-current="date"</code>。小さな格子では日付を丸く塗った形と、選んだ日の要約の文字</td>
+              <td><code data-component="mk-day-cell">mk-day-cell</code>、<code data-component="mk-month-calendar">mk-month-calendar</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="selected-day">
+              <th scope="row">小さな格子で選んでいる日</th>
+              <td>太い枠と太字、<code>aria-selected="true"</code></td>
+              <td><code data-component="mk-month-calendar">mk-month-calendar</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="event-kind">
+              <th scope="row">天文現象の種類（月、惑星など）</th>
+              <td>種類名の文字（左端の線の色は補助）。ハイフィ段階では種類名の前に種類ごとの形のアイコンを添える（装飾で <code>aria-hidden</code>。アイコンだけでは伝えない）</td>
+              <td><code data-component="mk-event-list">mk-event-list</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="star-chart-bodies">
+              <th scope="row">星図の天体</th>
+              <td>月は円、惑星はひし形、太陽は短い光線の付いた円の形と、名前の文字。恒星は等級に応じた点の大きさ（昼間は淡い参考表示と、その旨の注記）</td>
+              <td><code data-component="mk-star-chart">mk-star-chart</code>（sky.js）</td>
+            </tr>
+            <tr data-distinction="map-precision">
+              <th scope="row">地図での位置の精度</th>
+              <td>ピン、半径 1 km の円、範囲の塗りの形と縮尺の違い。地域名と精度のキャプションの文字</td>
+              <td><code data-component="mk-map-sample">mk-map-sample</code>（location.js）</td>
+            </tr>
+            <tr data-distinction="like">
+              <th scope="row">いいね済み</th>
+              <td>記号（♥ と ♡）と <code>aria-pressed</code></td>
+              <td><code data-component="mk-like-button">mk-like-button</code>（posts.js）</td>
+            </tr>
+            <tr data-distinction="switch">
+              <th scope="row">言語とテーマの切替で選んでいるもの</th>
+              <td>「✓」の記号と <code>aria-pressed</code></td>
+              <td><code data-component="mk-site-header">mk-site-header</code>（shell.js）</td>
+            </tr>
+            <tr data-distinction="nav-current">
+              <th scope="row">ヘッダーのナビゲーションの現在のページ</th>
+              <td>太字と太い下線、<code>aria-current="page"</code></td>
+              <td><code data-component="mk-site-header">mk-site-header</code>（shell.js）</td>
+            </tr>
+            <tr data-distinction="form-error">
+              <th scope="row">入力の誤り</th>
+              <td>欄の直下の誤りの文字（<code>aria-describedby</code>）、フォームの先頭の誤りの要約、<code>aria-invalid="true"</code></td>
+              <td>投稿作成・編集（screens/post-edit.html）</td>
+            </tr>
+            <tr data-distinction="fetch-error">
+              <th scope="row">天気や天文現象を取得できなかったこと</th>
+              <td>文字による説明（<code>role="alert"</code>）</td>
+              <td><code data-component="mk-weather">mk-weather</code>（location.js）、<code data-component="mk-event-list">mk-event-list</code>（almanac.js）</td>
+            </tr>
+            <tr data-distinction="admin">
+              <th scope="row">管理者専用の画面</th>
+              <td>帯の中の「管理者専用」の文字と説明</td>
+              <td><code data-component="mk-admin-band">mk-admin-band</code>（shell.js）</td>
+            </tr>
+            <tr data-distinction="contrast-result">
+              <th scope="row">コントラスト比の合否（カタログ）</th>
+              <td>「○ 合格」「× 不合格」の記号と文字。不合格の比は波線の下線</td>
+              <td><a href="tokens.html">トークン一覧</a>（tokens.html）</td>
+            </tr>
+            <tr data-distinction="review-state">
+              <th scope="row">画面ごとのレビュー状態（カタログ）</th>
+              <td>状態の記号と文字（○ 承認済み、◐ レビュー中、△ 修正依頼、― 下書き）</td>
+              <td><a href="index.html">一覧</a>（index.html）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="data/screens.js"></script>
+  <script src="data/glossary.js"></script>
+  <script src="data/sample-data.js"></script>
+  <script src="assets/i18n/messages.ja.js"></script>
+  <script src="assets/i18n/messages.en.js"></script>
+  <script src="assets/js/mock-state.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/components/base.js"></script>
+  <script src="assets/js/components/shell.js"></script>
+  <script src="assets/js/components/almanac.js"></script>
+  <script src="assets/js/components/sky.js"></script>
+  <script src="assets/js/components/posts.js"></script>
+  <script src="assets/js/components/location.js"></script>
+  <script src="assets/js/review-shell.js"></script>
+  <script>
+    // Accessibility page (13.3-13.5).
+    // - Alt-text examples: copied from the aria-label of the real mk-star-chart / mk-map-sample on
+    //   this page after every mock:change (the components re-render first, since they subscribed
+    //   earlier), so the examples follow the components and the page language. The "omitted" list
+    //   is every name that the alt text contains but no <text> of the drawing shows (4.4).
+    // - Focus samples: the --color-* values of each theme are read from getComputedStyle of <html>
+    //   with data-theme forced to light and to dark (current stage kept), restored synchronously
+    //   (no mock:change), and set on that theme's panel; base.css's :focus-visible rule then draws
+    //   the ring with that theme's tokens.
+    (function () {
+      var html = document.documentElement;
+
+      // ---- Alt-text examples ----
+      /** @param {string} selector */
+      function altOf(selector) {
+        var svg = document.querySelector(selector + ' svg[role="img"]');
+        return svg ? svg.getAttribute('aria-label') || '' : '';
+      }
+      /** @param {Element | null} el @param {string} text @param {string} lang */
+      function show(el, text, lang) {
+        if (!el) return;
+        el.textContent = text;
+        el.setAttribute('lang', lang);
+      }
+      function updateAlt() {
+        var lang = window.MockState.get().lang;
+        var chartAlt = altOf('#a11y-star-chart');
+        show(document.querySelector('[data-alt-example="star-chart"]'), chartAlt, lang);
+        document.querySelectorAll('mk-map-sample[precision]').forEach(function (map) {
+          var p = map.getAttribute('precision');
+          show(document.querySelector('[data-alt-example="map-' + p + '"]'), altOf('mk-map-sample[precision="' + p + '"]'), lang);
+        });
+
+        var chart = window.MockSample.starChart;
+        var t = window.MockI18n.t;
+        var names = [];
+        chart.bodies.forEach(function (b) { if (b.alt >= 0) names.push(t(b.nameKey)); });
+        chart.stars.forEach(function (s) { if (s.alt >= 0 && s.nameKey !== undefined) names.push(t(/** @type {MessageKey} */ (s.nameKey))); });
+        chart.constellationLabels.forEach(function (l) { if (l.alt >= 0) names.push(t(l.nameKey)); });
+        var drawn = {};
+        document.querySelectorAll('#a11y-star-chart svg text').forEach(function (el) { drawn[(el.textContent || '').trim()] = true; });
+        var list = document.querySelector('[data-alt-omitted]');
+        var empty = document.querySelector('[data-alt-omitted-empty]');
+        if (!list || !empty) return;
+        list.replaceChildren();
+        list.setAttribute('lang', lang);
+        names.forEach(function (name) {
+          if (chartAlt.indexOf(name) === -1 || drawn[name]) return;
+          var li = document.createElement('li');
+          li.textContent = name;
+          list.append(li);
+        });
+        list.hidden = list.children.length === 0;
+        empty.hidden = list.children.length > 0;
+      }
+
+      // ---- Focus samples ----
+      var NAMES = ['--color-bg', '--color-surface', '--color-surface-muted', '--color-text', '--color-text-muted',
+        '--color-accent', '--color-on-accent', '--color-link', '--color-border', '--color-border-strong', '--color-focus'];
+      /** @param {'light' | 'dark'} theme */
+      function readTheme(theme) {
+        var saved = html.getAttribute('data-theme');
+        html.setAttribute('data-theme', theme);
+        var cs = getComputedStyle(html);
+        /** @type {Record<string, string>} */
+        var values = {};
+        NAMES.forEach(function (n) { values[n] = cs.getPropertyValue(n).trim(); });
+        if (saved === null) html.removeAttribute('data-theme'); else html.setAttribute('data-theme', saved);
+        return values;
+      }
+      function updatePanels() {
+        var cs = getComputedStyle(html);
+        var width = cs.getPropertyValue('--border-width-focus').trim();
+        var offset = cs.getPropertyValue('--space-focus-offset').trim();
+        /** @type {('light' | 'dark')[]} */
+        var themes = ['light', 'dark'];
+        themes.forEach(function (theme) {
+          var panel = /** @type {HTMLElement | null} */ (document.querySelector('[data-focus-panel="' + theme + '"]'));
+          if (!panel) return;
+          var values = readTheme(theme);
+          NAMES.forEach(function (n) { panel.style.setProperty(n, values[n]); });
+          panel.style.colorScheme = theme;
+          var meta = panel.querySelector('[data-focus-meta]');
+          if (meta) meta.textContent = 'フォーカスの色 ' + values['--color-focus'] + '、太さ ' + width + '、間隔 ' + offset + '、背景 ' + values['--color-bg'];
+        });
+      }
+
+      function update() {
+        updateAlt();
+        updatePanels();
+      }
+      update();
+      document.addEventListener('mock:change', update);
+    })();
+  </script>
+</body>
+</html>

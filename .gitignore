@@ -1,0 +1,5 @@
+# ui-mockups: developer dependencies and review artifacts
+mockups/node_modules/
+mockups/.review/
+mockups/test-results/
+mockups/playwright-report/

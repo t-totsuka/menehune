@@ -1,0 +1,235 @@
+/*
+ * Design tokens — the single source of truth (DesignTokens).
+ * Naming: --{category}-{role}[-{variant}]
+ *   category: palette (raw colors) | color (role colors) | font | font-size | font-weight
+ *             | line-height | space | radius | shadow | border | bp
+ * Colors have two layers: --palette-* (raw values) and --color-* (roles).
+ * Components and base styles reference --color-* only, never --palette-*.
+ *
+ * Themes:
+ *   :root                                                        light (dawn indigo sky)
+ *   @media (prefers-color-scheme: dark) :root:not([data-theme="light"])   dark (follows OS)
+ *   :root[data-theme="dark"]                                     dark (manual switch)
+ * The two dark blocks MUST hold identical values (check-contrast verifies this).
+ * Tone (finalized in task 8.2): light is a pale indigo dawn sky with deep navy text and an indigo
+ * accent; dark is a deep navy night sky with a starlight-gold accent. The moon figure uses its own
+ * pair (--color-moon-lit on --color-moon-shadow) so the lit side is the bright one in both themes.
+ */
+
+:root {
+  /* ---- Palette: night sky ---- */
+  --palette-navy-950: #070b1c;
+  --palette-navy-900: #0b1026;
+  --palette-navy-850: #10173a;
+  --palette-navy-800: #161e47;
+  --palette-navy-700: #222d63;
+  --palette-navy-600: #34407e;
+  --palette-indigo-700: #2d3a8c;
+  --palette-indigo-600: #3a4ba8;
+  --palette-indigo-300: #9fb0f0;
+  --palette-indigo-200: #c3cdf5;
+  --palette-mist-500: #6a7397;
+  --palette-mist-400: #8e97bd;
+  --palette-navy-500: #6670a8;
+  --palette-mist-300: #aeb6d8;
+  --palette-mist-600: #4b5478;
+  --palette-star-50: #f4f6fd;
+  --palette-white: #ffffff;
+  /* ---- Palette: dawn (light theme backgrounds, pale indigo) ---- */
+  --palette-dawn-50: #f8f9fe;
+  --palette-dawn-100: #e2e6f6;
+  --palette-dawn-200: #d3d9f0;
+  /* ---- Palette: starlight gold ---- */
+  --palette-gold-300: #f4d58a;
+  --palette-gold-400: #e9c062;
+  --palette-gold-700: #845c0e;
+  --palette-gold-800: #6e4c08;
+  /* ---- Palette: semantic hues ---- */
+  --palette-red-700: #b3261e;
+  --palette-red-300: #ff9a8f;
+  --palette-blue-700: #1f4fbf;
+  --palette-blue-300: #93b6ff;
+  --palette-green-700: #23703a;
+  --palette-green-300: #8bd49c;
+  --palette-plum-700: #6a3f86;
+  --palette-plum-300: #d0aef0;
+  --palette-orange-700: #a34b00;
+  --palette-orange-300: #ffb780;
+  --palette-amber-700: #8c5a00;
+  --palette-amber-300: #ffd27a;
+  --palette-rose-800: #8f1d3f;
+  --palette-rose-300: #ff9cb8;
+  --palette-slate-600: #535a70;
+  --palette-slate-300: #b5bbcc;
+  --palette-shadow-light: rgb(11 16 38 / 0.14);
+  --palette-shadow-dark: rgb(0 0 0 / 0.55);
+
+  /* ---- Role colors (light) ---- */
+  --color-bg: var(--palette-dawn-100);
+  --color-surface: var(--palette-dawn-50);
+  --color-surface-muted: var(--palette-dawn-200);
+  --color-text: var(--palette-navy-900);
+  --color-text-muted: var(--palette-mist-600);
+  --color-accent: var(--palette-indigo-700);
+  --color-on-accent: var(--palette-white);
+  --color-link: var(--palette-indigo-600);
+  --color-border: var(--palette-mist-500);
+  --color-border-strong: var(--palette-navy-600);
+  --color-focus: var(--palette-orange-700);
+  --color-error: var(--palette-red-700);
+  --color-shadow: var(--palette-shadow-light);
+  /* ---- Semantic colors (light) ---- */
+  --color-holiday: var(--palette-red-700);
+  --color-sunday: var(--palette-red-700);
+  --color-saturday: var(--palette-blue-700);
+  --color-rokuyo-taian: var(--palette-green-700);
+  --color-rokuyo-butsumetsu: var(--palette-plum-700);
+  --color-rokuyo-sensho: var(--palette-slate-600);
+  --color-rokuyo-tomobiki: var(--palette-slate-600);
+  --color-rokuyo-senbu: var(--palette-slate-600);
+  --color-rokuyo-shakku: var(--palette-slate-600);
+  --color-event-moon: var(--palette-gold-700);
+  --color-event-planet: var(--palette-plum-700);
+  --color-event-sun: var(--palette-orange-700);
+  --color-status-public: var(--palette-green-700);
+  --color-status-members-only: var(--palette-blue-700);
+  --color-status-hidden: var(--palette-amber-700);
+  --color-status-deleted: var(--palette-slate-600);
+  --color-admin-band: var(--palette-rose-800);
+  --color-provisional: var(--palette-amber-700);
+  --color-moon-lit: var(--palette-gold-300);
+  --color-moon-shadow: var(--palette-navy-700);
+  /* Decoration (task 8.3): the stars of the background starfields (header, top page). */
+  --color-decor-star: var(--palette-indigo-600);
+
+  /* ---- Typography ---- */
+  --font-body: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-heading: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Noto Sans Mono", monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.25rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.3;
+  --line-height-normal: 1.7;
+  --line-height-control: 1.4;
+
+  /* ---- Spacing ---- */
+  --space-2xs: 0.125rem;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-focus-offset: 2px;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* ---- Borders ---- */
+  --border-width-thin: 1px;
+  --border-width-thick: 2px;
+  --border-width-focus: 3px;
+  --border-default: var(--border-width-thin) solid var(--color-border);
+
+  /* ---- Shadows (color follows the theme via --color-shadow) ---- */
+  --shadow-sm: 0 1px 2px var(--color-shadow);
+  --shadow-md: 0 4px 12px var(--color-shadow);
+
+  /* ---- Breakpoints (CSS variables cannot be used in @media; write the same numbers there) ---- */
+  --bp-sm: 600px;
+  --bp-md: 960px;
+  --bp-lg: 1280px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Keep identical to :root[data-theme="dark"] below. */
+    --color-bg: var(--palette-navy-900);
+    --color-surface: var(--palette-navy-850);
+    --color-surface-muted: var(--palette-navy-800);
+    --color-text: var(--palette-star-50);
+    --color-text-muted: var(--palette-mist-300);
+    --color-accent: var(--palette-gold-300);
+    --color-on-accent: var(--palette-navy-950);
+    --color-link: var(--palette-indigo-300);
+    --color-border: var(--palette-navy-500);
+    --color-border-strong: var(--palette-mist-400);
+    --color-focus: var(--palette-gold-400);
+    --color-error: var(--palette-red-300);
+    --color-shadow: var(--palette-shadow-dark);
+    --color-holiday: var(--palette-red-300);
+    --color-sunday: var(--palette-red-300);
+    --color-saturday: var(--palette-blue-300);
+    --color-rokuyo-taian: var(--palette-green-300);
+    --color-rokuyo-butsumetsu: var(--palette-plum-300);
+    --color-rokuyo-sensho: var(--palette-slate-300);
+    --color-rokuyo-tomobiki: var(--palette-slate-300);
+    --color-rokuyo-senbu: var(--palette-slate-300);
+    --color-rokuyo-shakku: var(--palette-slate-300);
+    --color-event-moon: var(--palette-gold-300);
+    --color-event-planet: var(--palette-plum-300);
+    --color-event-sun: var(--palette-orange-300);
+    --color-status-public: var(--palette-green-300);
+    --color-status-members-only: var(--palette-blue-300);
+    --color-status-hidden: var(--palette-amber-300);
+    --color-status-deleted: var(--palette-slate-300);
+    --color-admin-band: var(--palette-rose-300);
+    --color-provisional: var(--palette-amber-300);
+    --color-moon-lit: var(--palette-gold-300);
+    --color-moon-shadow: var(--palette-navy-700);
+    --color-decor-star: var(--palette-gold-300);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  /* Keep identical to the prefers-color-scheme: dark block above. */
+  --color-bg: var(--palette-navy-900);
+  --color-surface: var(--palette-navy-850);
+  --color-surface-muted: var(--palette-navy-800);
+  --color-text: var(--palette-star-50);
+  --color-text-muted: var(--palette-mist-300);
+  --color-accent: var(--palette-gold-300);
+  --color-on-accent: var(--palette-navy-950);
+  --color-link: var(--palette-indigo-300);
+  --color-border: var(--palette-navy-500);
+  --color-border-strong: var(--palette-mist-400);
+  --color-focus: var(--palette-gold-400);
+  --color-error: var(--palette-red-300);
+  --color-shadow: var(--palette-shadow-dark);
+  --color-holiday: var(--palette-red-300);
+  --color-sunday: var(--palette-red-300);
+  --color-saturday: var(--palette-blue-300);
+  --color-rokuyo-taian: var(--palette-green-300);
+  --color-rokuyo-butsumetsu: var(--palette-plum-300);
+  --color-rokuyo-sensho: var(--palette-slate-300);
+  --color-rokuyo-tomobiki: var(--palette-slate-300);
+  --color-rokuyo-senbu: var(--palette-slate-300);
+  --color-rokuyo-shakku: var(--palette-slate-300);
+  --color-event-moon: var(--palette-gold-300);
+  --color-event-planet: var(--palette-plum-300);
+  --color-event-sun: var(--palette-orange-300);
+  --color-status-public: var(--palette-green-300);
+  --color-status-members-only: var(--palette-blue-300);
+  --color-status-hidden: var(--palette-amber-300);
+  --color-status-deleted: var(--palette-slate-300);
+  --color-admin-band: var(--palette-rose-300);
+  --color-provisional: var(--palette-amber-300);
+  --color-moon-lit: var(--palette-gold-300);
+  --color-moon-shadow: var(--palette-navy-700);
+  --color-decor-star: var(--palette-gold-300);
+  color-scheme: dark;
+}

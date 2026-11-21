@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="screen.star-chart.title">星図</title>
+  <script src="../assets/js/theme-boot.js"></script>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/wireframe.css">
+  <link rel="stylesheet" href="../assets/css/review.css">
+</head>
+<body data-screen-id="star-chart">
+  <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
+  <main class="l-container l-stack">
+    <h1 data-i18n="screen.star-chart.title">星図</h1>
+    <!-- The inputs are mock UI: the page script fills them with the fixed sample
+         (SampleDataSet.starChart: 2026-11-16 20:00 JST, the sample place); editing them does not
+         redraw the chart, and the fixed-sample note says so.
+         Wireframe review point (task 4.4): in Japanese, the names of Orion, Perseus and Andromeda
+         are omitted by the label layout (they remain in the chart's alt text).
+         Final-validation remediation (5.2): the scenario `daytime` switches the chart and these
+         inputs to SampleDataSet.starChartDaytime (12:00 JST, the same place) so that the chart shows
+         how the sun is drawn; the default view stays the 20:00 sample. -->
+    <section class="screen-section l-stack" aria-labelledby="chart-conditions">
+      <h2 id="chart-conditions"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.star-chart.conditions">日時と地点</span></h2>
+      <div class="screen-chart-inputs">
+        <div class="field">
+          <label for="chart-datetime" data-i18n="screen.star-chart.datetime">日時</label>
+          <input id="chart-datetime" type="datetime-local" step="60" aria-describedby="chart-datetime-hint" data-chart-datetime>
+          <p class="field-hint" id="chart-datetime-hint" data-i18n="screen.star-chart.datetime-hint">日本時間（JST）で指定します。</p>
+        </div>
+        <div class="field">
+          <label for="chart-place" data-i18n="screen.star-chart.place">地点</label>
+          <input id="chart-place" type="text" autocomplete="off" aria-describedby="chart-place-hint" data-chart-place>
+          <p class="field-hint" id="chart-place-hint" data-i18n="screen.star-chart.place-hint">市区町村名などで指定します。</p>
+        </div>
+      </div>
+      <p class="text-muted" data-i18n="screen.star-chart.fixed-sample">このモックアップの星図は固定のサンプルです。日時や地点を変えても、星図は変わりません（入力欄の初期値が、サンプルの日時と地点です）。</p>
+    </section>
+
+    <section class="screen-section l-stack" aria-labelledby="chart-sky">
+      <h2 id="chart-sky"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.star-chart.sky">全天図</span></h2>
+      <!-- Task 8.1 (wireframe review): from 960px the drawn chart sits at the left edge and the
+           map of the observing location takes the remaining width up to the right edge (fixed
+           gap, 8:5, at least 15rem); on narrow screens the map follows the chart. The page script sets `region` to the
+           sample place (the chart's place). -->
+      <div class="screen-star-chart-sky">
+        <mk-star-chart></mk-star-chart>
+        <div class="screen-star-chart-map">
+          <mk-map-sample precision="municipality" subject="observer" data-chart-map></mk-map-sample>
+        </div>
+      </div>
+    </section>
+  </main>
+  <mk-site-footer></mk-site-footer>
+  <script src="../data/screens.js"></script>
+  <script src="../data/glossary.js"></script>
+  <script src="../data/sample-data.js"></script>
+  <script src="../assets/i18n/messages.ja.js"></script>
+  <script src="../assets/i18n/messages.en.js"></script>
+  <script src="../assets/js/mock-state.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/components/base.js"></script>
+  <script src="../assets/js/components/shell.js"></script>
+  <script src="../assets/js/components/almanac.js"></script>
+  <script src="../assets/js/components/sky.js"></script>
+  <script src="../assets/js/components/posts.js"></script>
+  <script src="../assets/js/components/location.js"></script>
+  <script src="../assets/js/review-shell.js"></script>
+  <script>
+    // Fill the mock inputs with the fixed sample of the current scenario (local JST date-time,
+    // sample place label): the 20:00 sample, or the 12:00 one in the scenario daytime (5.2, the
+    // sun). Point the observing-location map at the same place (task 8.1).
+    (function () {
+      const datetime = /** @type {HTMLInputElement} */ (document.querySelector('[data-chart-datetime]'));
+      const place = /** @type {HTMLInputElement} */ (document.querySelector('[data-chart-place]'));
+      const map = /** @type {HTMLElement} */ (document.querySelector('[data-chart-map]'));
+      /** @param {MockStateSnapshot} state */
+      const fill = (state) => {
+        const chart = state.scenario === 'daytime' ? window.MockSample.starChartDaytime : window.MockSample.starChart;
+        datetime.value = chart.observedAt.slice(0, 16);
+        place.value = chart.placeLabel;
+        if (map.getAttribute('region') !== chart.placeLabel) map.setAttribute('region', chart.placeLabel);
+      };
+      // Refill only when the scenario changes, so a language or theme switch keeps typed values.
+      let scenario = window.MockState.get().scenario;
+      fill(window.MockState.get());
+      document.addEventListener('mock:change', (e) => {
+        if (e.detail.scenario === scenario) return;
+        scenario = e.detail.scenario;
+        fill(e.detail);
+      });
+    })();
+  </script>
+</body>
+</html>

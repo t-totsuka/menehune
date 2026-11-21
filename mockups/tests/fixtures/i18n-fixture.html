@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <!-- Test fixture only (task 1.6): an intentionally missing message key. Never copy into a real page. -->
+  <title>I18n fixture (missing key)</title>
+  <script src="../../assets/js/theme-boot.js"></script>
+</head>
+<body>
+  <p id="known" data-i18n="button.close">閉じる</p>
+  <p id="missing" data-i18n="missing.key">placeholder</p>
+  <button id="missing-attr" type="button" data-i18n-attr="aria-label:missing.attr-key">x</button>
+  <script src="../../data/screens.js"></script>
+  <script src="../../assets/js/mock-state.js"></script>
+  <script src="../../assets/i18n/messages.ja.js"></script>
+  <script src="../../assets/i18n/messages.en.js"></script>
+  <script src="../../assets/js/i18n.js"></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+/*
+ * Wireframe stage skin (StageStyles). Active only while <html data-stage="wireframe">.
+ * Layer order: tokens -> base -> components -> wireframe (this file is always last).
+ *
+ * What this file does (1.1, 1.2):
+ *   - Redefines every role/semantic color token as a gray (R = G = B), for both themes.
+ *   - Removes shadows and gradients.
+ *   - Hides decoration marked with [data-decor] (visibility only, so the box keeps its place).
+ *   - Turns figures marked with [data-figure] (star charts, maps, images) into a placeholder:
+ *     the content is hidden and the box shows only a frame and two diagonals.
+ *
+ * Conventions for later components and screens:
+ *   - data-decor  : purely decorative element (ornaments, star glyphs, background art).
+ *   - data-figure : a figure whose content is not reviewed at the wireframe stage. Put it on the
+ *                   element that owns the box (a wrapper, an inline <svg>, or an <img>).
+ *
+ * Rules for this file:
+ *   - NEVER change layout properties (display, position, grid/flex, size, margin, padding,
+ *     border width, font). Element positions and sizes must equal the hi-fi stage.
+ *   - Color and length literals appear only inside custom property definitions.
+ *
+ * Specificity: tokens.css defines dark tokens with :root:not([data-theme="light"]) and
+ * :root[data-theme="dark"] (0,2,0). The selectors below start with html:root[data-stage="wireframe"]
+ * (0,2,1), and the dark variants add one more attribute/pseudo-class (0,3,1), so they win in every
+ * theme regardless of source order.
+ */
+
+/* ---- Grays: light theme (also the default) ---- */
+html:root[data-stage="wireframe"] {
+  --wf-gray-bg: #f2f2f2;
+  --wf-gray-surface: #ffffff;
+  --wf-gray-surface-muted: #e4e4e4;
+  --wf-gray-text: #1a1a1a;
+  --wf-gray-text-muted: #555555;
+  --wf-gray-accent: #3a3a3a;
+  --wf-gray-on-accent: #ffffff;
+  --wf-gray-link: #2e2e2e;
+  --wf-gray-border: #767676;
+  --wf-gray-border-strong: #4a4a4a;
+  --wf-gray-focus: #000000;
+  --wf-gray-shadow: rgb(0 0 0 / 0);
+}
+
+/* ---- Grays: dark theme (OS appearance and manual switch hold identical values) ---- */
+@media (prefers-color-scheme: dark) {
+  html:root[data-stage="wireframe"]:not([data-theme="light"]) {
+    --wf-gray-bg: #1c1c1c;
+    --wf-gray-surface: #262626;
+    --wf-gray-surface-muted: #333333;
+    --wf-gray-text: #f0f0f0;
+    --wf-gray-text-muted: #b5b5b5;
+    --wf-gray-accent: #dddddd;
+    --wf-gray-on-accent: #111111;
+    --wf-gray-link: #d6d6d6;
+    --wf-gray-border: #8a8a8a;
+    --wf-gray-border-strong: #a8a8a8;
+    --wf-gray-focus: #ffffff;
+    --wf-gray-shadow: rgb(0 0 0 / 0);
+  }
+}
+
+html:root[data-stage="wireframe"][data-theme="dark"] {
+  --wf-gray-bg: #1c1c1c;
+  --wf-gray-surface: #262626;
+  --wf-gray-surface-muted: #333333;
+  --wf-gray-text: #f0f0f0;
+  --wf-gray-text-muted: #b5b5b5;
+  --wf-gray-accent: #dddddd;
+  --wf-gray-on-accent: #111111;
+  --wf-gray-link: #d6d6d6;
+  --wf-gray-border: #8a8a8a;
+  --wf-gray-border-strong: #a8a8a8;
+  --wf-gray-focus: #ffffff;
+  --wf-gray-shadow: rgb(0 0 0 / 0);
+}
+
+/*
+ * ---- Role and semantic colors -> grays (all themes) ----
+ * (0,2,1) beats every theme block in tokens.css (0,2,0); the grays it points to are resolved per
+ * theme on the same element by the blocks above.
+ */
+html:root[data-stage="wireframe"] {
+  --color-bg: var(--wf-gray-bg);
+  --color-surface: var(--wf-gray-surface);
+  --color-surface-muted: var(--wf-gray-surface-muted);
+  --color-text: var(--wf-gray-text);
+  --color-text-muted: var(--wf-gray-text-muted);
+  --color-accent: var(--wf-gray-accent);
+  --color-on-accent: var(--wf-gray-on-accent);
+  --color-link: var(--wf-gray-link);
+  --color-border: var(--wf-gray-border);
+  --color-border-strong: var(--wf-gray-border-strong);
+  --color-focus: var(--wf-gray-focus);
+  --color-error: var(--wf-gray-text);
+  --color-shadow: var(--wf-gray-shadow);
+  --color-holiday: var(--wf-gray-text);
+  --color-sunday: var(--wf-gray-text);
+  --color-saturday: var(--wf-gray-text);
+  --color-rokuyo-taian: var(--wf-gray-text-muted);
+  --color-rokuyo-butsumetsu: var(--wf-gray-text-muted);
+  --color-rokuyo-sensho: var(--wf-gray-text-muted);
+  --color-rokuyo-tomobiki: var(--wf-gray-text-muted);
+  --color-rokuyo-senbu: var(--wf-gray-text-muted);
+  --color-rokuyo-shakku: var(--wf-gray-text-muted);
+  --color-event-moon: var(--wf-gray-text);
+  --color-event-planet: var(--wf-gray-text);
+  --color-event-sun: var(--wf-gray-text);
+  --color-status-public: var(--wf-gray-text);
+  --color-status-members-only: var(--wf-gray-text);
+  --color-status-hidden: var(--wf-gray-text);
+  --color-status-deleted: var(--wf-gray-text-muted);
+  --color-admin-band: var(--wf-gray-text);
+  --color-provisional: var(--wf-gray-text);
+  --color-moon-lit: var(--wf-gray-surface);
+  --color-moon-shadow: var(--wf-gray-border-strong);
+  --color-decor-star: var(--wf-gray-text-muted);
+  --shadow-sm: none;
+  --shadow-md: none;
+
+  /* Figure placeholder: two hairline diagonals (corner to corner). */
+  --wf-figure-line: 1px;
+  --wf-figure-diagonals:
+    linear-gradient(to top right, transparent calc(50% - var(--wf-figure-line)), var(--color-border) 50%, transparent calc(50% + var(--wf-figure-line))),
+    linear-gradient(to bottom right, transparent calc(50% - var(--wf-figure-line)), var(--color-border) 50%, transparent calc(50% + var(--wf-figure-line)));
+  --wf-figure-offscreen: -100vmax;
+}
+
+/* ---- No shadows, no gradients (paint only; layout untouched) ---- */
+html[data-stage="wireframe"] *,
+html[data-stage="wireframe"] *::before,
+html[data-stage="wireframe"] *::after {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-image: none !important;
+}
+
+/* ---- Decoration: keep the box, hide the paint ---- */
+html[data-stage="wireframe"] [data-decor],
+html[data-stage="wireframe"] [data-decor] * {
+  visibility: hidden !important;
+}
+
+/* ---- Figures: frame + diagonals placeholder, same box as hi-fi ---- */
+html[data-stage="wireframe"] [data-figure] {
+  visibility: visible;
+  background-color: var(--color-surface-muted);
+  background-image: var(--wf-figure-diagonals) !important;
+  outline: var(--border-width-thin) solid var(--color-border);
+  outline-offset: calc(-1 * var(--border-width-thin));
+}
+
+html[data-stage="wireframe"] [data-figure] * {
+  visibility: hidden !important;
+}
+
+/* Replaced elements have no children to hide: push the image out of its own box. */
+html[data-stage="wireframe"] img[data-figure],
+html[data-stage="wireframe"] video[data-figure] {
+  object-position: var(--wf-figure-offscreen) var(--wf-figure-offscreen);
+}

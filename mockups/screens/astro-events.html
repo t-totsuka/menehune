@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="screen.astro-events.title">天文現象</title>
+  <script src="../assets/js/theme-boot.js"></script>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/wireframe.css">
+  <link rel="stylesheet" href="../assets/css/review.css">
+</head>
+<body data-screen-id="astro-events">
+  <mk-site-header></mk-site-header>
+  <!-- Task 8.1: the read-only notice for guests, one band in the same place on every screen. -->
+  <mk-guest-notice band data-when-auth="guest"></mk-guest-notice>
+  <main class="l-container l-stack">
+    <h1 data-i18n="screen.astro-events.title">天文現象</h1>
+    <p data-i18n="screen.astro-events.lead">惑星現象と、月の朔・上弦・望・下弦、最北・最南、近地点・遠地点を、日時と種類で一覧にします。期間と種類で絞り込めます。</p>
+
+    <!-- mk-event-list follows the scenario itself: empty -> empty.events, fetch-error -> error.fetch (role="alert").
+         Task 8.1 (wireframe review of 2026-11-19): mark-past labels the events dated before the sample's today;
+         relative-days shows the distance of today's and later events from it in days. -->
+    <section class="screen-section l-stack" aria-labelledby="events-list">
+      <h2 id="events-list"><span class="screen-decor" data-decor aria-hidden="true">✦ </span><span data-i18n="screen.astro-events.list">天文現象の一覧</span></h2>
+      <mk-event-list mark-past relative-days></mk-event-list>
+    </section>
+  </main>
+  <mk-site-footer></mk-site-footer>
+  <script src="../data/screens.js"></script>
+  <script src="../data/glossary.js"></script>
+  <script src="../data/sample-data.js"></script>
+  <script src="../assets/i18n/messages.ja.js"></script>
+  <script src="../assets/i18n/messages.en.js"></script>
+  <script src="../assets/js/mock-state.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/components/base.js"></script>
+  <script src="../assets/js/components/shell.js"></script>
+  <script src="../assets/js/components/almanac.js"></script>
+  <script src="../assets/js/components/sky.js"></script>
+  <script src="../assets/js/components/posts.js"></script>
+  <script src="../assets/js/components/location.js"></script>
+  <script src="../assets/js/review-shell.js"></script>
+</body>
+</html>
