@@ -195,6 +195,18 @@ interface ReportQueueItem {
   readonly state: ReportQueueState;
 }
 /**
+ * The poster's appeal against an appealed report (post-validation cleanup; shown in the admin
+ * screen's appeal review). Free text like a post body: one language, not translated.
+ */
+interface SampleAppeal {
+  /** ReportQueueItem.targetId of a report in the state 'appealed' (a post) */
+  readonly targetId: string;
+  /** The post's author */
+  readonly authorId: string;
+  readonly at: IsoDateTime;
+  readonly body: string;
+}
+/**
  * A reply notice (task 8.1, 6.9 and 6.10): someone replied to a comment of `recipientId`.
  * Derived from the comment trees: `commentId` is the recipient's comment in post `postId` and
  * `replyId` a direct, not deleted reply to it by another user; the replier and the datetime are
@@ -248,6 +260,8 @@ interface SampleDataSet {
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];
+  /** One appeal per report in the state 'appealed' (post-validation cleanup) */
+  readonly appeals: readonly SampleAppeal[];
   /** Reply notices, newest reply first (task 8.1, 6.9 and 6.10); the admin viewer has none */
   readonly notices: readonly ReplyNotice[];
   readonly starChart: StarChartSample;
@@ -314,7 +328,8 @@ type MessageArgs = Readonly<Record<string, string | number>>;
 interface I18nRuntime {
   register(locale: LocaleId, dict: MessageDictionary): void;
   t(key: MessageKey, args?: MessageArgs): string;
-  formatDate(value: IsoDate | IsoDateTime, style: DateStyle): string;
+  /** In `lang` when given (an unknown one warns and falls back), else in the current language */
+  formatDate(value: IsoDate | IsoDateTime, style: DateStyle, lang?: LocaleId): string;
   /** Processes [data-i18n], [data-i18n-attr] and [data-i18n-date] */
   apply(root: ParentNode): void;
 }
@@ -339,7 +354,7 @@ interface ReviewShellService {
  * Declared as an interface (not a class) so that base.js can define the real
  * `class MockElement extends HTMLElement` in the same global scope without a
  * duplicate-identifier conflict. Every member is public (JSDoc @protected would make the class
- * unassignable to MockElementConstructor); render/sample/t/el/missingSample are meant to be called
+ * unassignable to MockElementConstructor); render/sample/t/el/findPost/screenHref/missingSample are meant to be called
  * only by the element itself and its subclasses.
  */
 interface MockElementContract extends HTMLElement {
@@ -361,6 +376,18 @@ interface MockElementContract extends HTMLElement {
     attrs?: Readonly<Record<string, string>> | null,
     ...children: readonly (Node | string)[]
   ): HTMLElementTagNameMap[K];
+  /**
+   * The sample post with `id`: SampleDataSet.posts first, then SampleDataSet.paging.posts (the
+   * extra own posts of the scenario many-items). The one post lookup of every component.
+   */
+  findPost(id: string): SamplePost | undefined;
+  /**
+   * URL of mockups/screens/{id}.html resolved from base.js's own URL (works from screens/ and the
+   * catalog pages), with `params` set as search parameters and `hash` (e.g. '#notices'). A
+   * logged-in `state.auth` is carried over as ?auth= when the target screen's authStates allow it.
+   * The one screen-link helper of every component.
+   */
+  screenHref(id: ScreenId, state: MockStateSnapshot, params?: Readonly<Record<string, string>>, hash?: string): string;
   /** Visible error for a sample id that does not exist (error.missing-sample, [data-missing-sample="{id}"]) */
   missingSample(id: string): HTMLElement;
   /**
@@ -540,7 +567,7 @@ interface Window {
   MockReviewShell: ReviewShellService;
   /** assets/js/components/base.js */
   MockElement: MockElementConstructor;
-  /** assets/js/components/shell.js (task 8.1): pure paging logic of mk-pager */
+  /** assets/js/paging.js (task 8.1): pure paging logic of mk-pager, mk-notice-list and my-posts */
   MockPaging: MockPagingService;
 }
 

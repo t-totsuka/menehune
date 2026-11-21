@@ -19,7 +19,9 @@
 //   month-year   2026年11月                   November 2026
 // Strings are assembled from Intl.DateTimeFormat#formatToParts so the punctuation does not
 // depend on the ICU version. A date-only value (YYYY-MM-DD) means that calendar day in Tokyo;
-// a date-time without an offset is read as Tokyo time.
+// a date-time without an offset is read as Tokyo time. formatDate(value, style, lang) formats in
+// `lang` instead of the current language (glossary.html shows ja and en side by side); an
+// unknown `lang` warns and uses the current language.
 //
 // Language: starts from MockState.get().lang (or <html lang>), then follows every
 // CustomEvent<MockStateSnapshot>('mock:change') and re-applies the whole document.
@@ -129,8 +131,19 @@
     };
   };
 
-  /** @param {IsoDate | IsoDateTime} value @param {DateStyle} style @returns {string} */
-  const formatDate = (value, style) => {
+  /**
+   * @param {IsoDate | IsoDateTime} value
+   * @param {DateStyle} style
+   * @param {LocaleId} [lang] defaults to the current language
+   * @returns {string}
+   */
+  const formatDate = (value, style, lang) => {
+    /** @type {LocaleId} */
+    let locale = currentLang;
+    if (lang !== undefined) {
+      if (isOneOf(LANGS, lang)) locale = lang;
+      else console.warn(`[MockI18n] unknown lang "${String(lang)}"; using "${currentLang}"`);
+    }
     const date = parseDate(value);
     if (date === null) {
       console.warn(`[MockI18n] invalid date "${value}"`);
@@ -142,9 +155,9 @@
       console.warn(`[MockI18n] unknown date style "${String(style)}"; using date-long`);
       s = 'date-long';
     }
-    const p = partsOf(currentLang, date);
+    const p = partsOf(locale, date);
     const time = `${p.hour}:${p.minute}`;
-    if (currentLang === 'ja') {
+    if (locale === 'ja') {
       const dateLong = `${p.year}年${p.monthNum}月${p.day}日(${p.weekday})`;
       switch (s) {
         case 'date-long': return dateLong;

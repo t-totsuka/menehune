@@ -27,8 +27,19 @@
 // Keys computed at run time in assets/js (template literals with ${...}, variables) cannot be
 // known statically and are skipped; such keys must also be reachable from data (above) or HTML.
 //
-// Output: one "file:line message" line per violation on stdout (file is relative to the root);
-// exit code 1 if there is at least one violation, otherwise 0. Read-only.
+// Warnings (post-validation cleanup; never a violation, never change the exit code):
+// - a dictionary key that nothing uses: 'file:line warning: unused key "k"' at its line in the
+//   ja dictionary (the source language; else the first one). A template literal in JS whose
+//   static parts look like a key (e.g. `astro.kind.${kind}`, `screen.${id}.title`) marks every
+//   key matching it as used (each ${...} stands for [a-z0-9.-]+). Glossary keys count as used.
+// - RESERVED_KEYS (below): generic keys of the common families (nav, button, error, empty,
+//   status; task 1.3) kept for the later feature specs although the mock does not show them.
+//   They are exempt from the unused warning. A reserved key missing from the dictionaries, or one
+//   that is now used (so it is no longer reserved), is a warning at its line in this script.
+//
+// Output: one "file:line message" line per violation on stdout (file is relative to the root),
+// warnings on stderr in the same format; exit code 1 if there is at least one violation,
+// otherwise 0. Read-only.
 // Usage: node tools/check-i18n.mjs [rootDir]   (or CHECK_I18N_ROOT=rootDir)
 // Self-contained on purpose: no helper module shared with the other check scripts.
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
@@ -41,6 +52,29 @@ const I18N_DIR = 'assets/i18n';
 const GLOSSARY_FILE = 'data/glossary.js';
 const SKIP_DIRS = new Set(['node_modules', 'tests', 'test-results', '.git', 'tools']);
 
+/**
+ * Generic keys reserved for the later feature specs (see the header). The rule: a generic key of
+ * the common families that duplicates no other key stays here; a duplicate of another key, or a
+ * screen-specific key the mock does not use, is deleted from the dictionaries instead.
+ */
+const RESERVED_KEYS = Object.freeze([
+  'nav.logout',
+  'button.back',
+  'button.delete',
+  'button.reply',
+  'button.like',
+  'button.unlike',
+  'button.retry',
+  'button.more',
+  'error.required',
+  'error.login-required',
+  'error.not-found',
+  'empty.list',
+  'status.loading',
+  'status.saved',
+]);
+const SELF_FILE = 'tools/check-i18n.mjs';
+
 const root = resolve(
   process.argv[2] ?? process.env.CHECK_I18N_ROOT ?? join(dirname(fileURLToPath(import.meta.url)), '..'),
 );
@@ -49,6 +83,14 @@ const root = resolve(
 const violations = [];
 /** @param {string} file @param {number} line @param {string} message */
 const report = (file, line, message) => violations.push(`${file}:${Math.max(1, line)} ${message}`);
+/** @type {string[]} */
+const warnings = [];
+/** @param {string} file @param {number} line @param {string} message */
+const warn = (file, line, message) => warnings.push(`${file}:${Math.max(1, line)} warning: ${message}`);
+/** Keys built at run time from template literals (see dynamicPatterns). @type {RegExp[]} */
+const dynamicKeys = [];
+/** Every key the pages, scripts, data and glossary use. @type {Set<string>} */
+const usedKeys = new Set();
 
 /** 1-based line number of a character offset in src. */
 const lineAt = (src, offset) => src.slice(0, offset).split('\n').length;
@@ -270,6 +312,36 @@ function scanJs(file, rawSrc, out) {
     }
   }
   scanAttributes(file, src, out);
+  dynamicPatterns(src);
+  keyLiterals(src);
+}
+
+/**
+ * For the unused warning only: every quoted string that has the key format counts as used
+ * (keys handed around in variables, conditional expressions or attributes such as label-key).
+ * @param {string} src source without comments
+ */
+function keyLiterals(src) {
+  for (const m of src.matchAll(/(['"`])([a-z0-9-]+(?:\.[a-z0-9-]+)+)\1/g)) usedKeys.add(m[2]);
+  // data-i18n-attr values built in JS objects ('aria-label:key;title:key2').
+  for (const m of src.matchAll(/[a-z-]+:([a-z0-9-]+(?:\.[a-z0-9-]+)+)(?=[;'"`])/g)) usedKeys.add(m[1]);
+}
+
+const TEMPLATE_WITH_SUBSTITUTION = /`((?:[^`\\$]|\$(?!\{))*(?:\$\{[^{}`]*\}(?:[^`\\$]|\$(?!\{))*)+)`/g;
+const SUBSTITUTION = /\$\{[^{}`]*\}/;
+
+/**
+ * Template literals whose static parts form a key once each ${...} is filled (e.g.
+ * `astro.kind.${kind}`): every dictionary key matching the pattern counts as used.
+ * @param {string} src JS source without comments
+ */
+function dynamicPatterns(src) {
+  for (const m of src.matchAll(TEMPLATE_WITH_SUBSTITUTION)) {
+    const parts = m[1].split(SUBSTITUTION);
+    if (!KEY_FORMAT.test(parts.join('x'))) continue;
+    const escaped = parts.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    dynamicKeys.push(new RegExp(`^${escaped.join('[a-z0-9.-]+')}$`));
+  }
 }
 
 /**
@@ -279,6 +351,7 @@ function scanJs(file, rawSrc, out) {
 function scanHtml(file, rawSrc, out) {
   const src = stripHtmlComments(rawSrc);
   scanAttributes(file, src, out);
+  keyLiterals(src);
   // Inline scripts: scan with everything else masked so offsets map to the page's lines.
   const masked = src.replace(/[^\r\n]/g, ' ').split('');
   let hasInline = false;
@@ -453,6 +526,7 @@ function main() {
             report(GLOSSARY_FILE, line, `glossary key "${key}" does not match the key format ${KEY_FORMAT}`);
             continue;
           }
+          usedKeys.add(key);
           const missing = dicts.filter((d) => !d.keys.has(key));
           if (missing.length) {
             report(GLOSSARY_FILE, line, `glossary key "${key}" is missing from ${missing.map((d) => `${d.locale} (${d.file})`).join(', ')}`);
@@ -461,8 +535,26 @@ function main() {
       }
     }
   }
+
+  // Warnings: unused keys and the reserved list.
+  for (const u of usages) usedKeys.add(u.key);
+  const isUsed = (/** @type {string} */ k) => usedKeys.has(k) || dynamicKeys.some((re) => re.test(k));
+  const reserved = new Set(RESERVED_KEYS);
+  const primary = dicts.find((d) => d.locale === 'ja') ?? dicts[0];
+  if (primary) {
+    for (const k of primary.keys) {
+      if (!reserved.has(k) && !isUsed(k)) warn(primary.file, keyLine(primary.src, k), `unused key "${k}"`);
+    }
+  }
+  const self = readFileSync(fileURLToPath(import.meta.url), 'utf8');
+  for (const k of RESERVED_KEYS) {
+    const line = lineAt(self, self.indexOf(`'${k}'`));
+    if (dicts.some((d) => !d.keys.has(k))) warn(SELF_FILE, line, `reserved key "${k}" is not in the dictionaries`);
+    else if (isUsed(k)) warn(SELF_FILE, line, `reserved key "${k}" is used; remove it from RESERVED_KEYS`);
+  }
 }
 
 main();
+for (const w of warnings) console.error(w);
 for (const v of violations) console.log(v);
 process.exit(violations.length ? 1 : 0);

@@ -57,6 +57,7 @@
   - 投稿の「可視性判定」: posts-comments（公開設定・論理削除）、moderation-reports（一時非表示）の両方が関与 → 可視性判定を単一の関数/クエリ層に集約し、moderation はフラグを提供する側に限定
   - i18n リソースのキー命名規約（platform-foundation が定義、各 spec が追加）
   - 管理者ロールの定義は auth-users が所有し、moderation-reports は参照のみ
+  - サイト内のお知らせ: 返信のお知らせ（posts-comments）、通報の対象ユーザへの通知（moderation-reports）、受け取り設定（auth-users）、ヘッダーの未読件数（platform-foundation の共通レイアウト）が関与 → お知らせの仕組みを共有するかを posts-comments の design で決める
 
 ## Specs (dependency order)
 - [ ] ui-mockups -- 主要画面の静的モック（SVG/HTML）・デザイントークン・日英表記の確定。Dependencies: none
@@ -64,8 +65,8 @@
 - [ ] astronomy-events -- astro-core 共有パッケージと、惑星現象・月の朔望/上下弦/最北最南/近地点遠地点・日月出没の計算 API と表示。Dependencies: platform-foundation
 - [ ] almanac-calendar -- 六曜・旧暦・月齢・二十四節気・七十二候・雑節・祝日の計算とカレンダー画面。Dependencies: platform-foundation, astronomy-events
 - [ ] star-chart -- 指定日時・地点の全天星図（自作 d3-geo/Canvas、BSC 恒星、星座線、惑星・月）。Dependencies: astronomy-events
-- [ ] auth-users -- Google OAuth2（Better Auth、最小スコープ）、セッション、ユーザ設定（既定の公開範囲）、管理者ロール。Dependencies: platform-foundation
-- [ ] posts-comments -- 当日〜未来日への投稿、ツリー状コメント、未ログイン閲覧可否、自分の投稿一覧、論理削除、可視性判定層。Dependencies: auth-users
+- [ ] auth-users -- Google OAuth2（Better Auth、最小スコープ）、セッション、ユーザ設定（既定の公開範囲、返信のお知らせの受け取り）、管理者ロール。Dependencies: platform-foundation
+- [ ] posts-comments -- 当日〜未来日への投稿、ツリー状コメント、未ログイン閲覧可否、自分の投稿一覧、返信のお知らせ（サイト内）、論理削除、可視性判定層。Dependencies: auth-users
 - [ ] post-location-weather -- 位置 5 段階精度・N03 による市区町村判定・地理院タイル地図・地点の日月出没・投稿時天気保存。Dependencies: posts-comments, astronomy-events
 - [ ] moderation-reports -- 通報（n 件で一時非表示、管理者即時非表示）、異議申し立て、管理画面。Dependencies: posts-comments, auth-users
 - [ ] reactions-likes -- 投稿（必要ならコメント）へのいいね投票と集計表示。Dependencies: posts-comments

@@ -181,3 +181,39 @@ test('the page fits a 375px viewport without horizontal overflow', async ({ page
   expect(overflow).toBeLessThanOrEqual(0);
   expect(problems).toEqual([]);
 });
+
+// Post-validation cleanup: tokens that nothing references yet stay (removing a token name is a
+// revalidation trigger for the later specs) and are marked as reserved on this page. A token is
+// referenced when its name appears in the product CSS, the scripts, the screens or the catalog
+// pages outside its own definition (var(--x) in tokens.css counts: role colors reference the
+// palette). The --bp-* values are referenced by the @media rules (check-tokens keeps them equal).
+const REFERENCE_SOURCES = [
+  ...['tokens.css', 'base.css', 'components.css', 'wireframe.css'].map((f) => `assets/css/${f}`),
+  ...['almanac.js', 'base.js', 'location.js', 'posts.js', 'shell.js', 'sky.js'].map((f) => `assets/js/components/${f}`),
+  'assets/js/i18n.js', 'assets/js/mock-state.js', 'assets/js/theme-boot.js', 'assets/js/paging.js',
+  ...['top', 'calendar-month', 'day-detail', 'astro-events', 'star-chart', 'post-detail', 'post-edit', 'my-posts',
+    'settings', 'login', 'report', 'appeal', 'admin', 'attribution', 'privacy'].map((id) => `screens/${id}.html`),
+  'index.html', 'viewer.html', 'components.html', 'tokens.html', 'glossary.html', 'a11y.html',
+];
+const UNREFERENCED = (() => {
+  // Inline scripts of the pages are left out: tokens.html names the reserved tokens in its script.
+  const text = REFERENCE_SOURCES.map((f) => {
+    const src = readFileSync(join(root, f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    return f.endsWith('.html') ? src.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '') : src;
+  }).join('\n');
+  return TOKENS.filter((name) => !name.startsWith('--bp-')).filter((name) => {
+    const esc = name.replace(/[-]/g, '\-');
+    const uses = text.match(new RegExp(`${esc}(?![\w-])(?!\s*:)`, 'g')) ?? [];
+    return uses.length === 0;
+  });
+})();
+
+test('tokens no product file references are marked as reserved, and only those', async ({ page }) => {
+  expect(UNREFERENCED.length, 'there are reserved tokens to mark').toBeGreaterThan(0);
+  await page.goto(pageUrl);
+  const reserved = await page.locator('main [data-token]:has([data-reserved])').evaluateAll((els) => els.map((e) => e.getAttribute('data-token')));
+  expect([...reserved].sort()).toEqual([...UNREFERENCED].sort());
+  for (const name of UNREFERENCED) {
+    await expect(page.locator(`main [data-token="${name}"] [data-reserved]`), name).toHaveText(/予約/);
+  }
+});

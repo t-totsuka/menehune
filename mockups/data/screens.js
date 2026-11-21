@@ -31,6 +31,13 @@
   const PROMPT_KEPT = '反映（8.1）：ヘッダーの直下の全幅の帯に案内を出し、本文の囲みの案内とログインの導線を外した。会員向けの内容を出さない理由は、本文に 1 行の文として残した（README の論点）';
   // 2026-11-21 に利用者が残りのワイヤーフレームをまとめて承認した（タスク 8.1 の完了）。star-chart は 2026-11-19 に承認済み
   const ALL_OK_APPROVAL = '承認（8.1）：2026-11-21 に利用者が「ワイヤーフレームはいずれもOK」として承認した（最新のワイヤーフレーム、コミット 780aad3）。ハイフィは下書きのまま';
+  // 2026-11-21 に利用者が全画面のハイフィをまとめて承認した（タスク 8.2・8.3 と最終検証の後。ワイヤーフレームは全画面で承認済み）
+  /** @type {StageReview} */
+  const HIFI_APPROVED = Object.freeze({
+    status: 'approved',
+    reviewedAt: '2026-11-21',
+    notes: Object.freeze(['承認：2026-11-21 に利用者が「ハイフィのレビューOK」として全画面を承認した（コミット 76a4e34）']),
+  });
 
   /**
    * Wireframe review of a screen that only got the cross-screen note of 2026-11-19: applied in
@@ -40,7 +47,7 @@
    */
   const guestBandReview = (outcome) => review(
     Object.freeze({ status: 'approved', reviewedAt: '2026-11-21', notes: Object.freeze([GUEST_BAND_NOTE, outcome, ALL_OK_APPROVAL]) }),
-    DRAFT,
+    HIFI_APPROVED,
   );
 
   /** @type {readonly AuthState[]} */
@@ -92,7 +99,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('calendar-month', 'public', GUEST_MEMBER, ['provisional-holiday'], review(
       Object.freeze({
@@ -111,7 +118,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('day-detail', 'public', GUEST_MEMBER, [], review(
       Object.freeze({
@@ -136,7 +143,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('astro-events', 'public', GUEST_MEMBER, ['empty', 'fetch-error'], review(
       Object.freeze({
@@ -155,7 +162,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('star-chart', 'public', GUEST_MEMBER, ['daytime'], review(
       Object.freeze({
@@ -174,7 +181,7 @@
           '承認（8.1）：2026-11-19 に利用者が「星図OK」として承認した（最新のワイヤーフレーム、コミット 0f24933）。ハイフィは下書きのまま',
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('post-detail', 'public', GUEST_MEMBER, [
       'private-blocked', 'hidden-own', 'hidden-other',
@@ -194,7 +201,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('post-edit', 'member', GUEST_MEMBER, ['validation-error'], review(
       Object.freeze({
@@ -211,7 +218,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('my-posts', 'member', GUEST_MEMBER, ['empty', 'fetch-error', 'many-items'], review(
       Object.freeze({
@@ -238,7 +245,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('settings', 'member', GUEST_MEMBER, [], review(
       Object.freeze({
@@ -253,7 +260,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('login', 'public', GUEST_MEMBER, [], guestBandReview(
       '見送り（8.1）：ログイン画面には帯を出さない。この画面自体がログインの入口で、「ログインしてください」の案内と導線が本文と重なるため（README の論点）',
@@ -275,7 +282,7 @@
           ALL_OK_APPROVAL,
         ]),
       }),
-      DRAFT,
+      HIFI_APPROVED,
     )),
     screen('attribution', 'public', GUEST_MEMBER, [], guestBandReview(BAND_ADDED)),
     screen('privacy', 'public', GUEST_MEMBER, [], guestBandReview(BAND_ADDED)),

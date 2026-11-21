@@ -351,7 +351,7 @@
 
     render() {
       const postId = this.getAttribute('post-id') ?? '';
-      const post = this.sample().posts.find((p) => p.id === postId);
+      const post = this.findPost(postId);
       if (!post) {
         this.replaceChildren(this.missingSample(postId));
         return;
@@ -412,7 +412,7 @@
 
     render() {
       const postId = this.getAttribute('post-id') ?? '';
-      const post = this.sample().posts.find((p) => p.id === postId);
+      const post = this.findPost(postId);
       if (!post) {
         this.replaceChildren(this.missingSample(postId));
         return;

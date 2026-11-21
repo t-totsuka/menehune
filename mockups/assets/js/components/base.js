@@ -10,9 +10,20 @@
 //   styled apart from the product look.
 // - Re-rendering keeps keyboard focus: an element marked data-mk-focus="name" that had focus is
 //   focused again after the render when the new DOM has the same name.
+// - Shared lookups of the components: this.findPost(id) looks in SampleDataSet.posts and then in
+//   SampleDataSet.paging.posts (the extra own posts of the scenario many-items), so every component
+//   finds a post the same way. this.screenHref(id, state, params, hash) builds the link to
+//   mockups/screens/{id}.html, resolved from this script's URL (assets/js/components/ ->
+//   ../../../screens/, so it works from screens/ and from the catalog pages at the root), and
+//   carries a logged-in auth state over when the target screen's authStates allow it (it reads
+//   the screen registry, data/screens.js).
 //
-// Preconditions: mock-state.js and i18n.js are loaded first; component scripts load after this.
+// Preconditions: data/screens.js, mock-state.js and i18n.js are loaded first; component scripts
+// load after this.
 (function () {
+  const scriptEl = document.currentScript;
+  const scriptSrc = scriptEl instanceof HTMLScriptElement ? scriptEl.src : '';
+
   class MockElement extends HTMLElement {
     constructor() {
       super();
@@ -53,6 +64,37 @@
       if (attrs) for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, value);
       node.append(...children);
       return node;
+    }
+
+    /** @param {string} id @returns {SamplePost | undefined} */
+    findPost(id) {
+      const sample = this.sample();
+      return sample.posts.find((p) => p.id === id) ?? sample.paging.posts.find((p) => p.id === id);
+    }
+
+    /**
+     * @param {ScreenId} id
+     * @param {MockStateSnapshot} state
+     * @param {Readonly<Record<string, string>>} [params]
+     * @param {string} [hash] e.g. '#post-comments'
+     * @returns {string}
+     */
+    screenHref(id, state, params = {}, hash = '') {
+      /** @type {URL} */
+      let url;
+      try {
+        url = new URL(`../../../screens/${id}.html`, scriptSrc || window.location.href);
+      } catch {
+        return `${id}.html${hash}`;
+      }
+      url.hash = hash;
+      for (const [name, value] of Object.entries(params)) url.searchParams.set(name, value);
+      const registry = Array.isArray(window.MockScreens) ? window.MockScreens : [];
+      const entry = registry.find((s) => s.id === id);
+      if (state.auth !== 'guest' && entry !== undefined && entry.authStates.includes(state.auth)) {
+        url.searchParams.set('auth', state.auth);
+      }
+      return url.href;
     }
 
     /** @param {string} id @returns {HTMLElement} */

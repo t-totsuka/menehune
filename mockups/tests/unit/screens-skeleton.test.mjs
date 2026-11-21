@@ -30,6 +30,7 @@ const BODY_SCRIPTS = [
   'assets/i18n/messages.ja.js',
   'assets/i18n/messages.en.js',
   'assets/js/mock-state.js',
+  'assets/js/paging.js',
   'assets/js/i18n.js',
   'assets/js/components/base.js',
   'assets/js/components/shell.js',

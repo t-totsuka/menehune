@@ -6,7 +6,6 @@
   /** @type {MessageDictionary} */
   const ja = Object.freeze({
     // Common navigation
-    'nav.top': 'トップ',
     'nav.calendar': 'カレンダー',
     'nav.astro-events': '天文現象',
     'nav.star-chart': '星図',
@@ -53,6 +52,7 @@
 
     // Almanac summary, rise/set and event list (task 4.3)
     'almanac.moon': '月齢',
+    'almanac.moon-separator': '・',
     'almanac.holiday': '祝日',
     'almanac.events': '天文現象',
     'almanac.none': 'なし',
@@ -153,9 +153,6 @@
     'button.close': '閉じる',
     'button.retry': '再試行',
     'button.more': 'もっと見る',
-    'button.prev': '前へ',
-    'button.next': '次へ',
-    'button.today': '今日',
 
     // Screen titles (one per ScreenId)
     'screen.top.title': 'トップ',
@@ -270,7 +267,6 @@
     'screen.report.kind.post': '投稿',
     'screen.report.kind.comment': 'コメント',
     'screen.report.author': '書いた人',
-    'screen.report.content': '内容',
     'screen.report.back': '投稿に戻る',
     'screen.report.form': '通報の内容',
     'screen.report.details': '詳しい内容（任意）',
@@ -369,6 +365,7 @@
     'status.loading': '読み込み中…',
     'status.saved': '保存しました。',
     'common.count': '{count}件',
+    'common.list-separator': '、',
     // ---- Terms (task 3.1); metadata in data/glossary.js ----
 
     // Rokuyo (六曜): romanized name plus meaning

@@ -129,6 +129,29 @@ for (const lang of ['ja', 'en']) {
   }
 }
 
+// Post-validation cleanup: an explicit language formats in that language without changing the
+// current one (glossary.html shows ja and en side by side without dispatching mock:change).
+for (const pageLang of ['ja', 'en']) {
+  test(`formatDate with an explicit lang ignores the current language (${pageLang})`, () => {
+    const { i18n, setLang, warnings } = setup();
+    setLang(pageLang);
+    for (const lang of ['ja', 'en']) {
+      for (const [style, [input, expected]] of Object.entries(EXPECTED[lang])) {
+        assert.equal(i18n.formatDate(input, style, lang), expected, `${lang} ${style}`);
+      }
+    }
+    // The current language is unchanged.
+    assert.equal(i18n.formatDate(DATE, 'date-long'), EXPECTED[pageLang]['date-long'][1]);
+    assert.deepEqual(warnings, []);
+  });
+}
+
+test('formatDate with an unknown lang warns and uses the current language', () => {
+  const { i18n, warnings } = setup();
+  assert.equal(i18n.formatDate(DATE, 'date-long', 'fr'), '2026年11月16日(月)');
+  assert.ok(warnings.some((w) => /unknown lang "fr"/.test(w)), warnings.join(' | '));
+});
+
 test('formatDate is fixed to Asia/Tokyo and 24-hour regardless of the input offset', () => {
   const { i18n, setLang } = setup();
   // 09:42 UTC == 18:42 JST; 15:05 UTC == 00:05 JST on the next day

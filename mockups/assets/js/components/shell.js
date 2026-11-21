@@ -15,6 +15,9 @@
 //   Below 600px the menu collapses behind a toggle button (aria-expanded / aria-controls);
 //   Escape closes it. Task 8.3: a decorative starfield (svg.mk-starfield, data-decor,
 //   aria-hidden) is drawn behind the bar on the hi-fi stage.
+//   Post-validation cleanup (13.5): the header starts with a skip link to the page's <main>
+//   (a.mk-skip-link, nav.skip-to-content). It is the first Tab stop of every screen, hidden until
+//   focused (components.css), and focuses <main> without changing the URL.
 // - mk-site-footer: links to the attribution and privacy pages.
 // - mk-guest-notice (6.5, 6.8): variant read-only (default) / private-post, with a login link.
 //   Showing it only to guests is the page's job ([data-when-auth="guest"]). With the boolean
@@ -29,68 +32,16 @@
 //   ([data-pager-page], accessible name "n ページ目"; the current one has aria-current="page").
 //   A button sets `page` and fires a bubbling CustomEvent<{ page: number }>('mk-page-change'); the
 //   owner shows that page and moves focus (my-posts focuses the list's heading). With total <=
-//   page-size it renders nothing. The pure logic is window.MockPaging (defined first, without
-//   the DOM, so tests/unit can load it).
+//   page-size it renders nothing. The pure logic is window.MockPaging (assets/js/paging.js, a
+//   foundation script without the DOM).
 //
-// Links point at mockups/screens/*.html resolved from this script's URL
-// (assets/js/components/ -> ../../../screens/), so they work from screens/ and from the catalog
-// pages at the root. A logged-in auth state is carried over when the target screen allows it.
+// Links come from MockElement#screenHref (base.js): mockups/screens/*.html, with a logged-in auth
+// state carried over when the target screen allows it.
 //
-// Preconditions: base.js (window.MockElement) is loaded first.
-
-// window.MockPaging (task 8.1): pure paging logic of mk-pager. Pages are 1-based.
+// Preconditions: paging.js (window.MockPaging) and base.js (window.MockElement) are loaded first.
 (function () {
-  /** @param {number} total @param {number} size @returns {number} */
-  const pageCount = (total, size) => Math.max(1, Math.ceil(Math.max(0, total) / Math.max(1, size)));
-  /** @param {number} page @param {number} total @param {number} size @returns {number} */
-  const clampPage = (page, total, size) => {
-    if (!Number.isFinite(page)) return 1;
-    return Math.min(pageCount(total, size), Math.max(1, Math.floor(page)));
-  };
-  /** @param {number} total @param {number} page @param {number} size @returns {{ from: number, to: number }} */
-  const pageRange = (total, page, size) => {
-    if (total <= 0) return { from: 0, to: 0 };
-    const p = clampPage(page, total, size);
-    return { from: (p - 1) * size + 1, to: Math.min(total, p * size) };
-  };
-  /**
-   * @template T
-   * @param {readonly T[]} items @param {number} page @param {number} size
-   * @returns {T[]}
-   */
-  const pageItems = (items, page, size) => {
-    const p = clampPage(page, items.length, size);
-    return items.slice((p - 1) * size, p * size);
-  };
-  window.MockPaging = Object.freeze({ PAGE_SIZE: 30, pageCount, clampPage, pageRange, pageItems });
-})();
-
-(function () {
-  const scriptEl = document.currentScript;
-  const scriptSrc = scriptEl instanceof HTMLScriptElement ? scriptEl.src : '';
-
-  /**
-   * @param {ScreenId} id
-   * @param {MockStateSnapshot} state
-   * @param {string} [hash] e.g. '#notices'
-   * @returns {string}
-   */
-  const screenHref = (id, state, hash = '') => {
-    /** @type {URL} */
-    let url;
-    try {
-      url = new URL(`../../../screens/${id}.html`, scriptSrc || window.location.href);
-    } catch {
-      return `${id}.html${hash}`;
-    }
-    url.hash = hash;
-    const registry = Array.isArray(window.MockScreens) ? window.MockScreens : [];
-    const entry = registry.find((s) => s.id === id);
-    if (state.auth !== 'guest' && entry !== undefined && entry.authStates.includes(state.auth)) {
-      url.searchParams.set('auth', state.auth);
-    }
-    return url.href;
-  };
+  /** id given to a <main> without one, so the skip link can name it */
+  const MAIN_ID = 'main-content';
 
   /** @typedef {NonNullable<SiteHeaderAttrs['current']>} HeaderItem */
   /** @type {readonly HeaderItem[]} */
@@ -271,7 +222,7 @@
     account(state) {
       const box = this.el('div', { class: 'mk-header__account' });
       if (state.auth === 'guest') {
-        box.append(this.el('a', { href: screenHref('login', state) }, this.t('nav.login')));
+        box.append(this.el('a', { href: this.screenHref('login', state) }, this.t('nav.login')));
         return box;
       }
       const sample = this.sample();
@@ -282,7 +233,7 @@
         : this.missingSample(userId));
       const current = this.currentItem(state);
       /** @type {Record<string, string>} */
-      const attrs = { href: screenHref('settings', state) };
+      const attrs = { href: this.screenHref('settings', state) };
       if (current === 'settings') attrs['aria-current'] = 'page';
       box.append(this.el('a', attrs, this.t('nav.settings')));
       return box;
@@ -300,10 +251,34 @@
       const unread = sample.notices.filter((n) => n.recipientId === viewer && !n.read).length;
       return this.el('a', {
         class: 'mk-header__notices',
-        href: screenHref('my-posts', state, '#notices'),
+        href: this.screenHref('my-posts', state, {}, '#notices'),
         'data-header-notices': '',
         'data-unread': String(unread),
       }, unread > 0 ? this.t('notice.header-unread', { count: unread }) : this.t('notice.label'));
+    }
+
+    /**
+     * The skip link to the page's <main> (the first Tab stop; hidden until focused). <main> gets
+     * id="main-content" when it has no id. Activating it focuses <main> (tabindex="-1") without
+     * changing the URL. Without a <main> it still renders but does nothing.
+     * @returns {HTMLAnchorElement}
+     */
+    skipLink() {
+      const main = document.querySelector('main');
+      if (main && !main.id) main.id = MAIN_ID;
+      const link = this.el('a', {
+        class: 'mk-skip-link',
+        href: `#${main ? main.id : MAIN_ID}`,
+        'data-mk-focus': 'skip-link',
+      }, this.t('nav.skip-to-content'));
+      link.addEventListener('click', (event) => {
+        const target = document.querySelector('main');
+        if (!target) return;
+        event.preventDefault();
+        if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+        target.focus();
+      });
+      return link;
     }
 
     /** @param {MockStateSnapshot} state */
@@ -313,7 +288,7 @@
       const list = this.el('ul');
       for (const { item, screen, labelKey } of items) {
         /** @type {Record<string, string>} */
-        const attrs = { href: screenHref(screen, state) };
+        const attrs = { href: this.screenHref(screen, state) };
         if (item === current) attrs['aria-current'] = 'page';
         list.append(this.el('li', null, this.el('a', attrs, this.t(labelKey))));
       }
@@ -345,11 +320,12 @@
           }),
           this.account(state)));
 
-      const logo = this.el('a', { class: 'mk-header__logo', href: screenHref('top', state) },
+      const logo = this.el('a', { class: 'mk-header__logo', href: this.screenHref('top', state) },
         this.el('span', { class: 'mk-header__logo-mark', 'aria-hidden': 'true', 'data-decor': '' }, '✦'),
         this.el('span', null, this.t('site.name')));
 
       this.replaceChildren(this.el('header', { class: 'mk-header' },
+        this.skipLink(),
         starfield(HEADER_STARS),
         this.el('div', { class: 'mk-header__inner' },
           this.el('div', { class: 'mk-header__bar' }, ...[logo, this.notices(state), toggle].filter((n) => n !== undefined)),
@@ -364,8 +340,8 @@
         this.el('div', { class: 'mk-footer__inner' },
           this.el('nav', { class: 'mk-footer__nav', 'aria-label': this.t('footer.links') },
             this.el('ul', null,
-              this.el('li', null, this.el('a', { href: screenHref('attribution', state) }, this.t('screen.attribution.title'))),
-              this.el('li', null, this.el('a', { href: screenHref('privacy', state) }, this.t('screen.privacy.title'))))),
+              this.el('li', null, this.el('a', { href: this.screenHref('attribution', state) }, this.t('screen.attribution.title'))),
+              this.el('li', null, this.el('a', { href: this.screenHref('privacy', state) }, this.t('screen.privacy.title'))))),
           this.el('p', { class: 'mk-footer__note' }, this.t('footer.note')))));
     }
   }
@@ -385,7 +361,7 @@
       else if (attr !== null) console.warn(`[mk-guest-notice] unknown variant="${attr}"; using read-only`);
       const message = variant === 'private-post' ? this.t('guest-notice.private-post') : this.t('guest-notice.read-only');
       const text = this.el('p', { class: 'mk-guest-notice__text' }, message);
-      const login = this.el('a', { class: 'mk-guest-notice__login', href: screenHref('login', state) }, this.t('guest-notice.login'));
+      const login = this.el('a', { class: 'mk-guest-notice__login', href: this.screenHref('login', state) }, this.t('guest-notice.login'));
       if (this.hasAttribute('band')) {
         // Task 8.1: the full-width band below the site header (one per screen, the same on all).
         this.replaceChildren(this.el('section', { class: 'mk-guest-band', 'data-variant': variant, 'aria-label': this.t('guest-notice.band-label') },

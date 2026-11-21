@@ -151,13 +151,13 @@ test.describe('star-chart: review note (a map of the observing location right of
 });
 
 // Task 8.1 (approval, 2026-11-19): a person approved the star-chart wireframe (「星図OK」), so the
-// hifi stage no longer carries the "未確定" banner (1.3); hifi itself stays draft.
+// hifi stage no longer carries the "未確定" banner (1.3). A person approved the hifi on 2026-11-21.
 test('star-chart: approved wireframe, so hifi shows no "未確定" banner', async ({ page }) => {
   const problems = watchConsole(page);
   await page.goto(urlOf('?stage=hifi&lang=ja'));
   await expect(page.locator('html')).toHaveAttribute('data-stage', 'hifi');
   await expect(page.locator('[data-review-status]')).toContainText('ワイヤーフレーム 承認済み');
-  await expect(page.locator('[data-review-status]')).toContainText('ハイフィ 下書き');
+  await expect(page.locator('[data-review-status]')).toContainText('ハイフィ 承認済み');
   await expect(page.locator('[data-review-banner="provisional"]')).toBeHidden();
   expect(problems).toEqual([]);
 });

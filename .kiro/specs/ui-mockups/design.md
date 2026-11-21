@@ -41,7 +41,9 @@
 - ブラウザ標準の機能のみ：Custom Elements v1、CSS カスタムプロパティ、`Intl.DateTimeFormat`、`localStorage`（失敗を許容）
 - 開発者用の検査に限り、Node.js 22 以降、`@playwright/test`、`typescript`（型検査のみ）を使える。モック本体は、これらに依存してはならない。`mockups/package.json` は独立して置く。将来のモノレポのワークスペースに含めるかどうかは、platform-foundation が決める
 - 外部ネットワーク上のリソース（CDN、Web フォント、地図タイル）は使わない
-- 依存の向きは、型定義 → データ（レジストリ、辞書、用語集、サンプル） → 基盤スクリプト（状態、i18n、テーマ） → 部品 → 画面とする。逆向きの参照は禁止する。CSS は tokens → base → components → wireframe の順に重ねる。`review.css` は製品の CSS から参照しない
+- 依存の向きは、型定義 → データ（レジストリ、辞書、用語集、サンプル） → 基盤スクリプト（状態、ページング、i18n、テーマ） → 部品 → 画面とする。逆向きの参照は禁止する。CSS は tokens → base → components → wireframe の順に重ねる。`review.css` は製品の CSS から参照しない
+- 部品からデータへの参照は、サンプルデータのほかに画面レジストリがある。画面間のリンクで、ログイン状態（`?auth`）を移動先の `authStates` が許すときだけ引き継ぐため（`MockElement#screenHref`、最終検証の後の整理）
+- 部品どうしの参照（Parts → Parts）は、部品の要素を子として置く場合に限って許す。mk-location-panel は mk-rise-set を、mk-post-card は mk-status-badge を、mk-notice-list は mk-pager を置く。そのため、部品のスクリプトは shell.js（mk-status-badge、mk-pager）を posts.js より前に読み込む。純粋な計算（ページの範囲）は部品ではなく基盤スクリプトの `window.MockPaging`（paging.js）に置き、部品と画面のスクリプトの両方から使う
 
 ### Revalidation Triggers
 - トークンの名前の変更・削除、または意味を持つ色の役割の追加・削除（platform-foundation と全 UI の spec に影響）
@@ -65,6 +67,7 @@ graph TB
     subgraph Core
         ThemeBoot[Theme Boot]
         MockState[Mock State]
+        Paging[Mock Paging]
         I18n[I18n Runtime]
     end
     subgraph Parts
@@ -88,9 +91,16 @@ graph TB
     MockState --> Parts
     I18n --> Parts
     Sample --> Parts
+    Registry --> Parts
+    Paging --> Parts
+    Paging --> Screens
     Parts --> Screens
     Registry --> Review
+    MockState --> Review
     Review --> Screens
+    MockState --> Screens
+    I18n --> Screens
+    Sample --> Screens
     Registry --> Catalog
     Glossary --> Catalog
     Messages --> Catalog
@@ -101,6 +111,8 @@ graph TB
     Tools --> Messages
     Tools --> Registry
 ```
+
+- 図の `Registry --> Parts` は、画面間のリンクでの `?auth` の引き継ぎ（`MockElement#screenHref`）。`Paging` は DOM を持たない基盤スクリプトで、mk-pager・mk-notice-list と自分の投稿の画面のスクリプトが使う。部品どうしの参照（mk-location-panel → mk-rise-set、posts.js → mk-status-badge・mk-pager）は、図では Parts の中に閉じるので描かない（Allowed Dependencies を参照）。`MockState`・`I18n`・`Sample`・`Paging` から `Screens` への線は、画面ごとのインラインのページスクリプト（設定のラジオの `MockState.update`、自分の投稿の一覧の組み立て、日詳細の `?date` の読み取りなど）が直接使うもの
 
 **Architecture Integration**:
 - **Selected pattern**: 単一マークアップとスキンによる段階切替、Light DOM のカスタム要素による部品化、URL を正とする状態管理。選定の比較は research.md にある
@@ -156,14 +168,15 @@ mockups/
 │   ├── js/
 │   │   ├── theme-boot.js           # head で同期実行。保存値か URL からテーマを決め、ちらつきを防ぐ
 │   │   ├── mock-state.js           # URL・保存値から MockState を解決し、変更を mock:change イベントで通知
-│   │   ├── i18n.js                 # 辞書の登録、data-i18n の適用、日付時刻の書式
+│   │   ├── paging.js               # window.MockPaging：長い一覧のページの計算（DOM なし。mk-pager、mk-notice-list、自分の投稿の画面が使う。8.1）
+│   │   ├── i18n.js                 # 辞書の登録、data-i18n の適用、日付時刻の書式（言語の指定も可）
 │   │   ├── review-shell.js         # レビュー用ツールバー、一覧への戻り、段階の状態バナー、シナリオの条件表示
 │   │   └── components/
-│   │       ├── base.js             # MockElement の基底クラス（mock:change で再描画）
-│   │       ├── shell.js            # mk-site-header, mk-site-footer, mk-guest-notice, mk-status-badge, mk-admin-band
+│   │       ├── base.js             # MockElement の基底クラス（mock:change で再描画。投稿の検索 findPost と画面へのリンク screenHref を共通に持つ）
+│   │       ├── shell.js            # mk-site-header（本文へのスキップリンクを含む）, mk-site-footer, mk-guest-notice, mk-status-badge, mk-admin-band, mk-pager
 │   │       ├── almanac.js          # mk-month-calendar, mk-day-cell, mk-almanac-summary, mk-rise-set, mk-event-list
 │   │       ├── sky.js              # mk-star-chart
-│   │       ├── posts.js            # mk-post-card, mk-comment-tree, mk-like-button, mk-report-link
+│   │       ├── posts.js            # mk-post-card, mk-comment-tree, mk-like-button, mk-report-link, mk-notice-list
 │   │       └── location.js         # mk-location-panel, mk-map-sample, mk-weather, mk-precision-picker
 │   └── i18n/
 │       ├── messages.ja.js          # 日本語の辞書（キー → 文言）
@@ -176,11 +189,15 @@ mockups/
 ├── tools/
 │   ├── check-tokens.mjs            # 10.4：トークン定義以外での色・寸法リテラルの使用を検出
 │   ├── check-contrast.mjs          # 13.1, 13.2：宣言した組み合わせのコントラスト比とダーク 2 ブロックの一致
-│   ├── check-i18n.mjs              # 11.1, 11.5：使用キーの存在、ja と en のキー集合の一致、用語集キーの存在
+│   ├── check-i18n.mjs              # 11.1, 11.5：使用キーの存在、ja と en のキー集合の一致、用語集キーの存在（未使用のキーは警告）
 │   ├── check-registry.mjs          # 1.1, 1.3, 3.1：15 画面がそろうこと、ファイルの存在、段階の承認順序
 │   └── contrast-pairs.json         # 検査するトークンの組み合わせ（前景、背景、最小比）
-├── tests/
-│   └── mockups.spec.mjs            # Playwright の E2E（2.3, 2.6, 1.2, 9.3, 9.4, 11.2, 11.6, 12.2, 13.5）
+├── tests/                          # tsconfig の対象外
+│   ├── *.spec.mjs                  # Playwright の E2E（2.3, 2.6, 1.2, 9.3, 9.4, 11.2, 11.6, 12.2, 13.5 と、各タスクの画面・部品の検査）
+│   ├── helpers/                    # E2E の共通の仕組み（e2e.mjs：画面の一覧、外部要求の遮断、コンソールの監視。layout-checks.mjs：はみ出しの検出）
+│   ├── fixtures/                   # 実画面ではない検査用のページ（辞書にないキーの例など、製品のページに置かないもの）
+│   └── unit/                       # 純粋なロジックの単体テスト（node --test。classic script は node:vm で読み込む）
+├── playwright.config.mjs           # Chromium、baseURL は mockups の file:// URL、testMatch は tests/*.spec.mjs
 ├── tsconfig.json                   # checkJs、noEmit、strict
 ├── package.json                    # 開発者用スクリプト（check:*、test:e2e）と devDependencies のみ
 └── README.md                       # 開き方、URL パラメータ、レビューの進め方、検査の実行方法
@@ -305,10 +322,11 @@ sequenceDiagram
 | StageStyles | Style | ワイヤーフレームのスキン | 1.1, 1.2 | DesignTokens (P0) | — |
 | ThemeBoot | Core | 初期テーマの決定（ちらつき防止） | 9.3, 9.4 | — | Service |
 | MockState | Core | 表示状態の解決・更新・通知 | 3.3〜3.5, 6.5, 8.4, 9.4, 11.2 | ScreenRegistry (P0) | Service, State |
+| MockPaging | Core | 長い一覧のページの計算（DOM なし） | 6.6, 6.10 | — | Service |
 | I18nRuntime | Core | 文言の適用と日付の書式 | 11.1, 11.2, 11.7 | MessageDictionaries (P0), MockState (P0) | Service |
 | ReviewShell | Review | ツールバー、戻り導線、段階バナー、条件表示 | 1.3, 2.3, 3.3〜3.5 | MockState (P0), ScreenRegistry (P0) | Service |
-| MockElement 基底 | Parts | 部品の共通の振る舞い | 2.4 | MockState (P0), I18nRuntime (P0) | Service |
-| ShellComponents | Parts | ヘッダー、フッター、閲覧のみの案内、状態バッジ、管理帯 | 3.2, 3.6, 6.5, 6.8, 6.9, 8.4, 9.4, 11.2, 13.3 | MockElement (P0) | — |
+| MockElement 基底 | Parts | 部品の共通の振る舞い（再描画、文言、投稿の検索 findPost、画面へのリンク screenHref） | 2.4 | MockState (P0), I18nRuntime (P0), SampleData (P0), ScreenRegistry (P0) | Service |
+| ShellComponents | Parts | ヘッダー、フッター、閲覧のみの案内、状態バッジ、管理帯、ページ送り（mk-pager） | 3.2, 3.6, 6.5, 6.8, 6.9, 8.4, 9.4, 11.2, 13.3 | MockElement (P0) | — |
 | AlmanacComponents | Parts | カレンダー、暦の要約、出没、天文現象の一覧 | 4.1〜4.7, 7.3, 12.3, 13.3 | MockElement (P0), SampleData (P0) | — |
 | SkyComponents | Parts | 全天図のサンプル | 5.1〜5.5, 13.4 | MockElement (P0), SampleData (P0) | — |
 | PostComponents | Parts | 投稿カード、コメントツリー、いいね、通報、返信のお知らせ | 6.1, 6.4, 6.6, 6.7, 6.10, 8.3, 8.4, 12.4 | MockElement (P0), SampleData (P0) | — |
@@ -387,6 +405,7 @@ type ScreenRegistry = readonly ScreenEntry[];
 - `ja` と `en` のキー集合は完全に一致する。言語を追加するときは `messages.{locale}.js` を 1 つ足し、`LocaleId` に加える
 - 置換引数は `{name}` の形式とする
 - 用語集は文言を持たず、キーに分類・方針・注記を付けるだけとする
+- 11.3 の「画面に出る文言」の対訳の正本は辞書（`messages.ja.js`・`messages.en.js`）とし、画面に出るすべての文言の日英は、ここでキーごとに揃う（check-i18n がキー集合の一致を検査する）。用語集（GlossaryMeta）に載せるのは、訳し方の判断が要る用語に限る。暦注・天文用語・祝日名・位置の精度・天気・通報と非表示の用語と、画面の文言のうちサービス固有の概念で訳語を揃える必要があるもの（`ui` 分類：投稿の公開状態、返信のお知らせなど）である。ナビ・ボタン・エラー・空状態・画面ごとの説明文など一般的な文言は用語集に載せない。英訳の方針は既定の意訳（translation）とし、正本の辞書で確かめる。一般的な文言のうち、訳語を揃える必要が出たものは `ui` 分類に足す
 
 **Contracts**: State [x]
 
@@ -470,6 +489,8 @@ type ReportReason = 'spam' | 'harassment' | 'inappropriate' | 'personal-info' | 
 // 返信のお知らせ（6.9、6.10、8.1）。commentId は recipientId のコメント、replyId はそれへのほかの人の直接の返信（削除済みでない）。
 // 返信した人と日時は返信のコメントから読む。削除済みの返信にはお知らせを出さない
 interface ReplyNotice { readonly id: string; readonly recipientId: string; readonly postId: string; readonly commentId: string; readonly replyId: string; readonly read: boolean; }
+// 通報への異議申し立て（最終検証の後の整理。管理画面の審査に出す）。投稿の本文と同じく投稿者が書いた文なので、英語の表示でも訳さない
+interface SampleAppeal { readonly targetId: string; readonly authorId: string; readonly at: IsoDateTime; readonly body: string; }
 interface ReportQueueItem { readonly targetId: string; readonly targetType: 'post' | 'comment'; readonly reportCount: number; readonly reasons: readonly ReportReason[]; readonly reasonCounts: Readonly<Partial<Record<ReportReason, number>>>; readonly state: 'open' | 'auto-hidden' | 'hidden-by-admin' | 'appealed' | 'restored' | 'removed'; }
 
 interface StarChartSample {
@@ -492,12 +513,16 @@ interface SampleDataSet {
   readonly events: readonly AstroEvent[];
   readonly posts: readonly SamplePost[];
   readonly reports: readonly ReportQueueItem[];
+  readonly appeals: readonly SampleAppeal[];      // state が appealed の通報ごとに 1 件（最終検証の後の整理）
   readonly notices: readonly ReplyNotice[];      // 返信のお知らせ（返信の新しい順。member の自分に未読 2 件・既読 1 件、admin は 0 件、8.1）
   readonly viewerIds: Readonly<Record<Exclude<AuthState, 'guest'>, string>>;   // ログイン時の「自分」（likedByMe、hidden-own、自分の投稿一覧の判定に使う）
   readonly postDetailScenarios: Readonly<Record<PostDetailScenarioId, string>>; // 投稿詳細のシナリオごとに表示する投稿 ID
   readonly starChart: StarChartSample;
   readonly starChartDaytime: StarChartSample;     // 同じ地点・同じ日の 12:00（太陽が南の空の約 35°）。mk-star-chart の sample="daytime" と、星図の画面のシナリオ daytime で使う（5.2）
+  readonly paging: SamplePagingExtra;             // シナリオ many-items だけで足す見本（自分の投稿のページング、8.1）
 }
+// posts と notices には混ぜない（ほかの画面と未読の件数は変わらない）。部品は MockElement#findPost で posts の次にここの投稿も探す
+interface SamplePagingExtra { readonly posts: readonly SamplePost[]; readonly notices: readonly ReplyNotice[]; }
 ```
 
 **Implementation Notes**
@@ -530,6 +555,7 @@ interface SampleDataSet {
 #### StageStyles（wireframe.css）
 - `html[data-stage="wireframe"]` の範囲で、役割の色をすべてグレースケールに再定義する。影とグラデーションは `none` にし、`[data-decor]` を付けた要素は非表示にする。画像・図は枠と対角線だけの占位表示にする（1.2）
 - 配置に関わるプロパティ（display、grid、余白）は変更しない。これにより、2 つの段階で配置が一致することを保証する
+- 逆向きの規則（ハイフィ段階だけの塗り、タスク 8.3）は、components.css の `html:not([data-stage="wireframe"])` の範囲に書く。ワイヤーフレームの記号の上にハイフィのアイコンを重ねるときの、記号の色を透明にする、ハイフィだけ面の色を付けるなどの塗り（color、background-color、fill、stroke、opacity）だけとし、配置に関わるプロパティ（display、位置、大きさ、余白、書体）は書かない
 
 ### Core
 
@@ -574,6 +600,10 @@ interface MockStateService {
 #### ThemeBoot
 - `<head>` 内で、CSS より前に同期実行する。URL の `theme` か保存値から `data-theme` を設定する。`system` のときは属性を付けず、CSS のメディアクエリに任せる（9.3）
 
+#### MockPaging
+- `assets/js/paging.js` の `window.MockPaging`。DOM を持たず、何も読まない純粋な計算で、mk-pager、mk-notice-list、自分の投稿の画面のスクリプトが使う（8.1）。読み込みは mock-state.js の後、i18n.js の前
+- 契約は types.d.ts の `MockPagingService`：`PAGE_SIZE`（30。暫定）、`pageCount(total, size)`（1 以上）、`clampPage(page, total, size)`（1〜pageCount の整数。NaN と 1 未満は 1）、`pageRange(total, page, size)`（1 始まりの `{ from, to }`。0 件は `{ from: 0, to: 0 }`）、`pageItems(items, page, size)`
+
 #### I18nRuntime
 
 | Field | Detail |
@@ -589,10 +619,11 @@ type DateStyle = 'date-long' | 'date-short' | 'weekday' | 'time' | 'datetime' | 
 interface I18nRuntime {
   register(locale: LocaleId, dict: MessageDictionary): void;
   t(key: MessageKey, args?: Readonly<Record<string, string | number>>): string;
-  formatDate(value: IsoDate | IsoDateTime, style: DateStyle): string;
+  formatDate(value: IsoDate | IsoDateTime, style: DateStyle, lang?: LocaleId): string;   // lang を省くと現在の言語
   apply(root: ParentNode): void;   // [data-i18n]、[data-i18n-attr]、[data-i18n-date] を処理する
 }
 ```
+- `formatDate` の `lang` は、日英を並べて見せるページ（用語集の書式例）のためのもの。現在の言語は変えず、`mock:change` も出さない（状態の変更は `MockState.update` だけが行う）。知らない言語は警告して現在の言語で書式化する（最終検証の後の整理）
 - マークアップの規約：本文は `data-i18n="key"`、引数は `data-i18n-args='{"n":3}'`、属性は `data-i18n-attr="aria-label:key1;title:key2"`、日付は `data-i18n-date="2026-11-16" data-date-style="date-long"`
 - 辞書にないキーは `⟦key⟧` と表示し、コンソールに警告する（E2E で検出する）
 - 日付の書式は `Intl.DateTimeFormat` で、`timeZone: 'Asia/Tokyo'` に固定する。日本語の例は「2026年11月16日(月)」「18:42」、英語の例は「Mon, Nov 16, 2026」「18:42」とする。両言語とも 24 時間表記
@@ -635,10 +666,19 @@ interface ReviewShellService {
 
 ##### Service Interface
 ```typescript
+// types.d.ts では MockElementContract（interface）と MockElementConstructor として宣言する。
+// JSDoc の @protected を付けると window.MockElement に代入できなくなるため、すべて public とする
+// （render から screenHref までは、部品自身とその派生クラスからだけ呼ぶ約束）
 abstract class MockElement extends HTMLElement {
-  protected abstract render(state: MockStateSnapshot): void;   // this.replaceChildren(...) で Light DOM に描画する
-  protected sample(): SampleDataSet;                           // window.MockSample
-  protected t(key: MessageKey, args?: Readonly<Record<string, string | number>>): string;
+  render(state: MockStateSnapshot): void;                      // 抽象。派生クラスが this.replaceChildren(...) で Light DOM に描画する（基底は例外）
+  sample(): SampleDataSet;                                     // window.MockSample
+  t(key: MessageKey, args?: Readonly<Record<string, string | number>>): string;
+  el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs?: Readonly<Record<string, string>> | null, ...children: readonly (Node | string)[]): HTMLElementTagNameMap[K];
+  findPost(id: string): SamplePost | undefined;                // posts、次に paging.posts から探す（全部品で共通の検索）
+  screenHref(id: ScreenId, state: MockStateSnapshot, params?: Readonly<Record<string, string>>, hash?: string): string;
+                                                               // mockups/screens/{id}.html。移動先の authStates が許すときだけ ?auth を引き継ぐ（全部品で共通のリンク）
+  missingSample(id: string): HTMLElement;                      // 「サンプルなし: {id}」の表示
+  refresh(state: MockStateSnapshot): void;                     // 再描画。[data-mk-focus] が同じ要素にフォーカスを戻す
   connectedCallback(): void;      // 初回の render と、mock:change の購読
   disconnectedCallback(): void;   // 購読の解除
 }
@@ -651,18 +691,18 @@ abstract class MockElement extends HTMLElement {
 
 ```typescript
 interface SiteHeaderAttrs { readonly current?: 'calendar' | 'astro-events' | 'star-chart' | 'my-posts' | 'settings' | 'admin'; }
-interface MonthCalendarAttrs { readonly month: string; readonly 'week-start'?: 'sun' | 'mon'; readonly nav?: ''; }  // month は YYYY-MM
+interface MonthCalendarAttrs { readonly month: string; readonly 'week-start'?: 'sun' | 'mon'; readonly nav?: ''; readonly caption?: 'hidden'; }  // month は YYYY-MM
 interface CommentTreeAttrs { readonly 'post-id': string; }
 ```
 
 | 要素 | ファイル | 主な属性 | 要件と表示の要点 |
 |------|----------|----------|------------------|
-| mk-site-header | shell.js | `current` | ロゴ、ナビ（カレンダー、天文現象、星図、マイ投稿）、言語切替、テーマ切替、ログイン状態の表示（3.2、9.4、11.2）。スマートフォン幅ではメニューを折りたたむ。ログイン中は、ロゴの横（メニューを折りたたんでも見える位置）に、自分の未読の `ReplyNotice` の件数を文字で示すお知らせへのリンク（「お知らせ（未読 2 件）」、自分の投稿の `#notices`）を出す。未読 0 件は件数なしの「お知らせ」。シナリオには追従しない。未ログインでは出さない（6.9、8.1） |
+| mk-site-header | shell.js | `current` | ロゴ、ナビ（カレンダー、天文現象、星図、マイ投稿）、言語切替、テーマ切替、ログイン状態の表示（3.2、9.4、11.2）。スマートフォン幅ではメニューを折りたたむ。ログイン中は、ロゴの横（メニューを折りたたんでも見える位置）に、自分の未読の `ReplyNotice` の件数を文字で示すお知らせへのリンク（「お知らせ（未読 2 件）」、自分の投稿の `#notices`）を出す。未読 0 件は件数なしの「お知らせ」。シナリオには追従しない。未ログインでは出さない（6.9、8.1）。先頭に本文（`<main>`）へのスキップリンク（`nav.skip-to-content`）を置く。全画面で最初の Tab の移動先で、フォーカスが当たるまでは見えず（見た目と配置は変わらない）、押すと `<main>` にフォーカスを移す（URL は変えない。`<main>` に id がなければ `main-content` を付ける。13.5、最終検証の後の整理） |
 | mk-site-footer | shell.js | — | 出典表示とプライバシーポリシーへのリンク |
 | mk-guest-notice | shell.js | `variant`、`band` | 閲覧のみであることと、ログインへの導線（6.8）。非公開投稿を開いたときの案内（6.5）。`band` では、ヘッダーの直下に置く全幅の帯（名前付きの region）として描く（全画面共通の指摘、8.1） |
 | mk-status-badge | shell.js | `status` | 公開中、ログインユーザのみ、一時非表示、削除済みを、色と記号と文字で表示する（6.6、13.3） |
 | mk-admin-band | shell.js | — | 管理者専用であることを示す帯（3.6） |
-| mk-pager | shell.js | `total`、`page`、`page-size`、`label-key` | 長い一覧のページ送り（自分の投稿用、8.1。opt-in）。名前の付いた `nav` に、範囲の文字（「31〜60件目 / 全75件」）、前へ・次へ（最初と最後のページでは disabled）、ページ番号（今のページに `aria-current="page"`）。押すと `page` を変えて `mk-page-change` を出し、一覧の側がそのページを出してフォーカスを移す。`total` が `page-size`（既定 30。暫定）以下なら何も出さない。計算は `window.MockPaging` |
+| mk-pager | shell.js | `total`、`page`、`page-size`、`label-key` | 長い一覧のページ送り（自分の投稿用、8.1。opt-in）。名前の付いた `nav` に、範囲の文字（「31〜60件目 / 全75件」）、前へ・次へ（最初と最後のページでは disabled）、ページ番号（今のページに `aria-current="page"`）。押すと `page` を変えて `mk-page-change` を出し、一覧の側がそのページを出してフォーカスを移す。`total` が `page-size`（既定 30。暫定）以下なら何も出さない。計算は基盤スクリプト paging.js の `window.MockPaging`（自分の投稿の画面のスクリプトも使う） |
 | mk-month-calendar | almanac.js | `month`、`week-start`、`nav`、`caption` | PC：7 列の格子。スマートフォン：日付・祝日・月相・印だけの小さな格子と、選んだ日の要約パネル（4.1、4.2、12.3）。`week-start="mon"` では月曜始まり（既定は日曜始まり）。`nav` では前の月・今月・次の月のボタンを置き、`month` を変えて `mk-month-change` を出す。サンプルデータのない日は日付と曜日だけを出し、その旨を注記する。`caption="hidden"` では PC の表の caption を読み上げ専用にする（見出しが年月を出す画面で、年月を 2 回見せないため）（月のカレンダーの画面用、ワイヤーフレームのレビューの指摘、8.1） |
 | mk-day-cell | almanac.js | `date`、`compact` | 日付、曜日、祝日（予定の表記つき）、六曜、旧暦、月齢。節気・候・雑節・天文現象の印は、記号と文字を併用する（4.1、4.2、4.6、13.3） |
 | mk-almanac-summary | almanac.js | `date`、`variant`、`kou`、`hide-empty`、`hide-date` | 日詳細用は全項目（4.3）、トップ用は要約（4.7）。トップ用は月齢から描いた月の満ち欠けの図（`role="img"` と `aria-label`）を添える（ワイヤーフレームのレビューの指摘、8.1）。日詳細の画面だけに付ける opt-in（8.1）：`kou="period"` は七十二候を期間として毎日「候の名前（n日目）」で示し（`SampleDataSet.kouStarts`）、`hide-empty` は値のない項目を出さず、`hide-date` は見出しが日付なので要約の日付の行を出さない |
@@ -686,7 +726,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 ### Pages
 
 #### Screens
-- 骨格：`<body data-screen-id="{id}">` の中に、mk-site-header、`<main>`、mk-site-footer を置く。ログイン以外の画面では、mk-site-header と `<main>` の間に、未ログインの案内の帯（`<mk-guest-notice band data-when-auth="guest">`）を置く（ワイヤーフレームのレビューの指摘、8.1）。CSS は tokens、base、components、wireframe、review の順に、JS は theme-boot（head）、data、i18n 辞書、mock-state、i18n、components/base、各部品、review-shell の順に読み込む（すべて `defer` なしの classic script を body の末尾に置く。theme-boot だけ head）
+- 骨格：`<body data-screen-id="{id}">` の中に、mk-site-header、`<main>`、mk-site-footer を置く。ログイン以外の画面では、mk-site-header と `<main>` の間に、未ログインの案内の帯（`<mk-guest-notice band data-when-auth="guest">`）を置く（ワイヤーフレームのレビューの指摘、8.1）。CSS は tokens、base、components、wireframe、review の順に、JS は theme-boot（head）、data、i18n 辞書、mock-state、paging、i18n、components/base、各部品、review-shell の順に読み込む（すべて `defer` なしの classic script を body の末尾に置く。theme-boot だけ head）
 - 装飾要素には `data-decor` を付ける（タスク 8.3 の背景の星、月相のアイコン、天文現象の種類のアイコンは、`data-decor` と `aria-hidden="true"` を付けたインラインの SVG。意味は必ず文字でも示す）。ワイヤーフレームの記号の上にハイフィのアイコンを重ねるときは、記号を DOM に残し、ハイフィ段階だけ（`html:not([data-stage="wireframe"])`）塗りを変える。配置に関わる値（書体を含む）は段階で変えない。状態で出し分ける要素には `data-when-auth` と `data-when-scenario` を付ける
 - 管理画面（admin.html）は mk-admin-band を持ち、guest と member では「権限がありません」の表示に切り替わる（3.6）
 - 出典表示とプライバシーポリシーは章立てと例文のみとする。プライバシーポリシーには取得項目（Google のアカウント識別子、表示名、任意の位置情報）の例を記載する
@@ -695,7 +735,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 - index.html：画面ごとに 1 行の表（画面名、閲覧権限、ワイヤーのリンクと状態、ハイフィのリンクと状態、幅プレビューへのリンク）。各ガイドページへの導線と、「サンプル値は未検証」の注記を置く（1.5、2.2）
 - viewer.html：`?screen={id}` の画面を、375px と 1440px（縮小表示）の iframe で並べる。段階・言語・テーマのパラメータを iframe に引き継ぐ（12.1）
 - components.html：mk-* 部品を、属性と状態ごとに並べる（2.4）
-- tokens.html：tokens.css から読める値を見本で表示する。色はライトとダークを並べ、コントラスト比を表示する（10.5）
+- tokens.html：tokens.css から読める値を見本で表示する。色はライトとダークを並べ、コントラスト比を表示する（10.5）。製品のファイルとカタログページのどこからも参照されていないトークンは、名前を削除すると後続の spec の再検証のきっかけになるため残し、行に「予約（未使用）」と表示する（最終検証の後の整理）
 - glossary.html：分類ごとの表（キー、日本語、英語、方針、注記）と、日付時刻の書式例（11.3、11.4、11.7）
 - a11y.html：星図・地図の代替テキストの方針と記述例、フォーカス表示の見本、色以外で区別している箇所の一覧（13.3〜13.5）
 
@@ -715,7 +755,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 - **Input / validation**：
   - check-tokens：base.css と components.css で、色のリテラル（#hex、rgb()、hsl()、名前付きの色）と、0 以外の寸法リテラル（px、rem、em）を検出する。カスタムプロパティの定義（tokens.css、wireframe.css）と、ブレークポイントの値と一致する `@media` は対象外とする（10.4）
   - check-contrast：tokens.css のライト、ダーク（メディアクエリ側）、ダーク（属性側）の 3 ブロックを解析する。ダーク 2 ブロックの一致と、`contrast-pairs.json` の各組の比を検査する（13.1、13.2）
-  - check-i18n：HTML と JS から使用キーを抽出し、すべての言語の辞書に存在することを検査する。言語間のキー集合の一致、キーの形式、用語集のキーの存在も検査する（11.1、11.5）
+  - check-i18n：HTML と JS から使用キーを抽出し、すべての言語の辞書に存在することを検査する。言語間のキー集合の一致、キーの形式、用語集のキーの存在も検査する（11.1、11.5）。どこからも使われていない辞書のキーは、違反ではなく警告（標準エラー、終了コードは変えない）として出す。実行時に組み立てるキー（`` `astro.kind.${kind}` `` など）は、テンプレートの形に合うキーを使用とみなす。共通の系統（nav、button、error、empty、status）の汎用のキーで、ほかのキーと文言が重ならないものは、後続の spec のための予約（`RESERVED_KEYS`）として警告の対象外にする。ほかのキーと重なるキーと、画面固有で使わないキーは辞書から削除する（最終検証の後の整理）
   - check-registry：15 の ID がそろうこと、`screens/{id}.html` が存在し `data-screen-id` が一致すること、段階の不変条件、`scenarios[0]` を検査する（1.1、1.3、3.1）
 - **設定の型**：
   ```typescript
@@ -769,7 +809,7 @@ interface CommentTreeAttrs { readonly 'post-id': string; }
 - **言語**（11.2）：ヘッダーの言語切替で、同じ画面の `html[lang]` と見出しの文言が英語に変わること
 - **ワイヤーの色**（1.2）：`stage=wireframe` で、主要な要素の `color`、`background-color`、`border-color` の計算値がグレースケール（R=G=B）であり、`[data-decor]` が非表示であること
 - **戻り導線**（2.3）：全画面にレビューシェルの一覧へのリンクがあり、index.html に移動できること
-- **フォーカス**（13.5）：Tab で移動した最初の操作要素の outline の幅が 0 より大きいこと（両テーマ）
+- **フォーカス**（13.5）：Tab で移動した最初の操作要素（ヘッダーの本文へのスキップリンク）の outline の幅が 0 より大きいこと（両テーマ）。スキップリンクは、フォーカスの前は見えず、押すと `<main>` にフォーカスが移ること
 
 ### 人によるレビュー（自動化しない要件）
 - 情報構成と表示内容（3.2、4.x、5.x、6.x、7.x、8.x）、トーン（9.1、9.5）、用語集の訳語と方針（11.3、11.4）、代替テキストの記述例（13.4）は、段階ごとのレビューで確認する。結果を `data/screens.js` のレビュー状態に記録する

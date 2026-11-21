@@ -122,7 +122,8 @@ test('review statuses are valid, unreviewed stages are draft and the hifi/wirefr
   for (const s of registry()) {
     for (const stage of ['wireframe', 'hifi']) {
       assert.ok(REVIEW_STATUSES.includes(s.review[stage]?.status), `${s.id} ${stage} status`);
-      const expected = (stage === 'wireframe' && REVIEWED_WIREFRAMES.get(s.id)) || 'draft';
+      // hifi: a person approved every screen on 2026-11-21 (「ハイフィのレビューOK」)
+      const expected = stage === 'hifi' ? 'approved' : (REVIEWED_WIREFRAMES.get(s.id) || 'draft');
       assert.equal(s.review[stage].status, expected, `${s.id} ${stage} status`);
     }
     if (s.review.wireframe.status !== 'draft') {
@@ -159,7 +160,9 @@ test('every wireframe is approved; the 14 screens other than star-chart end with
   for (const s of screens) {
     const wf = s.review.wireframe;
     assert.equal(wf.reviewedAt, APPROVED_AT.get(s.id), `${s.id} reviewedAt`);
-    assert.equal(s.review.hifi.status, 'draft', `${s.id} hifi stays draft`);
+    assert.equal(s.review.hifi.status, 'approved', `${s.id} hifi approved`);
+    assert.equal(s.review.hifi.reviewedAt, '2026-11-21', `${s.id} hifi reviewedAt`);
+    assert.match([...(s.review.hifi.notes ?? [])].at(-1) ?? '', /^承認：2026-11-21 .*「ハイフィのレビューOK」/, `${s.id} hifi approval note`);
     const notes = [...(wf.notes ?? [])];
     if (s.id === 'star-chart') {
       assert.ok(!notes.includes(ALL_OK_NOTE), 'star-chart keeps its own approval of 2026-11-19');
@@ -458,7 +461,7 @@ test('star-chart: the 2026-11-19 review note is kept and its outcome follows it'
   assert.match(notes.at(-1) ?? '', APPROVAL_NOTE, 'the last note records the approval');
   assert.match(notes.at(-1) ?? '', /2026-11-19/);
   assert.match(notes.at(-1) ?? '', /「星図OK」/);
-  assert.equal(byId().get('star-chart').review.hifi.status, 'draft', 'hifi stays draft');
+  assert.equal(byId().get('star-chart').review.hifi.status, 'approved', 'hifi approved on 2026-11-21');
 });
 
 test('registry and every nested object is frozen', () => {

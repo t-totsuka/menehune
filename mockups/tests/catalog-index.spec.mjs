@@ -102,12 +102,13 @@ test('star-chart: the wireframe shows 承認済み and the hifi cell has no "未
   await expect(wf.locator('[data-review-state]')).toHaveAttribute('data-review-state', 'approved');
   await expect(wf.locator('[data-review-state]')).toHaveText(/承認済み/);
   await expect(wf).toContainText('2026-11-19');
-  await expect(hf.locator('[data-review-state]')).toHaveText(/下書き/);
+  await expect(hf.locator('[data-review-state]')).toHaveAttribute('data-review-state', 'approved');
   await expect(hf.locator('[data-provisional]')).toHaveCount(0);
 });
 
 // Task 8.1 completion: the person approved the other 14 wireframes (「ワイヤーフレームはいずれもOK」,
-// 2026-11-21). Every row shows 承認済み with its date, hifi stays 下書き, and no row carries "未確定".
+// 2026-11-21). Every row shows 承認済み with its date, and no row carries "未確定". A person then
+// approved every hifi too (「ハイフィのレビューOK」, 2026-11-21).
 test('every wireframe shows 承認済み with its date; no hifi cell carries the "未確定" mark', async ({ page }) => {
   await page.goto(indexUrl);
   await expect(table(page).locator('[data-provisional]')).toHaveCount(0);
@@ -117,7 +118,9 @@ test('every wireframe shows 承認済み with its date; no hifi cell carries the
     await expect(wf.locator('[data-review-state]')).toHaveAttribute('data-review-state', 'approved');
     await expect(wf.locator('[data-review-state]')).toHaveText(/承認済み/);
     await expect(wf).toContainText(s.id === 'star-chart' ? '2026-11-19' : '2026-11-21');
-    await expect(hf.locator('[data-review-state]')).toHaveText(/下書き/);
+    await expect(hf.locator('[data-review-state]')).toHaveAttribute('data-review-state', 'approved');
+    await expect(hf.locator('[data-review-state]')).toHaveText(/承認済み/);
+    await expect(hf).toContainText('2026-11-21');
   }
 });
 

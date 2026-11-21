@@ -139,7 +139,7 @@ test('no "未確定" banner on hifi for the registry as is: the wireframe is app
   await page.goto(`${screenUrl}?stage=hifi`);
   await expect(toolbar(page)).toBeVisible();
   await expect(page.locator('[data-review-status]')).toContainText('ワイヤーフレーム 承認済み');
-  await expect(page.locator('[data-review-status]')).toContainText('ハイフィ 下書き');
+  await expect(page.locator('[data-review-status]')).toContainText('ハイフィ 承認済み');
   await expect(page.locator('[data-review-banner="provisional"]')).toBeHidden();
 });
 
@@ -219,8 +219,8 @@ for (const width of [360, 1440]) {
     const shellBox = await page.locator('[data-review-shell]').boundingBox();
     expect(lastBox).not.toBeNull();
     expect(shellBox).not.toBeNull();
-    // The spacer takes the toolbar's offsetHeight (rounded) and the scroll range is rounded too,
-    // so allow up to 1px of sub-pixel overlap.
+    // The spacer takes the toolbar's height rounded up (Math.ceil of getBoundingClientRect), but the
+    // scroll range is rounded, so allow up to 1px of sub-pixel overlap.
     if (lastBox && shellBox) expect(lastBox.y + lastBox.height).toBeLessThanOrEqual(shellBox.y + 1);
     // Fixed to the bottom of the viewport.
     if (shellBox) expect(Math.round(shellBox.y + shellBox.height)).toBe(640);

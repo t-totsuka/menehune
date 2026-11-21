@@ -42,3 +42,6 @@ astronomy-engine (MIT, バージョン固定) をラップした astro-core を�
 ## Constraints
 - astronomy-engine の精度は約 ±1 分角（月イベント時刻は数分の誤差あり得る）。表示は分単位とし、精度の注記を出典ページに記載
 - すべての時刻は UTC で計算し、表示時に地点/ユーザのタイムゾーンへ変換
+
+## ui-mockups で決めた暫定の値・前提（機能の仕様で確定する）
+- 天文現象一覧：今日より前の現象に「過去」（Past）の印を付け、日数は出さない。今日以降は日時の後ろに「n日後」「今日」（in n days / today）を出す。判定は日付単位で、時刻は見ない。トップの「今日と直近の天文現象」も同じ。参照：`mockups/README.md`「天文現象一覧」、`mockups/screens/astro-events.html`

@@ -11,7 +11,7 @@
 //                grayscale color / background-color / border colors (and SVG fill / stroke),
 //                every [data-decor] is invisible and every [data-figure] is a placeholder.
 //   - focus    : the first Tab stop is a product control (the review toolbar is appended at the
-//                end of <body>, so it never comes first) and shows the focus ring of the theme
+//                end of <body>, so it never comes first; it is the skip link of mk-site-header) and shows the focus ring of the theme
 //                (outline solid, --border-width-focus wide, --color-focus) in light and dark.
 //   - back link: the review toolbar links to mockups/index.html and following it opens the list.
 //   - offline  : no request leaves file:// (context.route) and no WebSocket is opened, judged
@@ -144,6 +144,7 @@ function readFocus() {
   return {
     tag: el.tagName.toLowerCase(),
     inHeader: !!el.closest('mk-site-header'),
+    isSkipLink: el.matches('a.mk-skip-link'),
     inReviewShell: !!el.closest('[data-review-shell]'),
     focusVisible: el.matches(':focus-visible'),
     style: s.outlineStyle,
@@ -298,6 +299,9 @@ for (const screen of screens) {
         if (!focus) continue;
         expect(focus.inReviewShell, `${scheme}: review toolbar is not first`).toBe(false);
         expect(focus.inHeader, `${scheme}: first stop is in the site header`).toBe(true);
+        // Post-validation cleanup: the header's first control is the skip link to <main>
+        // (tests/skip-link.spec.mjs covers its behaviour).
+        expect(focus.isSkipLink, `${scheme}: first stop is the skip link`).toBe(true);
         expect(focus.focusVisible).toBe(true);
         expect(focus.style).toBe('solid');
         expect(focus.tokenWidth).toBeGreaterThan(0);
