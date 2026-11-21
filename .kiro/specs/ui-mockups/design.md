@@ -96,7 +96,11 @@ graph TB
     Paging --> Screens
     Parts --> Screens
     Registry --> Review
+    MockState --> Review
     Review --> Screens
+    MockState --> Screens
+    I18n --> Screens
+    Sample --> Screens
     Registry --> Catalog
     Glossary --> Catalog
     Messages --> Catalog
@@ -108,7 +112,7 @@ graph TB
     Tools --> Registry
 ```
 
-- 図の `Registry --> Parts` は、画面間のリンクでの `?auth` の引き継ぎ（`MockElement#screenHref`）。`Paging` は DOM を持たない基盤スクリプトで、mk-pager・mk-notice-list と自分の投稿の画面のスクリプトが使う。部品どうしの参照（mk-location-panel → mk-rise-set、posts.js → mk-status-badge・mk-pager）は、図では Parts の中に閉じるので描かない（Allowed Dependencies を参照）
+- 図の `Registry --> Parts` は、画面間のリンクでの `?auth` の引き継ぎ（`MockElement#screenHref`）。`Paging` は DOM を持たない基盤スクリプトで、mk-pager・mk-notice-list と自分の投稿の画面のスクリプトが使う。部品どうしの参照（mk-location-panel → mk-rise-set、posts.js → mk-status-badge・mk-pager）は、図では Parts の中に閉じるので描かない（Allowed Dependencies を参照）。`MockState`・`I18n`・`Sample`・`Paging` から `Screens` への線は、画面ごとのインラインのページスクリプト（設定のラジオの `MockState.update`、自分の投稿の一覧の組み立て、日詳細の `?date` の読み取りなど）が直接使うもの
 
 **Architecture Integration**:
 - **Selected pattern**: 単一マークアップとスキンによる段階切替、Light DOM のカスタム要素による部品化、URL を正とする状態管理。選定の比較は research.md にある
@@ -318,10 +322,11 @@ sequenceDiagram
 | StageStyles | Style | ワイヤーフレームのスキン | 1.1, 1.2 | DesignTokens (P0) | — |
 | ThemeBoot | Core | 初期テーマの決定（ちらつき防止） | 9.3, 9.4 | — | Service |
 | MockState | Core | 表示状態の解決・更新・通知 | 3.3〜3.5, 6.5, 8.4, 9.4, 11.2 | ScreenRegistry (P0) | Service, State |
+| MockPaging | Core | 長い一覧のページの計算（DOM なし） | 6.6, 6.10 | — | Service |
 | I18nRuntime | Core | 文言の適用と日付の書式 | 11.1, 11.2, 11.7 | MessageDictionaries (P0), MockState (P0) | Service |
 | ReviewShell | Review | ツールバー、戻り導線、段階バナー、条件表示 | 1.3, 2.3, 3.3〜3.5 | MockState (P0), ScreenRegistry (P0) | Service |
-| MockElement 基底 | Parts | 部品の共通の振る舞い | 2.4 | MockState (P0), I18nRuntime (P0) | Service |
-| ShellComponents | Parts | ヘッダー、フッター、閲覧のみの案内、状態バッジ、管理帯 | 3.2, 3.6, 6.5, 6.8, 6.9, 8.4, 9.4, 11.2, 13.3 | MockElement (P0) | — |
+| MockElement 基底 | Parts | 部品の共通の振る舞い（再描画、文言、投稿の検索 findPost、画面へのリンク screenHref） | 2.4 | MockState (P0), I18nRuntime (P0), SampleData (P0), ScreenRegistry (P0) | Service |
+| ShellComponents | Parts | ヘッダー、フッター、閲覧のみの案内、状態バッジ、管理帯、ページ送り（mk-pager） | 3.2, 3.6, 6.5, 6.8, 6.9, 8.4, 9.4, 11.2, 13.3 | MockElement (P0) | — |
 | AlmanacComponents | Parts | カレンダー、暦の要約、出没、天文現象の一覧 | 4.1〜4.7, 7.3, 12.3, 13.3 | MockElement (P0), SampleData (P0) | — |
 | SkyComponents | Parts | 全天図のサンプル | 5.1〜5.5, 13.4 | MockElement (P0), SampleData (P0) | — |
 | PostComponents | Parts | 投稿カード、コメントツリー、いいね、通報、返信のお知らせ | 6.1, 6.4, 6.6, 6.7, 6.10, 8.3, 8.4, 12.4 | MockElement (P0), SampleData (P0) | — |
@@ -400,6 +405,7 @@ type ScreenRegistry = readonly ScreenEntry[];
 - `ja` と `en` のキー集合は完全に一致する。言語を追加するときは `messages.{locale}.js` を 1 つ足し、`LocaleId` に加える
 - 置換引数は `{name}` の形式とする
 - 用語集は文言を持たず、キーに分類・方針・注記を付けるだけとする
+- 11.3 の「画面に出る文言」の対訳の正本は辞書（`messages.ja.js`・`messages.en.js`）とし、画面に出るすべての文言の日英は、ここでキーごとに揃う（check-i18n がキー集合の一致を検査する）。用語集（GlossaryMeta）に載せるのは、訳し方の判断が要る用語に限る。暦注・天文用語・祝日名・位置の精度・天気・通報と非表示の用語と、画面の文言のうちサービス固有の概念で訳語を揃える必要があるもの（`ui` 分類：投稿の公開状態、返信のお知らせなど）である。ナビ・ボタン・エラー・空状態・画面ごとの説明文など一般的な文言は用語集に載せない。英訳の方針は既定の意訳（translation）とし、正本の辞書で確かめる。一般的な文言のうち、訳語を揃える必要が出たものは `ui` 分類に足す
 
 **Contracts**: State [x]
 
@@ -593,6 +599,10 @@ interface MockStateService {
 
 #### ThemeBoot
 - `<head>` 内で、CSS より前に同期実行する。URL の `theme` か保存値から `data-theme` を設定する。`system` のときは属性を付けず、CSS のメディアクエリに任せる（9.3）
+
+#### MockPaging
+- `assets/js/paging.js` の `window.MockPaging`。DOM を持たず、何も読まない純粋な計算で、mk-pager、mk-notice-list、自分の投稿の画面のスクリプトが使う（8.1）。読み込みは mock-state.js の後、i18n.js の前
+- 契約は types.d.ts の `MockPagingService`：`PAGE_SIZE`（30。暫定）、`pageCount(total, size)`（1 以上）、`clampPage(page, total, size)`（1〜pageCount の整数。NaN と 1 未満は 1）、`pageRange(total, page, size)`（1 始まりの `{ from, to }`。0 件は `{ from: 0, to: 0 }`）、`pageItems(items, page, size)`
 
 #### I18nRuntime
 
