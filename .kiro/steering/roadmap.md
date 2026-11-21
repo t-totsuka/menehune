@@ -60,7 +60,7 @@
   - サイト内のお知らせ: 返信のお知らせ（posts-comments）、通報の対象ユーザへの通知（moderation-reports）、受け取り設定（auth-users）、ヘッダーの未読件数（platform-foundation の共通レイアウト）が関与 → お知らせの仕組みを共有するかを posts-comments の design で決める
 
 ## Specs (dependency order)
-- [ ] ui-mockups -- 主要画面の静的モック（SVG/HTML）・デザイントークン・日英表記の確定。Dependencies: none
+- [x] ui-mockups -- 主要画面の静的モック（SVG/HTML）・デザイントークン・日英表記の確定。Dependencies: none
 - [ ] platform-foundation -- pnpm モノレポ、Docker Compose（Next.js / API / PostgreSQL+PostGIS）、i18n 基盤、共通レイアウト、出典表示ページ。Dependencies: ui-mockups
 - [ ] astronomy-events -- astro-core 共有パッケージと、惑星現象・月の朔望/上下弦/最北最南/近地点遠地点・日月出没の計算 API と表示。Dependencies: platform-foundation
 - [ ] almanac-calendar -- 六曜・旧暦・月齢・二十四節気・七十二候・雑節・祝日の計算とカレンダー画面。Dependencies: platform-foundation, astronomy-events
