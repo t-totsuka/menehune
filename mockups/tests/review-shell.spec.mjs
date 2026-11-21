@@ -139,7 +139,7 @@ test('no "未確定" banner on hifi for the registry as is: the wireframe is app
   await page.goto(`${screenUrl}?stage=hifi`);
   await expect(toolbar(page)).toBeVisible();
   await expect(page.locator('[data-review-status]')).toContainText('ワイヤーフレーム 承認済み');
-  await expect(page.locator('[data-review-status]')).toContainText('ハイフィ 下書き');
+  await expect(page.locator('[data-review-status]')).toContainText('ハイフィ 承認済み');
   await expect(page.locator('[data-review-banner="provisional"]')).toBeHidden();
 });
 
